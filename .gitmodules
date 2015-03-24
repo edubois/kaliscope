@@ -1,3 +1,6 @@
 [submodule "libraries/mvp-player"]
 	path = libraries/mvp-player
 	url = https://github.com/edubois/mvp-player.git
+[submodule "tools/sconsProject"]
+	path = tools/sconsProject
+	url = https://github.com/edubois/sconsProject.git
