@@ -1,0 +1,3 @@
+[submodule "libraries/mvp-player"]
+	path = libraries/mvp-player
+	url = https://github.com/edubois/mvp-player.git
