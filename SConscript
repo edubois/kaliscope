@@ -5,7 +5,10 @@ Import( 'libs' )
 kaliscopeFlags = { 'LIBPATH': [project.inOutputLib()],
                 'CCFLAGS': [project.CC['warning3'],project.CC['sharedobject'] ],
                 'CXXFLAGS':[],
-                'CPPDEFINES':[],
+                'CPPDEFINES':
+                    [
+                    ('TUTTLE_PLUGIN_PATH','"'+project.inOutputPlugin()+'"'),
+                    ],
              }
 
 if project.env['mode'] == 'production' :
@@ -18,6 +21,10 @@ if 'sharedNoUndefined' in project.CC:
 	kaliscopeFlags['SHLINKFLAGS'] = [project.CC['sharedNoUndefined']]
 
 SConscript( [
+              'libraries/terry/SConscript',
+              'libraries/SConscript.sequenceparser',
+              'libraries/openfxHack/SConscript',
+              'libraries/tuttlePlugin/SConscript',
               'libraries/mvp-player/SConscript',
               'libraries/mvp-player/mvp-player-core/SConscript',
               'libraries/mvp-player/mvp-player-gui/SConscript',
@@ -26,6 +33,6 @@ SConscript( [
               'libraries/mvp-player/mvp-player-ncursesgui/SConscript',
             ]
             +
-            project.scanFiles( ['applications', 'tests'], accept=['SConscript'] )
+            project.scanFiles( [ 'ofxPlugins', 'applications', 'tests'], accept=['SConscript'] )
           )
 

@@ -1,0 +1,14 @@
+Import( 'project', 'libs' )
+
+sourcesDir = 'Support/Library'
+
+project.StaticLibrary( 'openfxHack',
+                       sources   = project.scanFiles( ['Support/Library'] ),
+                       includes  = ['Support/include', 'include', '../tuttlePlugin/src/'],
+                       libraries = [
+                                       libs.boost,
+                                    ],
+                       shared = False
+                      )
+
+

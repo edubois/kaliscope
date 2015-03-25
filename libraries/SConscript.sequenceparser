@@ -1,0 +1,14 @@
+Import( 'project', 'libs' )
+
+project.StaticLibrary( 'sequenceParser',
+                       sources   = project.scanFiles( ['sequenceparser/src'] ),
+                       includes  = ['sequenceparser/src'],
+                       libraries = [
+                                    libs.boost_filesystem,
+                                    libs.boost_regex,
+                                    libs.boost_locale,
+                                    ],
+                       shared = False
+                      )
+
+
