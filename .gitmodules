@@ -4,3 +4,6 @@
 [submodule "tools/sconsProject"]
 	path = tools/sconsProject
 	url = https://github.com/edubois/sconsProject.git
+[submodule "libraries/sequenceparser"]
+	path = libraries/sequenceparser
+	url = https://github.com/mikrosimage/sequenceparser.git
