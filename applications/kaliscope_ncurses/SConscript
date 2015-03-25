@@ -2,6 +2,7 @@ Import( 'project' )
 Import( 'libs' )
 
 libraries = [
+              libs.tuttleHost,
               libs.mvp_player_core,
               libs.mvp_player_gui,
               libs.mvp_player_qtgui,
