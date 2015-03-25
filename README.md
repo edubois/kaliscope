@@ -3,14 +3,16 @@
 * KALISCOPE is a set of tools and plugins to create a professional pipeline for
   telecinema devices. A telecinema device is a device that convert silver films
   into numeric movies. The goal is to produce reliable sophisticated tools to
-  help artists in their silver film projects.
+  help artists in their analog film projects by respecting the quality of their
+  precious images.
 
 * Done by Eloi du Bois
 
-* LICENSE: GPLv3 (might change, but for until the development is under progress
-                  I prefer staying in GPL)
+* LICENSE (except for what is inside the directory kaliscope_root/libraries, for each sublib, check its sub-licenses):
+        GPLv3 (might change, but as the development is under progress I prefer staying in GPL)
 
-* By using this library and its concepts and designs, you accept the content of DISCLAIMER.txt
+* By using this library and its concepts and designs, you accept the content 
+  of DISCLAIMER.txt
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -44,13 +46,6 @@ git submodule update -i
 ```
 This should bring tools/sconsProject and mvp-player submodules
 
-now, go into tools/sconsProject
-
-and do (this is mandatory):
-
-```git checkout precompiled_header_proposal```
-
-
 Now, it's time to edit default.sconf according to your configuration.
 In the default configuration, I made a parent directory 3rdParties where I put
 my 3rd party libraries. To change your external libraries base dir, 
@@ -77,6 +72,8 @@ When you are ready, enter:
 This should build an executable showing a recorder dialog, where you can 
 control your telecinema.
 You only have to connect your Hall Sensor to GPIO INPUT 1 of the ximea device.
+The Hall sensor must be activated by a magnet each time a film frame has to be captured.
+Connecting it to the GPIO1 will synchronize the triggering of the camera exposure afterwhat we can capture images.
 
 To start the network remote, use:
 
@@ -90,3 +87,4 @@ Please note that, if using a firewall, you must allow communication on port 1199
 OR some of them:
 
 ```scons unittest-kaliscope-core```
+
