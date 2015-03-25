@@ -75,6 +75,9 @@ You only have to connect your Hall Sensor to GPIO INPUT 1 of the ximea device.
 The Hall sensor must be activated by a magnet each time a film frame has to be captured.
 Connecting it to the GPIO1 will synchronize the triggering of the camera exposure afterwhat we can capture images.
 
+* if you want to compile the ximea censor (camera) ofx plugin, type:
+```scons mode=release XimeaCameraReader```
+
 To start the network remote, use:
 
 ```kaliscope_qt --remote```
