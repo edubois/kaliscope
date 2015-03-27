@@ -1,0 +1,20 @@
+Import( 'project' )
+Import( 'libs' )
+
+libraries = [
+              libs.tuttleHost,
+              libs.tuttlePlugin,
+              libs.boost_program_options,
+            ]
+
+name = project.getName()
+sourcesDir = '.'
+sources = project.scanFiles( [sourcesDir] )
+
+env = project.createEnv( libraries )
+env.Append( CPPPATH=sourcesDir )
+kaligative = env.Program( target=name, source=sources )
+
+install = env.Install( project.inOutputBin(), kaligative )
+env.Alias(name, install )
+env.Alias('all', install )
