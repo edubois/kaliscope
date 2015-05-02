@@ -14,7 +14,13 @@ jobs=8
 
 extern = '#../3rdParties'
 
-CPPDEFINES.extend(['BOOST_ALL_DYN_LINK', 'BOOST_LOG_DYN_LINK', 'BOOST_SPIRIT_USE_PHOENIX_V3', 'BOOST_SIGNALS_NO_DEPRECATION_WARNING' ])
+CPPDEFINES.extend([
+#                    'WITHOUT_BOOST_LOG', 
+                    'BOOST_ALL_DYN_LINK',
+                    'BOOST_LOG_DYN_LINK',
+                    'BOOST_SPIRIT_USE_PHOENIX_V3',
+                    'BOOST_SIGNALS_NO_DEPRECATION_WARNING',
+                  ])
 
 aliases = [('mvp_player_ncurses')]
 #default = 'kaliscope_ncurses'
