@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="kaliscope">
+    <file>icons/app/kaliscope.png</file>
+  </qresource>
+</RCC>

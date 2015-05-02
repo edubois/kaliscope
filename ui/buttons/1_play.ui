@@ -1,0 +1,6 @@
+<uielement>
+  <name>Play</name>
+  <captionPushed>Pause</captionPushed>
+  <captionNormal>Play</captionNormal>
+  <styleSheet>QToolButton:checked{ qproperty-icon: url(:/mvpplayer/action/pause.png); } QToolButton{ qproperty-icon: url(:/mvpplayer/action/play.png); icon-size: 32px 32px; width: 32px; height: 32px; }</styleSheet>
+</uielement>

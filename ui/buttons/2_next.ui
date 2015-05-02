@@ -1,0 +1,5 @@
+<uielement>
+  <name>Next</name>
+  <captionNormal>Next</captionNormal>
+  <styleSheet>QToolButton{ qproperty-icon: url(:/mvpplayer/action/forward.png); icon-size: 32px 32px; width: 32px; height: 32px; }</styleSheet>
+</uielement>

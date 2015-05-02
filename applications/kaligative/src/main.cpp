@@ -150,7 +150,7 @@ int main( int argc, char** argv )
                 {
                     processGraphOnSequence( s, g, read1, write1, vm[kOutputPathOptionString].as<std::string>() );
                 }
-                catch(... )
+                catch( ... )
                 {
                     TUTTLE_LOG_CURRENT_EXCEPTION;
                 }

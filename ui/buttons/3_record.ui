@@ -1,0 +1,6 @@
+<uielement>
+  <name>Record</name>
+  <captionPushed>Stop</captionPushed>
+  <captionNormal>Record</captionNormal>
+  <styleSheet>QToolButton:checked{ qproperty-icon: url(:/mvpplayer/action/record.png); } QToolButton{ qproperty-icon: url(:/mvpplayer/action/record.png); icon-size: 32px 32px; width: 32px; height: 32px; }</styleSheet>
+</uielement>
