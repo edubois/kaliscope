@@ -1,0 +1,13 @@
+Import( 'project' )
+Import( 'libs' )
+
+project.SharedLibrary( 'kali_core',
+                       sources   = project.scanFiles( ['src'] ),
+                       includes  = ['src'],
+                       libraries = [
+                                     libs.tuttleHost,
+                                     libs.tuttlePlugin,
+                                     libs.boost,
+                                     libs.mvp_player_core,
+                                    ],
+                      )

@@ -18,7 +18,6 @@
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QMenuBar>
-#include <QtWidgets/QOpenGLWidget>
 #include <QtWidgets/QSlider>
 #include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QStatusBar>
@@ -34,7 +33,7 @@ public:
     QWidget *centralwidget;
     QVBoxLayout *verticalLayout;
     QVBoxLayout *layoutVideo;
-    QOpenGLWidget *openglView;
+    QVBoxLayout *layoutViewer;
     QLabel *lblCurrentTrack;
     QHBoxLayout *horizontalLayout_3;
     QSlider *sliderPosition;
@@ -61,15 +60,11 @@ public:
         verticalLayout->setObjectName(QStringLiteral("verticalLayout"));
         layoutVideo = new QVBoxLayout();
         layoutVideo->setObjectName(QStringLiteral("layoutVideo"));
-        openglView = new QOpenGLWidget(centralwidget);
-        openglView->setObjectName(QStringLiteral("openglView"));
-        QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::MinimumExpanding);
-        sizePolicy.setHorizontalStretch(0);
-        sizePolicy.setVerticalStretch(0);
-        sizePolicy.setHeightForWidth(openglView->sizePolicy().hasHeightForWidth());
-        openglView->setSizePolicy(sizePolicy);
+        layoutViewer = new QVBoxLayout();
+        layoutViewer->setObjectName(QStringLiteral("layoutViewer"));
+        layoutViewer->setSizeConstraint(QLayout::SetMaximumSize);
 
-        layoutVideo->addWidget(openglView);
+        layoutVideo->addLayout(layoutViewer);
 
         lblCurrentTrack = new QLabel(centralwidget);
         lblCurrentTrack->setObjectName(QStringLiteral("lblCurrentTrack"));

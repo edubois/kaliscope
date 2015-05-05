@@ -2,12 +2,14 @@ Import( 'project' )
 Import( 'libs' )
 
 libraries = [
-              libs.tuttleHost,
+              libs.kali_core,
               libs.mvp_player_core,
               libs.mvp_player_gui,
               libs.mvp_player_qtgui,
               libs.boost_program_options,
-              libs.qt5( modules=[ 'QtCore', 'QtGui', 'QtWidgets', 'QtPrintSupport', 'QtMultimedia' ] ),
+              libs.gl,
+              libs.jpeg,
+              libs.qt5( modules=[ 'QtCore', 'QtGui', 'QtWidgets', 'QtOpenGL', 'QtPrintSupport', 'QtMultimedia' ] ),
             ]
 
 name = project.getName()

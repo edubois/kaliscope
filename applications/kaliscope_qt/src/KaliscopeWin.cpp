@@ -2,6 +2,7 @@
 
 #include <mvp-player-core/trackTools.hpp>
 
+#include <QtWidgets/QApplication>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QMessageBox>
 #include <QtGui/QDropEvent>
@@ -22,6 +23,9 @@ KaliscopeWin::KaliscopeWin()
     widget.setupUi(this);
     
     mvpplayer::gui::qt::initDialog( *this );
+    _viewer = new PlayerOpenGLWidget( this );
+    _viewer->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
+    widget.layoutViewer->addWidget( _viewer );
 
     connect( _btnPlayPause, SIGNAL( toggled(bool) ), this, SLOT( slotViewHitPlayStopBtn() ) );
     connect( widget.btnSettings, SIGNAL( released() ), this, SLOT( editSettings() ) );
@@ -29,6 +33,9 @@ KaliscopeWin::KaliscopeWin()
 
 KaliscopeWin::~KaliscopeWin()
 {
+    signalViewHitButton( "Stop", true );
+    // Make sure all events are processed before we delete the view
+    QApplication::processEvents();
 }
 
 boost::optional<boost::filesystem::path> KaliscopeWin::openFile( const std::string & title, const logic::EFileDialogMode mode, const std::string & extensions )
@@ -109,7 +116,7 @@ void KaliscopeWin::slotViewHitPlayStopBtn()
 
 void KaliscopeWin::playPlaylistItemAtIndex( const int playlistIndex )
 {
-    signalViewHitPlaylistItem( playlistIndex );
+//    signalViewHitPlaylistItem( playlistIndex );
 }
 
 void KaliscopeWin::openedPlaylist( const std::vector<m3uParser::PlaylistItem> & playlistItems )
@@ -194,11 +201,12 @@ void KaliscopeWin::slotAddTrack( const QString & filename )
 {
 }
 
-void KaliscopeWin::slotSetTrackLength( const std::size_t lengthInMS )
+void KaliscopeWin::slotSetTrackLength( const std::size_t lengthInFrames )
 {
     widget.sliderPosition->blockSignals( true ); // Don't forget to put this to avoid dead locks
     widget.sliderPosition->setValue( 0 );
     widget.sliderPosition->blockSignals( false );
+    const double lengthInMS = lengthInFrames * 1000.0 / 24.0;
     _currentTrackLength = lengthInMS;
     widget.lblTrackLength->setText( QString::fromStdString( trackLengthToString( lengthInMS ) ) );
 }
@@ -220,6 +228,12 @@ void KaliscopeWin::slotSetTrackPosition( const int positionInMS, const int track
 void KaliscopeWin::slotSetVolume( const float volume )
 {
     // Unimplemented
+}
+
+void KaliscopeWin::slotDisplayFrame( const std::size_t nFrame, const DefaultImageT & image )
+{
+    // Display frame
+    _viewer->setFrame( nFrame, image );
 }
 
 }

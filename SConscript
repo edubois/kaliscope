@@ -31,6 +31,7 @@ SConscript( [
               'libraries/mvp-player/mvp-player-net/SConscript',
               'libraries/mvp-player/mvp-player-qtgui/SConscript',
               'libraries/mvp-player/mvp-player-ncursesgui/SConscript',
+              'libraries/kali-core/SConscript',
             ]
             +
             project.scanFiles( [ 'ofxPlugins', 'applications', 'tests'], accept=['SConscript'] )

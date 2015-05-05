@@ -32,8 +32,10 @@ ccachedir = join(extern,'kaliscope_cache')
 incdir_qt5 = join(extern, 'qt5/5.4/clang_64/include')
 fwkdir_qt5 = '/Users/djarwood/_DEV/3rdParties/qt5/5.4/clang_64/lib'
 
-incdir_tuttleHost = join( extern,'tuttleofx/include/' )
-libdir_tuttleHost = join( extern,'tuttleofx/lib/' )
+fwkdir_gl = '/System/Library/Frameworks/OpenGL.framework/lib'
+
+incdir_tuttleHost = '/usr/local/include'
+libdir_tuttleHost = '/usr/local/lib'
 incdir_boost = join(extern,'boost-mac-c++11')
 libdir_boost = join(extern,'boost-mac-c++11/stage/lib')
 incdir_ncurses = join(extern,'ncurses/include')

@@ -3,6 +3,9 @@
 
 #include "ui_KaliscopeWin.hpp"
 
+#include "opengl/PlayerOpenGLWidget.hpp"
+
+#include <kali-core/typedefs.hpp>
 #include <mvp-player-core/MVPPlayerPresenter.hpp>
 #include <mvp-player-gui/IMVPPlayerDialog.hpp>
 #include <mvp-player-qtgui/dialogInit.hpp>
@@ -13,6 +16,7 @@ namespace gui
 {
 namespace qt
 {
+
 using namespace mvpplayer;
 
 class KaliscopeWin : public QMainWindow, public mvpplayer::gui::IMVPPlayerDialog
@@ -64,6 +68,16 @@ public:
     inline void setVolume( const float volume ) override
     { QMetaObject::invokeMethod( this, "slotSetVolume", Qt::BlockingQueuedConnection, Q_ARG( float, volume ) ); }
 
+    inline void displayFrame( const std::size_t nFrame, const DefaultImageT & image )
+    { QMetaObject::invokeMethod( this, "slotDisplayFrame", Qt::BlockingQueuedConnection, Q_ARG( std::size_t, nFrame ), Q_ARG( DefaultImageT, image ) ); }
+
+    /**
+     * @brief get the opengl video viewer
+     * @return the viewer (pointer)
+     */
+    inline PlayerOpenGLWidget *viewer()
+    { return _viewer; }
+
 private:
     void setButtonChecked( const std::string & buttonName, const bool checked );
     void dropEvent( QDropEvent *de );
@@ -90,6 +104,7 @@ protected Q_SLOTS:
     void slotSetTrackPosition( const int positionInMS, const int trackLength );
     void slotSetTrackLength( const std::size_t lengthInMS );
     void slotSetVolume( const float volume );
+    void slotDisplayFrame( const std::size_t nFrame, const DefaultImageT & image );
 
 protected:
     std::size_t _currentTrackLength = 0;
@@ -100,6 +115,7 @@ protected:
 
 private:
     Ui::KaliscopeWin widget;
+    PlayerOpenGLWidget *_viewer;
 };
 
 }
