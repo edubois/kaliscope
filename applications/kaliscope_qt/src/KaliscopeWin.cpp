@@ -11,6 +11,8 @@
 #include <QtCore/QMimeData>
 #include <QtCore/QUrl>
 
+#include <boost/format.hpp>
+
 namespace kaliscope
 {
 namespace gui
@@ -206,9 +208,7 @@ void KaliscopeWin::slotSetTrackLength( const std::size_t lengthInFrames )
     widget.sliderPosition->blockSignals( true ); // Don't forget to put this to avoid dead locks
     widget.sliderPosition->setValue( 0 );
     widget.sliderPosition->blockSignals( false );
-    const double lengthInMS = lengthInFrames * 1000.0 / 24.0;
-    _currentTrackLength = lengthInMS;
-    widget.lblTrackLength->setText( QString::fromStdString( trackLengthToString( lengthInMS ) ) );
+    _currentTrackLength = lengthInFrames;
 }
 
 void KaliscopeWin::slotSetTrackPosition( const int positionInMS, const int trackLength )
@@ -232,6 +232,9 @@ void KaliscopeWin::slotSetVolume( const float volume )
 
 void KaliscopeWin::slotDisplayFrame( const std::size_t nFrame, const DefaultImageT & image )
 {
+    // Display frame number
+    const double lengthInMS = _currentTrackLength * 1000.0 / 24.0;
+    widget.lblTrackLength->setText( QString::fromStdString( ( boost::format( "%d / %d (%s)" ) % nFrame % _currentTrackLength % trackLengthToString( lengthInMS ) ).str() ) );
     // Display frame
     _viewer->setFrame( nFrame, image );
 }
