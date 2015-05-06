@@ -6,6 +6,7 @@
 #include <QtWidgets/QOpenGLWidget>
 
 #include <boost/signals2.hpp>
+#include <thread>
 
 namespace kaliscope
 {
@@ -46,12 +47,13 @@ protected:
      * @brief paint current video frame
      */
     void paintGL() override;
-    
+
 private:
+    std::mutex _mutexDisplay;       ///< Locker
     int _currentFrameNumber = -1;   ///< Current frame number
-    int _frameWidth = 0;        ///< Frame width
-    int _frameHeight = 0;       ///< Frame height
-    GLuint _currentTexture = 0; ///< Current texture
+    int _frameWidth = 0;            ///< Frame width
+    int _frameHeight = 0;           ///< Frame height
+    GLuint _currentTexture = 0;     ///< Current texture
 };
 
 }

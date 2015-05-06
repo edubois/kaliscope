@@ -41,7 +41,6 @@ void KaliscopeEngine::playWork()
             try
             {
                 boost::this_thread::interruption_point();
-                _synchroCondition.wait( synchro, [this, nFrame]{return _stopped || _processFrame == nFrame;} );
                 if ( !_stopped )
                 {
                     _videoPlayer->setPosition( nFrame, mvpplayer::eSeekPositionSample );
@@ -68,6 +67,7 @@ void KaliscopeEngine::playWork()
                 std::cerr << "Unable to read frame!" << std::endl;
                 break;
             }
+            _synchroCondition.wait( synchro );
         }
     }
     catch( boost::thread_interrupted& )
@@ -94,6 +94,7 @@ void KaliscopeEngine::stopWorker()
         try
         {
             _stopped = true;
+            _synchroCondition.notify_all();
             _playerThread->join();
         }
         catch( ... )
@@ -109,6 +110,7 @@ void KaliscopeEngine::stopWorker()
 void KaliscopeEngine::frameProcessed( const double nFrame )
 {
     _processFrame = nFrame+1;
+    _synchroCondition.notify_all();
 }
 
 /**

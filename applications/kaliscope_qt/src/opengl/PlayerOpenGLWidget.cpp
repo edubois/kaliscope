@@ -47,6 +47,8 @@ void PlayerOpenGLWidget::resizeGL( const int w, const int h )
 
 void PlayerOpenGLWidget::paintGL()
 {
+    std::unique_lock<std::mutex> lock( _mutexDisplay );
+
     glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
@@ -58,24 +60,24 @@ void PlayerOpenGLWidget::paintGL()
     // Draw a textured quad
     float ratio = _frameWidth ? ( _frameHeight / float(_frameWidth) ) : ( height() / float( width() ) );
     glBegin( GL_QUADS );
-    if ( _frameWidth <= width() )
+    if ( height() < width() )
     {
         ratio = 1.0f / ratio;
         const double w = height() * ratio;
         const double h = height();
-        double posX = std::abs( width() - w ) / 2.0;
-        double posY = std::abs( height() - h ) / 2.0;
-        glTexCoord2f( 0, 0 ); glVertex3f( posX, height() + posY, 0 );
+        double posX = std::max( 0.0, width() - w ) / 2.0;
+        double posY = std::max( 0.0, height() - h ) / 2.0;
+        glTexCoord2f( 0, 0 ); glVertex3f( posX, h + posY, 0 );
         glTexCoord2f( 0, 1 ); glVertex3f( posX, posY, 0 );
-        glTexCoord2f( 1, 1 ); glVertex3f( posX + (height() * ratio), posY, 0 );
-        glTexCoord2f( 1, 0 ); glVertex3f( posX + (height() * ratio), height() + posY, 0 );
+        glTexCoord2f( 1, 1 ); glVertex3f( posX + w, posY, 0 );
+        glTexCoord2f( 1, 0 ); glVertex3f( posX + w, h + posY, 0 );
     }
     else
     {
         const double w = width();
         const double h = width() * ratio;
-        double posX = std::abs( width() - w ) / 2.0;
-        double posY = std::abs( height() - h ) / 2.0;
+        double posX = std::max( 0.0, width() - w ) / 2.0;
+        double posY = std::max( 0.0, height() - h ) / 2.0;
         glTexCoord2f( 0, 0 ); glVertex3f( posX, h + posY, 0 );
         glTexCoord2f( 0, 1 ); glVertex3f( posX, posY, 0 );
         glTexCoord2f( 1, 1 ); glVertex3f( posX + w, posY, 0 );
@@ -84,6 +86,8 @@ void PlayerOpenGLWidget::paintGL()
     glEnd();
     
     glDisable( GL_TEXTURE_2D );
+    // We are done, process next
+    signalFrameDone( _currentFrameNumber );
 }
 
 /**
@@ -92,6 +96,8 @@ void PlayerOpenGLWidget::paintGL()
  */
 void PlayerOpenGLWidget::setFrame( const std::size_t frameNumber, const DefaultImageT & frame )
 {
+    std::unique_lock<std::mutex> lock( _mutexDisplay );
+
     typedef boost::gil::rgb8_image_t SourceImageT;
     glEnable( GL_TEXTURE_2D ); // Enable texturing
 
@@ -118,8 +124,6 @@ void PlayerOpenGLWidget::setFrame( const std::size_t frameNumber, const DefaultI
     
     _currentFrameNumber = frameNumber;
     update();
-    // We are done, process next
-    signalFrameDone( _currentFrameNumber );
 }
 
 }
