@@ -18,6 +18,10 @@ PlayerOpenGLWidget::PlayerOpenGLWidget( QWidget * parent )
 : QOpenGLWidget( parent )
 {
     setGeometry( 0, 0, 1280, 720 );
+
+    QSurfaceFormat surfFormat = format();
+    surfFormat.setSwapBehavior( QSurfaceFormat::DoubleBuffer );
+    setFormat( surfFormat );
 }
 
 PlayerOpenGLWidget::~PlayerOpenGLWidget()
