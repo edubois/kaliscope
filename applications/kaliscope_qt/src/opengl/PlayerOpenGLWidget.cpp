@@ -18,10 +18,6 @@ PlayerOpenGLWidget::PlayerOpenGLWidget( QWidget * parent )
 : QOpenGLWidget( parent )
 {
     setGeometry( 0, 0, 1280, 720 );
-
-    QSurfaceFormat surfFormat = format();
-    surfFormat.setSwapBehavior( QSurfaceFormat::DoubleBuffer );
-    setFormat( surfFormat );
 }
 
 PlayerOpenGLWidget::~PlayerOpenGLWidget()
@@ -52,9 +48,6 @@ void PlayerOpenGLWidget::resizeGL( const int w, const int h )
 void PlayerOpenGLWidget::paintGL()
 {
     std::unique_lock<std::mutex> lock( _mutexDisplay );
-
-    glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
-    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
     glColor3f(1,1,1);
     glEnable( GL_TEXTURE_2D );
@@ -102,7 +95,7 @@ void PlayerOpenGLWidget::setFrame( const std::size_t frameNumber, const DefaultI
 {
     std::unique_lock<std::mutex> lock( _mutexDisplay );
 
-    typedef boost::gil::rgb8_image_t SourceImageT;
+    makeCurrent();
     glEnable( GL_TEXTURE_2D ); // Enable texturing
 
     glBindTexture( GL_TEXTURE_2D, _currentTexture ); // Set as the current texture
@@ -110,6 +103,7 @@ void PlayerOpenGLWidget::setFrame( const std::size_t frameNumber, const DefaultI
     glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
     glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL );
 
+    typedef boost::gil::rgb8_image_t SourceImageT;
     const SourceImageT::view_t originalFrameView = frame->getGilView<SourceImageT::view_t>();
 
     _frameWidth = originalFrameView.width();
@@ -125,8 +119,9 @@ void PlayerOpenGLWidget::setFrame( const std::size_t frameNumber, const DefaultI
     glTexParameteri( GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER, GL_LINEAR );
 
     glDisable( GL_TEXTURE_2D );
-    
+
     _currentFrameNumber = frameNumber;
+    doneCurrent();
     update();
 }
 
