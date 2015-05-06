@@ -2,7 +2,7 @@
 
 #include <tuttle/host/attribute/Image.hpp>
 
-#include <QtOpenGL/QGLWidget>
+#include <QtGui/QSurfaceFormat>
 
 #include <boost/gil/extension/io/jpeg_io.hpp>
 
@@ -60,11 +60,10 @@ void PlayerOpenGLWidget::paintGL()
     // Draw a textured quad
     float ratio = _frameWidth ? ( _frameHeight / float(_frameWidth) ) : ( height() / float( width() ) );
     glBegin( GL_QUADS );
-    if ( height() < width() )
+    if ( width() * ratio <= height() )
     {
-        ratio = 1.0f / ratio;
-        const double w = height() * ratio;
-        const double h = height();
+        const double w = width();
+        const double h = width() * ratio;
         double posX = std::max( 0.0, width() - w ) / 2.0;
         double posY = std::max( 0.0, height() - h ) / 2.0;
         glTexCoord2f( 0, 0 ); glVertex3f( posX, h + posY, 0 );
@@ -74,8 +73,9 @@ void PlayerOpenGLWidget::paintGL()
     }
     else
     {
-        const double w = width();
-        const double h = width() * ratio;
+        ratio = 1.0f / ratio;
+        const double w = height() * ratio;
+        const double h = height();
         double posX = std::max( 0.0, width() - w ) / 2.0;
         double posY = std::max( 0.0, height() - h ) / 2.0;
         glTexCoord2f( 0, 0 ); glVertex3f( posX, h + posY, 0 );
