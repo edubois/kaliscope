@@ -1,0 +1,5 @@
+{
+            "name" : "kaliscope::plugins::KaliscopeTelecinemaPlugin",
+         "version" : "1.0",
+    "dependencies" : []
+}

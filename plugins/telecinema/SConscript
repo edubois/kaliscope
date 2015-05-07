@@ -1,0 +1,17 @@
+Import( 'project' )
+Import( 'libs' )
+
+
+project.SharedLibrary( 'KaliscopeTelecinemaPlugin',
+                       sources   = project.scanFiles( ['src'] ),
+                       includes  = ['src'],
+                       libraries = [
+                                     libs.mvp_player_core,
+                                     libs.mvp_player_pluger,
+                                     libs.kali_core,
+                                     libs.qt5( modules=[ 'QtCore', 'QtGui', 'QtWidgets' ] ),
+                                    ],
+                       installDir = project.inOutputBin( 'plugins/' ),
+                       localEnvFlags={ 'CPPDEFINES': ['QT_NO_DEBUG', 'QT_PLUGIN'] }
+                      )
+

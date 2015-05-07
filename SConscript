@@ -34,6 +34,6 @@ SConscript( [
               'libraries/kali-core/SConscript',
             ]
             +
-            project.scanFiles( [ 'ofxPlugins', 'applications', 'tests'], accept=['SConscript'] )
+            project.scanFiles( [ 'plugins', 'ofxPlugins', 'applications', 'tests'], accept=['SConscript'] )
           )
 
