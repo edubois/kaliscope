@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="kaliscope">
     <file>icons/app/kaliscope.png</file>
+    <file>icons/app/tuttle.png</file>
+    <file>icons/plugins/puzzle.png</file>
   </qresource>
 </RCC>

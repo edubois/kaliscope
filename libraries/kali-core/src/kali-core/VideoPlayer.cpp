@@ -28,9 +28,9 @@ void VideoPlayer::initialize()
         // We want an rgb output
         _nodeRead->getParam( "channel" ).setValue( 2 );
         _nodeRead->getParam( "bitDepth" ).setValue( 1 );
-        _nodeComponent = &_g.createNode( "tuttle.component" );
+//        _nodeComponent = &_g.createNode( "tuttle.component" );
         // We want an rgb output
-        _nodeComponent->getParam( "to" ).setValue( 1 );
+//        _nodeComponent->getParam( "to" ).setValue( 1 );
         if ( _invertChannels )
         {
             _nodeInvert = &_g.createNode( "tuttle.invert" );
@@ -58,8 +58,8 @@ void VideoPlayer::buildGraph()
         _g.connect( *_nodeFinal, *_nodeInvert );
         _nodeFinal = _nodeInvert;
     }
-    _g.connect( *_nodeFinal, *_nodeComponent );
-    _nodeFinal = _nodeComponent;
+//    _g.connect( *_nodeFinal, *_nodeComponent );
+//    _nodeFinal = _nodeComponent;
 
     TUTTLE_LOG_INFO( "Graph has been built" );
 }
