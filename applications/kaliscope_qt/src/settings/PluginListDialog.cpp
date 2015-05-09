@@ -14,12 +14,12 @@ namespace gui
 namespace qt
 {
 
-PluginListDialog::PluginListDialog( QWidget *parent )
+PluginListDialog::PluginListDialog( const bool readerOnly, QWidget *parent )
 : QDialog( parent )
+, _showReaderOnly( readerOnly )
 {
     widget.setupUi( this );
     connect( widget.listPlugins, SIGNAL( itemDoubleClicked( QListWidgetItem * ) ), this, SLOT( accept() ) );
-    
     buildListOfPlugins();
 }
 
@@ -45,20 +45,44 @@ void PluginListDialog::buildListOfPlugins()
     iconStd.addFile(QStringLiteral(":/kaliscope/icons/plugins/puzzle.png"), QSize( 32, 32 ), QIcon::Normal, QIcon::Off);
     QIcon iconTuttle;
     iconTuttle.addFile(QStringLiteral(":/kaliscope/icons/app/tuttle.png"), QSize( 32, 32 ), QIcon::Normal, QIcon::Off);
-    BOOST_FOREACH( ofx::OfxhPlugin* plugin, core().getPluginCache().getPlugins() )
+
+    try
     {
-        // Avoid duplicates
-        const std::string itemString = ( boost::format( "%1% : %2%.%3%" ) % plugin->getIdentifier() % plugin->getVersionMajor() % plugin->getVersionMinor() ).str();
-        if ( plugin && items.insert( itemString ).second )
+        core().preload();
+        for( const ofx::OfxhPlugin* plugin: core().getImageEffectPluginCache().getPlugins() )
         {
-            QIcon *icon = &iconStd;
-            if ( boost::algorithm::istarts_with( plugin->getIdentifier(), "tuttle" ) )
+            const std::string identifier = plugin->getRawIdentifier();
+            ofx::imageEffect::OfxhImageEffectPlugin* plugFx = core().getImageEffectPluginById( identifier );
+            if ( !plugFx )
             {
-                icon = &iconTuttle;
+                continue;
             }
-            TablePluginItem * item = new TablePluginItem( *plugin, *icon, QString::fromStdString( itemString ) );
-            widget.listPlugins->addItem( item );
+            try { plugFx->loadAndDescribeActions(); } catch( ... ) { continue; }
+
+            if ( _showReaderOnly )
+            {
+                if ( !plugFx->supportsContext( kOfxImageEffectContextReader ) )
+                {
+                    continue;
+                }
+            }
+            // Avoid duplicates
+            const std::string itemString = ( boost::format( "%1% : %2%.%3%" ) % identifier % plugin->getVersionMajor() % plugin->getVersionMinor() ).str();
+            if ( plugin && items.insert( itemString ).second )
+            {
+                QIcon *icon = &iconStd;
+                if ( boost::algorithm::istarts_with( identifier, "tuttle" ) )
+                {
+                    icon = &iconTuttle;
+                }
+                TablePluginItem * item = new TablePluginItem( *plugFx, *icon, QString::fromStdString( itemString ) );
+                widget.listPlugins->addItem( item );
+            }
         }
+    }
+    catch( ... )
+    {
+        TUTTLE_LOG_CURRENT_EXCEPTION;
     }
 }
 

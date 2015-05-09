@@ -15,17 +15,34 @@ namespace qt
 class TablePluginItem : public QListWidgetItem
 {
 public:
-    TablePluginItem( tuttle::host::ofx::OfxhPlugin & plugin, const QIcon & icon, const QString & text, QListWidget * parent = 0, int type = QListWidgetItem::Type )
+    TablePluginItem( const tuttle::host::ofx::imageEffect::OfxhImageEffectPlugin & plugin, const QIcon & icon, const QString & text, QListWidget * parent = 0, int type = QListWidgetItem::Type )
     : QListWidgetItem( icon, text, parent, type )
     , _plugin( plugin )
     {
+        setInternalFlags();
     }
-    
-    tuttle::host::ofx::OfxhPlugin & plugin()
+
+    TablePluginItem( const tuttle::host::ofx::imageEffect::OfxhImageEffectPlugin & plugin, const QString & text = QString(), QListWidget * parent = 0, int type = QListWidgetItem::Type )
+    : QListWidgetItem( text, parent, type )
+    , _plugin( plugin )
+    {
+        setInternalFlags();
+    }
+
+    const tuttle::host::ofx::imageEffect::OfxhImageEffectPlugin & plugin() const
     { return _plugin; }
 
+    void setInternalFlags()
+    {
+        // Reader can't change their position
+        if ( _plugin.supportsContext( kOfxImageEffectContextReader ) )
+        {
+            setFlags( flags() ^ Qt::ItemIsDropEnabled );
+        }
+    }
+    
 protected:
-    tuttle::host::ofx::OfxhPlugin & _plugin;
+    const tuttle::host::ofx::imageEffect::OfxhImageEffectPlugin & _plugin;
 };
 
 }

@@ -21,19 +21,20 @@ private:
     typedef PluginListDialog This;
     typedef QDialog Parent;
 public:
-    PluginListDialog( QWidget *parent = nullptr );
+    PluginListDialog( const bool readerOnly, QWidget *parent = nullptr );
     virtual ~PluginListDialog();
 
-    inline tuttle::host::ofx::OfxhPlugin *selectedPlugin()
+    inline const tuttle::host::ofx::imageEffect::OfxhImageEffectPlugin *selectedPlugin() const
     { return _selectedPlugin; }
-    
+
 private Q_SLOTS:
     void accept();
     void buildListOfPlugins();
 
 private:
     Ui::PluginListDialog widget;
-    tuttle::host::ofx::OfxhPlugin *_selectedPlugin = nullptr;        ///< The current selected plugin
+    bool _showReaderOnly;
+    const tuttle::host::ofx::imageEffect::OfxhImageEffectPlugin* _selectedPlugin = nullptr;        ///< The current selected plugin
 };
 
 }

@@ -3,6 +3,8 @@
 
 #include "ui_RecordingSettingsDialog.hpp"
 
+#include "TablePluginItem.hpp"
+
 namespace kaliscope
 {
 namespace gui
@@ -20,9 +22,12 @@ class RecordingSettingsDialog : public QDialog
 public:
     RecordingSettingsDialog( QWidget *parent = nullptr );
     virtual ~RecordingSettingsDialog();
-    
+
 private Q_SLOTS:
     void addPlugin();
+
+private:
+    QWidget* buildPluginWidgetFrom( TablePluginItem *plugItem );
 
 private:
     Ui::RecordingSettingsDialog widget;

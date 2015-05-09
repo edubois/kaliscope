@@ -166,10 +166,10 @@ public:
         listPipeline->setMaximumSize(QSize(16777215, 128));
         listPipeline->setAutoScroll(true);
         listPipeline->setTabKeyNavigation(true);
-        listPipeline->setIconSize(QSize(100, 100));
+        listPipeline->setIconSize(QSize(0, 0));
         listPipeline->setFlow(QListView::LeftToRight);
         listPipeline->setResizeMode(QListView::Fixed);
-        listPipeline->setGridSize(QSize(100, 100));
+        listPipeline->setGridSize(QSize(0, 0));
         listPipeline->setViewMode(QListView::ListMode);
         listPipeline->setUniformItemSizes(true);
         listPipeline->setWordWrap(true);

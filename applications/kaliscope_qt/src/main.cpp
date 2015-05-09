@@ -1,5 +1,7 @@
 #include "KaliscopeWin.hpp"
 
+#include "settings/RecordingSettingsDialog.hpp"
+
 #include <kali-core/VideoPlayer.hpp>
 #include <kali-core/KaliscopeEngine.hpp>
 #include <mvp-player-core/MVPPlayerEngine.hpp>
@@ -34,12 +36,16 @@ using Dialog = gui::KaliscopeWin;
 
 void editSettings( QMainWindow *caller, mvpplayer::MVPPlayerEngine & m, mvpplayer::gui::IMVPPlayerDialog & v, mvpplayer::logic::MVPPlayerPresenter & p )
 {
+    /*
     mvpplayer::gui::qt::MVPPlayerSettingsDialog settingsDialog( m, v, p, caller );
     const int res = settingsDialog.exec();
     if ( !res )
     {
         mvpplayer::Settings::getInstance().write( QDir::homePath().toStdString() + "/" + mvpplayer::kDefaultSettingsFilename );
     }
+    */
+    kaliscope::gui::qt::RecordingSettingsDialog dlg( caller );
+    dlg.exec();
 }
 
 /**
