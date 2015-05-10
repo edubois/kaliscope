@@ -32,6 +32,16 @@ void KaliscopeTelecinemaPlugin::recordClicked( const bool activated )
     {
         // Stop current action
         _presenter->processStop();
+
+        // Ask for recording settings
+        mvpplayer::Settings recordingSettings;
+        const auto settingsSet = _presenter->signalAskSettingsFor( "Record", recordingSettings );
+        // Cancelled ?
+        if ( settingsSet == boost::none || settingsSet == false )
+        {
+            return;
+        }
+
         // Queue custom event to enter the right plugin recording state
         {
             using EventT = EvCustomState;
@@ -42,7 +52,7 @@ void KaliscopeTelecinemaPlugin::recordClicked( const bool activated )
         // Queue record event
         {
             using EventT = logic::plugin::EvRecord;
-            EventT *event = new EventT();
+            EventT *event = new EventT( recordingSettings );
             _presenter->signalEvent( *event );
             _presenter->processEvent( *event );
         }
@@ -61,7 +71,9 @@ boost::statechart::detail::reaction_result KaliscopeTelecinemaPlugin::recordTran
 {
     if ( action == kRecordAction )
     {
-        state.transit<logic::plugin::Recording>();
+        const auto result = state.transit<logic::plugin::Recording>();
+        // The following is needed to silent assert in boost
+        const auto consume = sc::detail::result_utility::get_result( result );
         return boost::statechart::detail::consumed;
     }
     else
@@ -77,6 +89,7 @@ boost::statechart::detail::reaction_result KaliscopeTelecinemaPlugin::recordTran
 void KaliscopeTelecinemaPlugin::record( const mvpplayer::Settings & settings )
 {
     // Recording goes here:
+    std::cout << "recording" << std::endl;
 }
 
 void KaliscopeTelecinemaPlugin::playTrack()

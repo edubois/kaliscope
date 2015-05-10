@@ -141,7 +141,7 @@ void RecordingSettingsDialog::accept()
         const auto itPlugSettings = _pluginsSettings.find( PluginItem( i, pluginItem->plugin().getIdentifier() ) );
         if ( itPlugSettings != _pluginsSettings.end() )
         {
-            _pipelineSettings.set( std::to_string( i ), std::string(), itPlugSettings->second.tree() );
+            _pipelineSettings.set( std::string(), std::to_string( i ), itPlugSettings->second.tree() );
         }
     }
     

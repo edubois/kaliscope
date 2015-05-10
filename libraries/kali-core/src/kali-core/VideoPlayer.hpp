@@ -17,7 +17,7 @@ namespace kaliscope
 class VideoPlayer : public mvpplayer::IVideoPlayer, public mvpplayer::Singleton<VideoPlayer>
 {
 public:
-    VideoPlayer();
+    VideoPlayer( const std::shared_ptr<tuttle::host::Graph> & graph = std::shared_ptr<tuttle::host::Graph>() );
     virtual ~VideoPlayer();
 
 // Overrides
@@ -173,7 +173,6 @@ private:
     double _currentPosition = 0.0;      //< Current track position
     double _currentLength = 0.0;        //< Current track length
     double _currentFPS = 0.0;           //< Current frames per seconds
-    bool _invertChannels = false;       ///< Invert channels
     bool _playing = false;              ///< 'Is playing track' status
 
 // Thread related
@@ -184,9 +183,7 @@ private:
 private:
     tuttle::host::Graph::Node *_nodeFinal = nullptr;        ///< Final effect node
     tuttle::host::Graph::Node *_nodeRead = nullptr;         ///< File reader
-    tuttle::host::Graph::Node *_nodeComponent = nullptr;    ///< Component conformation effect
-    tuttle::host::Graph::Node *_nodeInvert = nullptr;       ///< Invert effect
-    tuttle::host::Graph _g;                                 ///< effects processing graph
+    std::shared_ptr<tuttle::host::Graph> _graph;                ///< effects processing graph
     tuttle::host::memory::MemoryCache _outputCache;         ///< Cache for video output
 };
 

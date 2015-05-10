@@ -23,6 +23,15 @@ struct EvRecord : mvpplayer::IEvent, sc::event< EvRecord >
 private:
     typedef EvRecord This;
 public:
+    
+    EvRecord()
+    {}
+
+    EvRecord( const mvpplayer::Settings & settings )
+    : _recordingSettings( settings )
+    {
+    }
+
     // This is needed to avoid a strange error on BOOST_CLASS_EXPORT_KEY
     static void operator delete( void *p, const std::size_t n )
     { ::operator delete(p); }
@@ -49,6 +58,12 @@ public:
     {
         scheduler.queue_event( processor, boost::intrusive_ptr< This >( this ) );
     }
+
+    const mvpplayer::Settings & recordingSettings() const
+    { return _recordingSettings; }
+
+private:
+    mvpplayer::Settings _recordingSettings;
 };
 
 template<class Archive>

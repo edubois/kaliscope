@@ -119,50 +119,55 @@ std::map<PluginItem, mvpplayer::Settings> splitOfxNodesSettings( mvpplayer::Sett
     using namespace std;
 
     std::map<PluginItem, mvpplayer::Settings> splittedSettings;
-    // Keep track of keys and values (subtrees) in second property tree
-    queue<string> qKeys;
-    queue<boost::property_tree::ptree> qValues;
-    qValues.push( settings.tree() );
-
-    const char separator = '%';
-
-    // Iterate over second property tree
-    while( !qValues.empty() )
+    try
     {
-        typedef boost::property_tree::ptree::path_type PathT;
-        typedef boost::property_tree::ptree::value_type ValueT;
-        // Setup keys and corresponding values
-        boost::property_tree::ptree ptree = qValues.front();
-        qValues.pop();
-        string keychain = "";
-        if( !qKeys.empty() )
-        {
-            keychain = qKeys.front();
-            qKeys.pop();
-        }
+        // Keep track of keys and values (subtrees) in second property tree
+        queue<string> qKeys;
+        queue<boost::property_tree::ptree> qValues;
+        qValues.push( settings.tree() );
 
-        // Iterate over keys level-wise
-        for( const auto & child: ptree )
+        const char separator = '%';
+
+        // Iterate over second property tree
+        while( !qValues.empty() )
         {
-            if( child.second.size() != 0 )
+            typedef boost::property_tree::ptree::path_type PathT;
+            typedef boost::property_tree::ptree::value_type ValueT;
+            // Setup keys and corresponding values
+            boost::property_tree::ptree ptree = qValues.front();
+            qValues.pop();
+            string keychain = "";
+            if( !qKeys.empty() )
             {
-                vector<string> path;
-                boost::split( path, keychain, boost::is_from_range( separator, separator ) );
-                if( path.size() == 2 )
+                keychain = qKeys.front();
+                qKeys.pop();
+            }
+
+            // Iterate over keys level-wise
+            for( const auto & child: ptree )
+            {
+                if( child.second.size() != 0 )
                 {
-                    const int pluginIndex = boost::lexical_cast<int>( path[0] );
-                    const string pluginIdentification = child.first;
-                    splittedSettings[ PluginItem( pluginIndex, pluginIdentification ) ] = mvpplayer::Settings( ptree );
+                    if( keychain.size() )
+                    {
+                        const int pluginIndex = boost::lexical_cast<int>( keychain );
+                        const string pluginIdentification = child.first;
+                        splittedSettings[ PluginItem( pluginIndex, pluginIdentification ) ] = mvpplayer::Settings( ptree );
+                    }
+
+                    if( keychain != "" )
+                        qKeys.push( keychain + separator + child.first.data() );
+                    else
+                        qKeys.push( child.first.data() );
+
+                    qValues.push( child.second );
                 }
-
-                if( keychain != "" )
-                    qKeys.push( keychain + separator + child.first.data() );
-                else
-                    qKeys.push( child.first.data() );
-
-                qValues.push( child.second );
             }
         }
+    }
+    catch( ... )
+    {
+        std::cerr << "Tree is not in a good format!" << std::endl;
     }
     return splittedSettings;
 }

@@ -36,19 +36,24 @@ using Dialog = gui::KaliscopeWin;
 
 void editSettings( QMainWindow *caller, mvpplayer::MVPPlayerEngine & m, mvpplayer::gui::IMVPPlayerDialog & v, mvpplayer::logic::MVPPlayerPresenter & p )
 {
-    /*
     mvpplayer::gui::qt::MVPPlayerSettingsDialog settingsDialog( m, v, p, caller );
     const int res = settingsDialog.exec();
     if ( !res )
     {
         mvpplayer::Settings::getInstance().write( QDir::homePath().toStdString() + "/" + mvpplayer::kDefaultSettingsFilename );
     }
-    */
+}
+
+bool editPipelineSettings( QMainWindow *caller, mvpplayer::Settings & settings )
+{
     kaliscope::gui::qt::RecordingSettingsDialog dlg( caller );
     if ( dlg.exec() )
     {
+        settings = dlg.pipelineSettings();
         dlg.pipelineSettings().write( QDir::homePath().toStdString() + "/" + kaliscope::gui::qt::kKaliscopeDefaultPipelineSettingsFilename );
+        return true;
     }
+    return false;
 }
 
 /**
@@ -101,6 +106,7 @@ int main( int argc, char **argv )
     presenter.signalFailed.connect( boost::bind( &Dialog::displayError, &dlg, _1 ) );
     // When no file is provided and we hit play button, ask for a music file
     presenter.signalAskForFile.connect( boost::bind( &Dialog::openFile, &dlg, _1, _2, "Musics (*.dpx *.tif *.mov *.avi *.mp4);; All files (*.*)" ) );
+    presenter.signalAskSettingsFor.connect( boost::bind( &editPipelineSettings, &dlg, _2 ) );
 
     // Setup Model View Presenter behavior (binds the whole thing)
     mvpplayer::gui::setupMainBehavior( playerEngine, dlg, presenter );

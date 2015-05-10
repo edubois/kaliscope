@@ -3,10 +3,14 @@
 #include <tuttle/common/utils/global.hpp>
 #include <Sequence.hpp>
 
+#include <vector>
+#include <memory>
+
 namespace kaliscope
 {
 
-VideoPlayer::VideoPlayer()
+VideoPlayer::VideoPlayer( const std::shared_ptr<tuttle::host::Graph> & graph )
+: _graph( graph )
 {
     initialize();
 }
@@ -24,23 +28,25 @@ void VideoPlayer::initialize()
     using namespace tuttle::host;
     try
     {
-        _nodeRead = &_g.createNode( "tuttle.avreader" );
-        // We want an rgb output
-        _nodeRead->getParam( "channel" ).setValue( 2 );
-        _nodeRead->getParam( "bitDepth" ).setValue( 1 );
-//        _nodeComponent = &_g.createNode( "tuttle.component" );
-        // We want an rgb output
-//        _nodeComponent->getParam( "to" ).setValue( 1 );
-        if ( _invertChannels )
+        if ( !_graph )
         {
-            _nodeInvert = &_g.createNode( "tuttle.invert" );
+            _graph.reset( new tuttle::host::Graph() );
+            _nodeRead = &_graph->createNode( "tuttle.avreader" );
+            // We want an rgb output
+            _nodeRead->getParam( "channel" ).setValue( 2 );
+            _nodeRead->getParam( "bitDepth" ).setValue( 1 );
+
+            buildGraph();
         }
         else
         {
-            _nodeInvert = nullptr;
+            std::vector<Graph::Node*> nodes = _graph->getNodes();
+            if ( nodes.size() )
+            {
+                _nodeRead = nodes[0];
+                _nodeFinal = nodes[nodes.size()-1];
+            }
         }
-
-        buildGraph();
     }
     catch( ... )
     {
@@ -53,13 +59,6 @@ void VideoPlayer::buildGraph()
     using namespace tuttle::host;
 
     _nodeFinal = _nodeRead;
-    if ( _invertChannels )
-    {
-        _g.connect( *_nodeFinal, *_nodeInvert );
-        _nodeFinal = _nodeInvert;
-    }
-//    _g.connect( *_nodeFinal, *_nodeComponent );
-//    _nodeFinal = _nodeComponent;
 
     TUTTLE_LOG_INFO( "Graph has been built" );
 }
@@ -108,7 +107,7 @@ void VideoPlayer::load( const boost::filesystem::path & filename )
         {
             using namespace tuttle::host;
             _nodeRead->getParam( "filename" ).setValue( filename.string() );
-            _g.setup();
+            _graph->setup();
             const OfxRangeD timeDomain = getTimeDomain();
             _currentPosition = timeDomain.min;
             _currentLength = timeDomain.max;
@@ -151,7 +150,7 @@ DefaultImageT VideoPlayer::getFrame( const double nFrame )
     {
         DefaultImageT frame;
         _currentPosition = nFrame;
-        _g.compute( _outputCache, *_nodeFinal, tuttle::host::ComputeOptions( nFrame ) );
+        _graph->compute( _outputCache, *_nodeFinal, tuttle::host::ComputeOptions( nFrame ) );
         return cache().get( _nodeFinal->getName(), nFrame );
     }
     catch( ... )

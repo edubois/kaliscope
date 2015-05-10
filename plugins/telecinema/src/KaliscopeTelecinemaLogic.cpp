@@ -1,4 +1,5 @@
 #include "KaliscopeTelecinemaLogic.hpp"
+#include "defines.hpp"
 
 namespace kaliscope
 {
@@ -13,8 +14,8 @@ using namespace mvpplayer::logic;
  */
 sc::result Recording::react( const EvRecord & ev )
 {
-    TelecinemaPluginPresenter & plugPresenter = context< PlayerStateMachine >().presenter.presenterOfPlugin<TelecinemaPluginPresenter>( "recorderPlugin" );
-    plugPresenter.signalRecord( mvpplayer::Settings() );
+    TelecinemaPluginPresenter & plugPresenter = context< PlayerStateMachine >().presenter.presenterOfPlugin<TelecinemaPluginPresenter>( plugins::kMVPPlayerPluginName );
+    plugPresenter.signalRecord( ev.recordingSettings() );
     return transit< Recording >();
 }
 
@@ -23,7 +24,7 @@ sc::result Recording::react( const EvRecord & ev )
  */
 sc::result Recording::react( const EvStop & ev )
 {
-    TelecinemaPluginPresenter & plugPresenter = context< PlayerStateMachine >().presenter.presenterOfPlugin<TelecinemaPluginPresenter>( "kaliscopeTelecinemaPlugin" );
+    TelecinemaPluginPresenter & plugPresenter = context< PlayerStateMachine >().presenter.presenterOfPlugin<TelecinemaPluginPresenter>( plugins::kMVPPlayerPluginName );
     plugPresenter.signalStopRecord();
     return transit< Stopped >();
 }

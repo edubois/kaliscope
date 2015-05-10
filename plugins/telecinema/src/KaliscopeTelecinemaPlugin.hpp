@@ -2,6 +2,7 @@
 #define	_PLUG_KALISCOPETELECINEMAPLUGIN_HPP_
 
 #include "KaliscopeTelecinemaLogic.hpp"
+#include "defines.hpp"
 
 #include <mvp-player-pluger/IMVPPlugin.hpp>
 
@@ -18,8 +19,6 @@ namespace kaliscope
 {
 namespace plugins
 {
-static const std::string kMVPPlayerPluginName( "kaliscopeTelecinemaPlugin" );
-static const std::string kRecordAction( "kRecordAction::kaliscope" );
 
 class KaliscopeTelecinemaPlugin : public mvpplayer::plugins::IMVPPlugin
 {
