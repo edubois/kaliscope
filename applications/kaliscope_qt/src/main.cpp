@@ -6,7 +6,6 @@
 #include <kali-core/KaliscopeEngine.hpp>
 #include <mvp-player-core/MVPPlayerEngine.hpp>
 #include <mvp-player-core/MVPPlayerLogic.hpp>
-#include <mvp-player-core/SoundPlayer.hpp>
 #include <mvp-player-core/Settings.hpp>
 #include <mvp-player-gui/playerBehavior.hpp>
 #include <mvp-player-net/client/Client.hpp>

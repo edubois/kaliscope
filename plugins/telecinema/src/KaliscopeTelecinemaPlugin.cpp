@@ -21,6 +21,7 @@ void KaliscopeTelecinemaPlugin::setup( mvpplayer::MVPPlayerEngine & model, mvppl
     presenter.registerPluginPresenter( kMVPPlayerPluginName, _plugPresenter );
     _plugPresenter.signalRecord.connect( boost::bind( &KaliscopeTelecinemaPlugin::record, this, _1 ) );
     _plugPresenter.signalStopRecord.connect( boost::bind( &MVPPlayerPresenter::processCommandActive, &presenter, std::string( "Record" ), false ) );
+    _plugPresenter.signalNextFrame.connect( boost::bind( &KaliscopeTelecinemaPlugin::captureNextFrame, this ) );
 }
 
 /**

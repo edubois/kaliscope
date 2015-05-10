@@ -29,6 +29,16 @@ sc::result Recording::react( const EvStop & ev )
     return transit< Stopped >();
 }
 
+/**
+ * @brief reaction on next frame event
+ */
+sc::result Recording::react( const mvpplayer::logic::EvNext & )
+{
+    TelecinemaPluginPresenter & plugPresenter = context< PlayerStateMachine >().presenter.presenterOfPlugin<TelecinemaPluginPresenter>( plugins::kMVPPlayerPluginName );
+    plugPresenter.signalNextFrame();
+    return transit< Recording >();
+}
+
 }
 }
 }

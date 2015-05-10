@@ -27,6 +27,7 @@ SConscript( [
               'libraries/tuttlePlugin/SConscript',
               'libraries/mvp-player/SConscript',
               'libraries/mvp-player/mvp-player-core/SConscript',
+              'libraries/mvp-player/mvp-player-fmod/SConscript',
               'libraries/mvp-player/mvp-player-gui/SConscript',
               'libraries/mvp-player/mvp-player-net/SConscript',
               'libraries/mvp-player/mvp-player-qtgui/SConscript',
