@@ -45,7 +45,10 @@ void editSettings( QMainWindow *caller, mvpplayer::MVPPlayerEngine & m, mvpplaye
     }
     */
     kaliscope::gui::qt::RecordingSettingsDialog dlg( caller );
-    dlg.exec();
+    if ( dlg.exec() )
+    {
+        dlg.pipelineSettings().write( QDir::homePath().toStdString() + "/" + kaliscope::gui::qt::kKaliscopeDefaultPipelineSettingsFilename );
+    }
 }
 
 /**

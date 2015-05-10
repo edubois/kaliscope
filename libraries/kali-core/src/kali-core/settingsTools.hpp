@@ -1,0 +1,60 @@
+#ifndef _KALICORE_SETTINGSTOOLS_HPP_
+#define	_KALICORE_SETTINGSTOOLS_HPP_
+
+#include <mvp-player-core/Settings.hpp>
+
+#include <tuttle/host/Node.hpp>
+#include <tuttle/common/utils/global.hpp>
+#include <tuttle/host/ofx/attribute/OfxhParamString.hpp>
+#include <tuttle/host/ofx/attribute/OfxhParamChoice.hpp>
+#include <tuttle/host/ofx/attribute/OfxhParamDouble.hpp>
+#include <tuttle/host/ofx/attribute/OfxhParamInteger.hpp>
+#include <tuttle/host/ofx/attribute/OfxhParamBoolean.hpp>
+
+#include <string>
+
+namespace kaliscope
+{
+    struct PluginItem
+    {
+        PluginItem()
+        {}
+
+        PluginItem( const std::size_t idx, const std::string & identifier )
+        : index( idx )
+        , pluginIdentifier( identifier )
+        {}
+
+        inline bool operator<( const PluginItem & other ) const
+        {
+            if ( index != other.index )
+            {
+                return index < other.index;
+            }
+            else
+            {
+                return pluginIdentifier < other.pluginIdentifier;
+            }
+        }
+
+        std::size_t index = 0;
+        std::string pluginIdentifier;
+    };
+/**
+ * @brief setup a node parameters according to settings
+ * @param plugIdentifier target plugin identifier
+ * @param fxNode ofx node
+ * @param settings input settings
+ */
+void setNodeSettings( const std::string & plugIdentifier, tuttle::host::INode & fxNode, const mvpplayer::Settings & settings );
+
+/**
+ * @brief split nodes settings
+ * @param settings the input settings
+ * @return map of <plugin-identifier, settings>
+ */
+std::map<PluginItem, mvpplayer::Settings> splitOfxNodesSettings( mvpplayer::Settings & settings );
+
+}
+
+#endif
