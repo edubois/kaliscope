@@ -61,7 +61,7 @@ EditPluginParamsDialog::EditPluginParamsDialog( const std::string & pluginIdenti
             { continue; }
             item = new details::PluginParamTreeItem( root, paramChoice );
             QComboBox *comboChoice = new QComboBox();
-            int i = 0, choiceIndex = paramChoice.getIntValue();
+            int choiceIndex = paramChoice.getIntValue();
             for( const std::string & c: paramChoice.getChoiceKeys() )
             {
                 comboChoice->addItem( QString::fromStdString( c ) );
