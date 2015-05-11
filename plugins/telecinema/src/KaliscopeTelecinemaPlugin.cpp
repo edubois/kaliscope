@@ -79,9 +79,12 @@ void KaliscopeTelecinemaPlugin::recordClicked( const bool activated )
     else
     {
         // Restore previous graph
-        _kaliscopeEngine->setFrameStepping( false );
-        _kaliscopeEngine->setProcessingGraph( _previousGraph );
-        _previousGraph.reset();
+        if ( _previousGraph )
+        {
+            _kaliscopeEngine->setFrameStepping( false );
+            _kaliscopeEngine->setProcessingGraph( _previousGraph );
+            _previousGraph.reset();
+        }
         // Queue stop event
         _presenter->processStop();
     }
