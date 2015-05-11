@@ -5,6 +5,7 @@
 
 #include <tuttle/host/Node.hpp>
 #include <tuttle/common/utils/global.hpp>
+#include <tuttle/host/Graph.hpp>
 #include <tuttle/host/ofx/attribute/OfxhParamString.hpp>
 #include <tuttle/host/ofx/attribute/OfxhParamChoice.hpp>
 #include <tuttle/host/ofx/attribute/OfxhParamDouble.hpp>
@@ -53,7 +54,14 @@ void setNodeSettings( const std::string & plugIdentifier, tuttle::host::INode & 
  * @param settings the input settings
  * @return map of <plugin-identifier, settings>
  */
-std::map<PluginItem, mvpplayer::Settings> splitOfxNodesSettings( mvpplayer::Settings & settings );
+std::map<PluginItem, mvpplayer::Settings> splitOfxNodesSettings( const mvpplayer::Settings & settings );
+
+/**
+ * @brief setup graph using given settings
+ * @param graph the processing graph
+ * @param settings the input settings
+ */
+void setupGraphWithSettings( tuttle::host::Graph & graph, const mvpplayer::Settings & settings );
 
 }
 

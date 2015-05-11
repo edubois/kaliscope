@@ -1,5 +1,10 @@
 #include "KaliscopeTelecinemaPlugin.hpp"
 
+#include <kali-core/settingsTools.hpp>
+
+#include <tuttle/host/Node.hpp>
+#include <tuttle/host/Graph.hpp>
+
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QApplication>
 #include <boost/filesystem/path.hpp>
@@ -74,7 +79,7 @@ boost::statechart::detail::reaction_result KaliscopeTelecinemaPlugin::recordTran
     {
         const auto result = state.transit<logic::plugin::Recording>();
         // The following is needed to silent assert in boost
-        const auto consume = sc::detail::result_utility::get_result( result );
+        sc::detail::result_utility::get_result( result );
         return boost::statechart::detail::consumed;
     }
     else
@@ -89,9 +94,37 @@ boost::statechart::detail::reaction_result KaliscopeTelecinemaPlugin::recordTran
  */
 void KaliscopeTelecinemaPlugin::record( const mvpplayer::Settings & settings )
 {
-    // Recording goes here:
-    std::cout << "recording" << std::endl;
+    try
+    {
+        // Recording goes here:
+        _kaliscopeEngine = dynamic_cast<KaliscopeEngine*>( _model );
+        assert( _kaliscopeEngine != nullptr );
+        _kaliscopeEngine->stop();
+        _kaliscopeEngine->setFrameStepping( true );
+
+        std::shared_ptr<tuttle::host::Graph> graph( new tuttle::host::Graph() );
+        setupGraphWithSettings( *graph, settings );
+        _kaliscopeEngine->setProcessingGraph( graph );
+        _kaliscopeEngine->start();
+    }
+    catch( ... )
+    {
+        std::cerr << "Unable to record!" << std::endl;
+    }
 }
+
+/**
+ * @brief capture next frame
+ */
+void KaliscopeTelecinemaPlugin::captureNextFrame()
+{
+    if ( _kaliscopeEngine )
+    {
+        std::cout << "processing next frame" << std::endl;
+        _kaliscopeEngine->processNextFrame();
+    }
+}
+
 
 void KaliscopeTelecinemaPlugin::playTrack()
 {

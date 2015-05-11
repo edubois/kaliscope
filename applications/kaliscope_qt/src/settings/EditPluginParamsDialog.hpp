@@ -52,7 +52,14 @@ public:
     , _paramName( param.getName() )
     {
         setText( 0, QString::fromStdString( param.getName() ) );
-        setText( 1, QString::fromStdString( param.getStringValue() ) );
+        if ( param.getIntValue() >= 0 && param.getIntValue() < param.getChoiceKeys().size() )
+        {
+            setText( 1, QString::fromStdString( param.getStringValue() ) );
+        }
+        else
+        {
+            setText( 1, QString() );
+        }
         
         setFlags( flags() | Qt::ItemIsEditable );
     }

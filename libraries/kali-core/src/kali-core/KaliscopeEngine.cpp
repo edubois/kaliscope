@@ -18,6 +18,16 @@ KaliscopeEngine::~KaliscopeEngine()
 }
 
 /**
+ * @brief set processing graph
+ * @param graph new processing graph
+ */
+void KaliscopeEngine::setProcessingGraph( const std::shared_ptr<tuttle::host::Graph> & graph )
+{
+    stop();
+    _videoPlayer->setProcessingGraph( graph );
+}
+
+/**
  * @brief used to read video step by step
  */
 void KaliscopeEngine::playWork()
@@ -68,6 +78,10 @@ void KaliscopeEngine::playWork()
                 break;
             }
             _synchroCondition.wait( synchro );
+            if ( _frameStepping )
+            {
+                _frameSteppingCondition.wait( synchro );
+            }
         }
     }
     catch( boost::thread_interrupted& )
@@ -75,7 +89,7 @@ void KaliscopeEngine::playWork()
     _videoPlayer->unload();
     _stopped = true;
 }
-    
+
 /**
  * @brief stop playing
  */
@@ -95,6 +109,7 @@ void KaliscopeEngine::stopWorker()
         {
             _stopped = true;
             _synchroCondition.notify_all();
+            _frameSteppingCondition.notify_all();
             _playerThread->join();
         }
         catch( ... )
@@ -111,6 +126,15 @@ void KaliscopeEngine::frameProcessed( const double nFrame )
 {
     _processFrame = nFrame+1;
     _synchroCondition.notify_all();
+}
+
+/**
+ * @brief start processing thread
+ */
+void KaliscopeEngine::start()
+{
+    stop();
+    _playerThread.reset( new std::thread( &KaliscopeEngine::playWork, this ) );
 }
 
 /**
@@ -138,7 +162,7 @@ bool KaliscopeEngine::playFile( const boost::filesystem::path & filename )
                 _filePlayer->load( filename );
                 signalPlayedTrack( filename );
             }
-            _playerThread.reset( new std::thread( &KaliscopeEngine::playWork, this ) );
+            start();
             return false;
         }
         catch( ... )

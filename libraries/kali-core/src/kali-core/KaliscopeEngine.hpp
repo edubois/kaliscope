@@ -28,6 +28,22 @@ public:
     virtual ~KaliscopeEngine();
 
     /**
+     * @brief set processing graph
+     * @param graph new processing graph
+     */
+    void setProcessingGraph( const std::shared_ptr<tuttle::host::Graph> & graph );
+
+    /**
+     * @brief start processing thread
+     */
+    void start();
+
+    /**
+     * @brief stop playing
+     */
+    void stop();
+
+    /**
      * @brief play a given file
      * @return false on success, true if error
      */
@@ -40,12 +56,20 @@ public:
      */
     void frameProcessed( const double nFrame );
 
-private:
+    /**
+     * @brief use frame stepping or not
+     * @param active active or not
+     */
+    void setFrameStepping( const bool active = true )
+    { _frameStepping = active; }
 
     /**
-     * @brief stop playing
+     * @brief process next frame
      */
-    void stop();
+    inline void processNextFrame()
+    { _frameSteppingCondition.notify_all(); }
+
+private:
 
     /**
      * @brief stop worker thread
@@ -65,6 +89,7 @@ public:
 private:
     VideoPlayer *_videoPlayer = nullptr;                ///< Pointer to the video player
     bool _stopped = false;
+    bool _frameStepping = false;                        ///< Frame stepping
     double _processFrame = -1.0;                        ///< Process a given frame
 
 // Thread related
@@ -72,6 +97,7 @@ private:
     std::mutex _mutexPlayer;                            ///< Mutex thread
     std::mutex _mutexSynchro;                           ///< Mutex thread
     std::condition_variable _synchroCondition;          ///< Synchronization condition
+    std::condition_variable _frameSteppingCondition;    ///< To play step by step
     std::unique_ptr<std::thread> _playerThread;       ///< Player's thread
 };
 

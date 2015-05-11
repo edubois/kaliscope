@@ -22,6 +22,7 @@ RecordingSettingsDialog::RecordingSettingsDialog( QWidget *parent )
 {
     widget.setupUi( this );
     connect( widget.btnAddPlugin, SIGNAL( released() ), this, SLOT( addPlugin() ) );
+    connect( widget.btnRemovePlugin, SIGNAL( released() ), this, SLOT( removePluginSelection() ) );
 
     widget.listPipeline->setMovement( QListView::Static );
     widget.listPipeline->setDragDropMode( QAbstractItemView::InternalMove );
@@ -39,6 +40,12 @@ RecordingSettingsDialog::~RecordingSettingsDialog()
 void RecordingSettingsDialog::buildPipelineFrom( const mvpplayer::Settings & pipelineSettings )
 {
     _pluginsSettings = splitOfxNodesSettings( _pipelineSettings );
+    rebuildPipeline();
+}
+
+void RecordingSettingsDialog::rebuildPipeline()
+{
+    widget.listPipeline->clear();
     for( const auto &p: _pluginsSettings )
     {
         using namespace tuttle::host;
@@ -57,6 +64,28 @@ void RecordingSettingsDialog::buildPipelineFrom( const mvpplayer::Settings & pip
         {
             std::cerr << "Unable to load plugin: " << p.first.pluginIdentifier << std::endl;
         }
+    }
+}
+
+void RecordingSettingsDialog::removePluginSelection()
+{
+    const int pluginIndex = widget.listPipeline->currentRow();
+    if ( pluginIndex >= 0 )
+    {
+        std::map<PluginItem, mvpplayer::Settings> pluginsSettings = _pluginsSettings;
+        _pluginsSettings.clear();
+        for( const auto p: pluginsSettings )
+        {
+            if ( p.first.index < pluginIndex )
+            {
+                _pluginsSettings[ p.first ] = p.second;
+            }
+            else if ( p.first.index > pluginIndex )
+            {
+                _pluginsSettings[ PluginItem( p.first.index - 1, p.first.pluginIdentifier ) ] = p.second;
+            }
+        }
+        rebuildPipeline();
     }
 }
 
@@ -112,22 +141,29 @@ QWidget* RecordingSettingsDialog::buildPluginWidgetFrom( TablePluginItem *plugIt
 
 void RecordingSettingsDialog::editPluginParams( QListWidgetItem * item )
 {
-    TablePluginItem * pluginItem = static_cast<TablePluginItem*>( item );
-    const int itemIndex = widget.listPipeline->row( item );
-
-    PluginItem key( itemIndex, pluginItem->plugin().getIdentifier() );
-    mvpplayer::Settings *currentSettings = nullptr;
-    const auto itPlugSettings = _pluginsSettings.find( key );
-    if ( itPlugSettings != _pluginsSettings.end() )
+    try
     {
-        currentSettings = &itPlugSettings->second;
+        TablePluginItem * pluginItem = static_cast<TablePluginItem*>( item );
+        const int itemIndex = widget.listPipeline->row( item );
+
+        PluginItem key( itemIndex, pluginItem->plugin().getIdentifier() );
+        mvpplayer::Settings *currentSettings = nullptr;
+        const auto itPlugSettings = _pluginsSettings.find( key );
+        if ( itPlugSettings != _pluginsSettings.end() )
+        {
+            currentSettings = &itPlugSettings->second;
+        }
+
+        std::unique_ptr<tuttle::host::INode> plugNode( tuttle::host::createNode( pluginItem->plugin().getIdentifier() ) );
+        EditPluginParamsDialog dlg( pluginItem->plugin().getIdentifier(), *plugNode, currentSettings, this );
+        if ( dlg.exec() )
+        {
+            _pluginsSettings[ key ] = dlg.nodeSettings();
+        }
     }
-
-    std::unique_ptr<tuttle::host::INode> plugNode( tuttle::host::createNode( pluginItem->plugin().getIdentifier() ) );
-    EditPluginParamsDialog dlg( pluginItem->plugin().getIdentifier(), *plugNode, currentSettings, this );
-    if ( dlg.exec() )
+    catch( ... )
     {
-        _pluginsSettings[ key ] = dlg.nodeSettings();
+        TUTTLE_LOG_CURRENT_EXCEPTION;
     }
 }
 

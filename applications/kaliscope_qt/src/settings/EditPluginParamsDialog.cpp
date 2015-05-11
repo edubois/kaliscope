@@ -38,8 +38,12 @@ EditPluginParamsDialog::EditPluginParamsDialog( const std::string & pluginIdenti
         setNodeSettings( _pluginIdentifier, _fxNode, _nodeSettings );
     }
 
-    for( const auto p: _fxNode.getParamSet().getParamsByName() )
+    for( const auto & p: _fxNode.getParamSet().getParamsByName() )
     {
+        // Don't display secret attributes.
+        if ( p.second->getSecret() )
+        { continue; }
+
         using namespace tuttle::host::ofx::attribute;
         details::PluginParamTreeItem *item = nullptr;
         if ( dynamic_cast<OfxhParamString*>( p.second ) )
@@ -53,19 +57,19 @@ EditPluginParamsDialog::EditPluginParamsDialog( const std::string & pluginIdenti
         else if ( dynamic_cast<OfxhParamChoice*>( p.second ) )
         {
             OfxhParamChoice& paramChoice = dynamic_cast<OfxhParamChoice&>( *p.second );
+            if ( paramChoice.getChoiceKeys().size() == 0 )
+            { continue; }
             item = new details::PluginParamTreeItem( root, paramChoice );
             QComboBox *comboChoice = new QComboBox();
-            int i = 0, choiceIndex = 0;
+            int i = 0, choiceIndex = paramChoice.getIntValue();
             for( const std::string & c: paramChoice.getChoiceKeys() )
             {
                 comboChoice->addItem( QString::fromStdString( c ) );
-                if ( c == paramChoice.getStringValue() )
-                {
-                    choiceIndex = i;
-                }
-                ++i;
             }
-            comboChoice->setCurrentIndex( choiceIndex );
+            if ( choiceIndex >= 0 && choiceIndex < paramChoice.getChoiceKeys().size() )
+            {
+                comboChoice->setCurrentIndex( choiceIndex );
+            }
             widget.treeParameters->setItemWidget( item, 1, comboChoice );
         }
         else if ( dynamic_cast<OfxhParamDouble*>( p.second ) )
@@ -134,7 +138,10 @@ void EditPluginParamsDialog::accept()
                 else if ( dynamic_cast<QComboBox*>( w ) )
                 {
                     QComboBox *combobox = dynamic_cast<QComboBox*>( w );
-                    _nodeSettings.set( _pluginIdentifier, key, combobox->currentText().toStdString(), separator );
+                    if ( combobox->currentIndex() >= 0 )
+                    {
+                        _nodeSettings.set( _pluginIdentifier, key, combobox->currentText().toStdString(), separator );
+                    }
                 }
                 else if ( dynamic_cast<QDoubleSpinBox*>( w ) )
                 {

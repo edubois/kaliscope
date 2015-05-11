@@ -92,7 +92,9 @@ void setNodeSettings( const std::string & plugIdentifier, tuttle::host::INode & 
                         }
                     }
                     catch( ... )
-                    {}
+                    {
+                        std::cerr << "The node  " << settingPlugIdentifier << " has not this parameter: " << paramName << std::endl;
+                    }
                 }
             }
             // Subtree
@@ -114,7 +116,7 @@ void setNodeSettings( const std::string & plugIdentifier, tuttle::host::INode & 
  * @param settings the input settings
  * @return map of <plugin-identifier, settings>
  */
-std::map<PluginItem, mvpplayer::Settings> splitOfxNodesSettings( mvpplayer::Settings & settings )
+std::map<PluginItem, mvpplayer::Settings> splitOfxNodesSettings( const mvpplayer::Settings & settings )
 {
     using namespace std;
 
@@ -170,6 +172,30 @@ std::map<PluginItem, mvpplayer::Settings> splitOfxNodesSettings( mvpplayer::Sett
         std::cerr << "Tree is not in a good format!" << std::endl;
     }
     return splittedSettings;
+}
+
+/**
+ * @brief setup graph using given settings
+ * @param graph the processing graph
+ * @param settings the input settings
+ */
+void setupGraphWithSettings( tuttle::host::Graph & graph, const mvpplayer::Settings & settings )
+{
+    std::map<PluginItem, mvpplayer::Settings> nodesSettings = splitOfxNodesSettings( settings );
+
+    using namespace tuttle::host;
+    INode *lastNode = nullptr;
+    for( const auto & p: nodesSettings )
+    {
+        INode & node = graph.createNode( p.first.pluginIdentifier );
+        setNodeSettings( p.first.pluginIdentifier, node, p.second );
+        if ( lastNode )
+        {
+            graph.connect( *lastNode, node );
+        }
+        lastNode = &node;
+    }
+    graph.setup();
 }
 
 

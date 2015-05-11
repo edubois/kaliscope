@@ -4,6 +4,8 @@
 #include "KaliscopeTelecinemaLogic.hpp"
 #include "defines.hpp"
 
+#include <kali-core/KaliscopeEngine.hpp>
+
 #include <mvp-player-pluger/IMVPPlugin.hpp>
 
 #include <QtGui/QtGui>
@@ -54,8 +56,14 @@ public:
      */
     void playTrack();
 
+    /**
+     * @brief capture next frame
+     */
+    void captureNextFrame();
+
 private:
     logic::plugin::TelecinemaPluginPresenter _plugPresenter;
+    KaliscopeEngine* _kaliscopeEngine = nullptr;
 };
 
 }

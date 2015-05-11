@@ -23,6 +23,17 @@ public:
 // Overrides
 public:
     /**
+     * @brief reset processing graph to default
+     */
+    void resetProcessingGraphToDefault();
+    
+    /**
+     * @brief set processing graph
+     * @param graph new processing graph
+     */
+    void setProcessingGraph( const std::shared_ptr<tuttle::host::Graph> & graph );
+
+    /**
      * @brief get memory cache
      */
     inline tuttle::host::memory::MemoryCache & cache()

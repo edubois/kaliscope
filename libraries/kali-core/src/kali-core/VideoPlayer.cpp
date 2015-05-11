@@ -21,6 +21,26 @@ VideoPlayer::~VideoPlayer()
 }
 
 /**
+ * @brief reset processing graph to default
+ */
+void VideoPlayer::resetProcessingGraphToDefault()
+{
+    _graph.reset();
+    initialize();
+}
+
+/**
+ * @brief set processing graph
+ * @param graph new processing graph
+ */
+void VideoPlayer::setProcessingGraph( const std::shared_ptr<tuttle::host::Graph> & graph )
+{
+    stop();
+    _graph = graph;
+    initialize();
+}
+
+/**
  * @brief initialize all
  */
 void VideoPlayer::initialize()

@@ -39,12 +39,14 @@ public:
     { return _pipelineSettings; }
 
 private Q_SLOTS:
+    void removePluginSelection();
     void addPlugin();
     void editPluginParams( QListWidgetItem * item );
 
 private:
     TablePluginItem * addPlugin( const tuttle::host::ofx::imageEffect::OfxhImageEffectPlugin & plugin );
     void buildPipelineFrom( const mvpplayer::Settings & pipelineSettings );
+    void rebuildPipeline();
     QWidget* buildPluginWidgetFrom( TablePluginItem *plugItem );
     void accept();
 

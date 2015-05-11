@@ -35,7 +35,7 @@ struct Recording : sc::simple_state< Recording, mvpplayer::logic::Active >
     typedef boost::mpl::list<
       sc::custom_reaction< EvRecord >,
       sc::custom_reaction< mvpplayer::logic::EvStop >,
-      sc::custom_reaction< mvpplayer::logic::EvNext >
+      sc::custom_reaction< mvpplayer::logic::EvNextTrack >
     > reactions;
 
     /**
@@ -51,7 +51,7 @@ struct Recording : sc::simple_state< Recording, mvpplayer::logic::Active >
     /**
      * @brief reaction on next frame event
      */
-    sc::result react( const mvpplayer::logic::EvNext & ev );
+    sc::result react( const mvpplayer::logic::EvNextTrack & ev );
 
 };
 
