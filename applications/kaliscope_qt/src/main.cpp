@@ -122,7 +122,14 @@ int main( int argc, char **argv )
     dlg.showNormal();
 
     int res = app.exec();
+    
+    // the following needs to be reviewed, it seems that boost::trackable has no effect on Qt objects
+    dlg.viewer()->signalFrameDone.disconnect_all_slots();
+    playerEngine.signalFrameReady.disconnect_all_slots();
+    presenter.signalEvent.disconnect_all_slots();
+    app.processEvents();
     // Unload plugins
     mvpplayer::plugins::PluginLoader::getInstance().unloadPlugins();
+    playerEngine.terminate();
     return res;
 }

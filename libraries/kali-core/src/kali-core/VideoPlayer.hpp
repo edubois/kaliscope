@@ -189,14 +189,14 @@ private:
 
 // Thread related
 private:
-    boost::mutex _mutexPlayer;                              ///< Mutex thread
+    std::mutex _mutexPlayer;                              ///< Mutex thread
 
 // TuttleOFX related
 private:
     tuttle::host::Graph::Node *_nodeFinal = nullptr;        ///< Final effect node
     tuttle::host::Graph::Node *_nodeRead = nullptr;         ///< File reader
-    std::shared_ptr<tuttle::host::Graph> _graph;                ///< effects processing graph
     tuttle::host::memory::MemoryCache _outputCache;         ///< Cache for video output
+    std::shared_ptr<tuttle::host::Graph> _graph;                ///< effects processing graph
 };
 
 }

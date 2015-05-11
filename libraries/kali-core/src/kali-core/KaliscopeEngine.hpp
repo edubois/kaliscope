@@ -28,6 +28,12 @@ public:
     virtual ~KaliscopeEngine();
 
     /**
+     * @brief terminate video player
+     */
+    inline void terminate()
+    { _videoPlayer->terminate(); }
+
+    /**
      * @brief set processing graph
      * @param graph new processing graph
      * @return previous processing graph

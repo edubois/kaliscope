@@ -17,6 +17,7 @@ VideoPlayer::VideoPlayer( const std::shared_ptr<tuttle::host::Graph> & graph )
 
 VideoPlayer::~VideoPlayer()
 {
+    stop();
     terminate();
 }
 
@@ -51,15 +52,19 @@ void VideoPlayer::initialize()
     using namespace tuttle::host;
     try
     {
+        std::unique_lock<std::mutex> lock( _mutexPlayer );
         if ( !_graph )
         {
             _graph.reset( new tuttle::host::Graph() );
             _nodeRead = &_graph->createNode( "tuttle.avreader" );
-            // We want an rgb output
-            _nodeRead->getParam( "channel" ).setValue( 2 );
-            _nodeRead->getParam( "bitDepth" ).setValue( 1 );
+            if ( _nodeRead )
+            {
+                // We want an rgb output
+                _nodeRead->getParam( "channel" ).setValue( 2 );
+                _nodeRead->getParam( "bitDepth" ).setValue( 1 );
 
-            buildGraph();
+                buildGraph();
+            }
         }
         else
         {
@@ -97,6 +102,7 @@ void VideoPlayer::buildGraph()
  */
 void VideoPlayer::terminate()
 {
+    std::unique_lock<std::mutex> lock( _mutexPlayer );
     if ( _graph )
     {
         _graph->clear();
@@ -161,6 +167,7 @@ void VideoPlayer::load( const boost::filesystem::path & filename )
  */
 void VideoPlayer::unload()
 {
+    std::unique_lock<std::mutex> lock( _mutexPlayer );
     signalEndOfTrack();
 }
 
@@ -182,6 +189,7 @@ DefaultImageT VideoPlayer::getFrame( const double nFrame )
 {
     try
     {
+        std::unique_lock<std::mutex> lock( _mutexPlayer );
         DefaultImageT frame;
         _currentPosition = nFrame;
         _graph->compute( _outputCache, *_nodeFinal, tuttle::host::ComputeOptions( nFrame ) );

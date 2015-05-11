@@ -15,6 +15,7 @@ KaliscopeEngine::KaliscopeEngine( VideoPlayer *videoPlayer )
 KaliscopeEngine::~KaliscopeEngine()
 {
     stop();
+    terminate();
 }
 
 /**
@@ -112,10 +113,13 @@ void KaliscopeEngine::stopWorker()
     {
         try
         {
-            _stopped = true;
-            _synchroCondition.notify_all();
-            _frameSteppingCondition.notify_all();
-            _playerThread->join();
+            if ( !_stopped )
+            {
+                _stopped = true;
+                _synchroCondition.notify_all();
+                _frameSteppingCondition.notify_all();
+                _playerThread->join();
+            }
         }
         catch( ... )
         {}

@@ -31,11 +31,14 @@ void KaliscopeTelecinemaPlugin::setup( mvpplayer::MVPPlayerEngine & model, mvppl
 
 KaliscopeTelecinemaPlugin::~KaliscopeTelecinemaPlugin()
 {
-    _kaliscopeEngine->setFrameStepping( false );
-    if ( _previousGraph )
+    if ( _kaliscopeEngine )
     {
-        _kaliscopeEngine->setProcessingGraph( _previousGraph );
-        _previousGraph.reset();
+        _kaliscopeEngine->setFrameStepping( false );
+        if ( _previousGraph )
+        {
+            _kaliscopeEngine->setProcessingGraph( _previousGraph );
+            _previousGraph.reset();
+        }
     }
 }
 
