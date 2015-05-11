@@ -20,11 +20,12 @@ KaliscopeEngine::~KaliscopeEngine()
 /**
  * @brief set processing graph
  * @param graph new processing graph
+ * @return previous processing graph
  */
-void KaliscopeEngine::setProcessingGraph( const std::shared_ptr<tuttle::host::Graph> & graph )
+std::shared_ptr<tuttle::host::Graph> KaliscopeEngine::setProcessingGraph( const std::shared_ptr<tuttle::host::Graph> & graph )
 {
     stop();
-    _videoPlayer->setProcessingGraph( graph );
+    return _videoPlayer->setProcessingGraph( graph );
 }
 
 /**

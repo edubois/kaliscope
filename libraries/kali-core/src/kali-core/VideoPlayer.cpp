@@ -32,12 +32,15 @@ void VideoPlayer::resetProcessingGraphToDefault()
 /**
  * @brief set processing graph
  * @param graph new processing graph
+ * @return previous processing graph
  */
-void VideoPlayer::setProcessingGraph( const std::shared_ptr<tuttle::host::Graph> & graph )
+std::shared_ptr<tuttle::host::Graph> VideoPlayer::setProcessingGraph( const std::shared_ptr<tuttle::host::Graph> & graph )
 {
     stop();
+    std::shared_ptr<tuttle::host::Graph> previousGraph = _graph;
     _graph = graph;
     initialize();
+    return previousGraph;
 }
 
 /**

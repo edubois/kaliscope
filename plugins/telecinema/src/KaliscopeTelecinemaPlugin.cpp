@@ -65,6 +65,9 @@ void KaliscopeTelecinemaPlugin::recordClicked( const bool activated )
     }
     else
     {
+        // Restore previous graph
+        _kaliscopeEngine->setFrameStepping( false );
+        _kaliscopeEngine->setProcessingGraph( _previousGraph );
         // Queue stop event
         _presenter->processStop();
     }
@@ -104,7 +107,7 @@ void KaliscopeTelecinemaPlugin::record( const mvpplayer::Settings & settings )
 
         std::shared_ptr<tuttle::host::Graph> graph( new tuttle::host::Graph() );
         setupGraphWithSettings( *graph, settings );
-        _kaliscopeEngine->setProcessingGraph( graph );
+        _previousGraph = _kaliscopeEngine->setProcessingGraph( graph );
         _kaliscopeEngine->start();
     }
     catch( ... )
@@ -128,6 +131,8 @@ void KaliscopeTelecinemaPlugin::captureNextFrame()
 
 void KaliscopeTelecinemaPlugin::playTrack()
 {
+    // Disable frame stepping
+    _kaliscopeEngine->setFrameStepping( false );
     // Queue stop event
     _presenter->processStop();
     _presenter->processPlay( boost::none );

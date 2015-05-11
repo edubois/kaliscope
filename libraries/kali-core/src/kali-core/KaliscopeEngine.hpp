@@ -30,8 +30,9 @@ public:
     /**
      * @brief set processing graph
      * @param graph new processing graph
+     * @return previous processing graph
      */
-    void setProcessingGraph( const std::shared_ptr<tuttle::host::Graph> & graph );
+    std::shared_ptr<tuttle::host::Graph> setProcessingGraph( const std::shared_ptr<tuttle::host::Graph> & graph );
 
     /**
      * @brief start processing thread

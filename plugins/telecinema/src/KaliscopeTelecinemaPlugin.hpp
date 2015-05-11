@@ -64,6 +64,7 @@ public:
 private:
     logic::plugin::TelecinemaPluginPresenter _plugPresenter;
     KaliscopeEngine* _kaliscopeEngine = nullptr;
+    std::shared_ptr<tuttle::host::Graph> _previousGraph;        ///< Processing before recording event
 };
 
 }
