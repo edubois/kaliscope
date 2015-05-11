@@ -121,5 +121,8 @@ int main( int argc, char **argv )
 
     dlg.showNormal();
 
-    return app.exec();
+    int res = app.exec();
+    // Unload plugins
+    mvpplayer::plugins::PluginLoader::getInstance().unloadPlugins();
+    return res;
 }

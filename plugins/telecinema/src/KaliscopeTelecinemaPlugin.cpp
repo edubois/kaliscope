@@ -29,6 +29,16 @@ void KaliscopeTelecinemaPlugin::setup( mvpplayer::MVPPlayerEngine & model, mvppl
     _plugPresenter.signalNextFrame.connect( boost::bind( &KaliscopeTelecinemaPlugin::captureNextFrame, this ) );
 }
 
+KaliscopeTelecinemaPlugin::~KaliscopeTelecinemaPlugin()
+{
+    _kaliscopeEngine->setFrameStepping( false );
+    if ( _previousGraph )
+    {
+        _kaliscopeEngine->setProcessingGraph( _previousGraph );
+        _previousGraph.reset();
+    }
+}
+
 /**
  * Triggered when the user click on the record button
  */
@@ -68,6 +78,7 @@ void KaliscopeTelecinemaPlugin::recordClicked( const bool activated )
         // Restore previous graph
         _kaliscopeEngine->setFrameStepping( false );
         _kaliscopeEngine->setProcessingGraph( _previousGraph );
+        _previousGraph.reset();
         // Queue stop event
         _presenter->processStop();
     }

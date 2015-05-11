@@ -31,6 +31,8 @@ public:
     KaliscopeTelecinemaPlugin()
     : IMVPPlugin( kMVPPlayerPluginName )
     {}
+
+    ~KaliscopeTelecinemaPlugin();
     
     virtual void setup( mvpplayer::MVPPlayerEngine & model, mvpplayer::gui::IMVPPlayerDialog & view, mvpplayer::logic::MVPPlayerPresenter & presenter );
 
