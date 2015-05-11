@@ -16,12 +16,12 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-## Main features (to be done)
+## Main features
 
 * The pipeline is OpenFX based, meaning that you can plug commercial plugins
   for stabilization, denoise, etc...
 * Compatible with ximea camera thru an OpenFx plugin
-* Multiplatform user interface (console and real GUI)
+* Multiplatform user interface (only qt GUI right now, but all is possible)
 * Network client/server to remotely control the GUI
 * Use of TuttleOfx, which is a very reliable framework for OpenFX plugins that
   comes with plugins such as denoiser, undistort, lut, crop, keyer, and many others.
@@ -61,13 +61,7 @@ If you are not using Mac, remove the lines after '# Mac only'
 
 When you are ready, enter:
 
-* if you want the ncurses console UI:
-
-```scons mode=release kaliscope_ncurses```
-
-* or, if you want the QT GUI:
-
-```scons mode=release kaliscope_qt```
+```scons mode=release```
 
 This should build an executable showing a recorder dialog, where you can 
 control your telecinema.
