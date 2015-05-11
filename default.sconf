@@ -22,9 +22,7 @@ CPPDEFINES.extend([
                     'BOOST_SIGNALS_NO_DEPRECATION_WARNING',
                   ])
 
-aliases = [('mvp_player_ncurses')]
-#default = 'kaliscope_ncurses'
-default = 'kaliscope_qt'
+default = ['kaliscope_qt','KaliscopeTelecinemaPlugin']
 
 ccache = False
 ccachedir = join(extern,'kaliscope_cache')
