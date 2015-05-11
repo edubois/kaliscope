@@ -86,7 +86,11 @@ void KaliscopeEngine::playWork()
     }
     catch( boost::thread_interrupted& )
     {}
-    _videoPlayer->unload();
+
+    if ( !_stopped )
+    {
+        _videoPlayer->unload();
+    }
     _stopped = true;
 }
 

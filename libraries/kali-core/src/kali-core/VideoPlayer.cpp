@@ -17,7 +17,7 @@ VideoPlayer::VideoPlayer( const std::shared_ptr<tuttle::host::Graph> & graph )
 
 VideoPlayer::~VideoPlayer()
 {
-//    terminate();
+    terminate();
 }
 
 /**
@@ -98,6 +98,10 @@ void VideoPlayer::buildGraph()
  */
 void VideoPlayer::terminate()
 {
+    if ( _graph )
+    {
+        _graph->clear();
+    }
 }
 
 /**
