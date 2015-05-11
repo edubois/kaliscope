@@ -91,7 +91,7 @@ void RecordingSettingsDialog::removePluginSelection()
 {
     if ( widget.listPipeline->currentItem() )
     {
-        widget.listPipeline->removeItemWidget( widget.listPipeline->currentItem() );
+        qDeleteAll( widget.listPipeline->selectedItems() );
         rebuildPipelineSettings();
     }
 }
