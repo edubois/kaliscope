@@ -40,20 +40,20 @@ public:
 
 private Q_SLOTS:
     void removePluginSelection();
+    void rebuildPipelineSettings();
     void addPlugin();
     void editPluginParams( QListWidgetItem * item );
 
 private:
-    TablePluginItem * addPlugin( const tuttle::host::ofx::imageEffect::OfxhImageEffectPlugin & plugin );
+    TablePluginItem * addPlugin( const tuttle::host::ofx::imageEffect::OfxhImageEffectPlugin & plugin, const mvpplayer::Settings & settings );
     void buildPipelineFrom( const mvpplayer::Settings & pipelineSettings );
-    void rebuildPipeline();
     QWidget* buildPluginWidgetFrom( TablePluginItem *plugItem );
     void accept();
+    bool eventFilter( QObject* sender, QEvent* event );
 
 private:
     Ui::RecordingSettingsDialog widget;
     mvpplayer::Settings _pipelineSettings;                          ///< The pipeline global settings
-    std::map<PluginItem, mvpplayer::Settings> _pluginsSettings;    ///< Local parameters for plugins
 };
 
 }

@@ -75,7 +75,7 @@ void PluginListDialog::buildListOfPlugins()
                 {
                     icon = &iconTuttle;
                 }
-                TablePluginItem * item = new TablePluginItem( *plugFx, *icon, QString::fromStdString( itemString ) );
+                TablePluginItem * item = new TablePluginItem( *plugFx, mvpplayer::Settings(), *icon, QString::fromStdString( itemString ) );
                 widget.listPlugins->addItem( item );
             }
         }

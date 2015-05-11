@@ -61,11 +61,21 @@ void VideoPlayer::initialize()
         else
         {
             std::vector<Graph::Node*> nodes = _graph->getNodes();
-            if ( nodes.size() )
+            std::cout << "Nodes: " << nodes.size() << std::endl;
+            for( Graph::Node* node: nodes )
             {
-                _nodeRead = nodes[0];
-                _nodeFinal = nodes[nodes.size()-1];
+                if ( _graph->getNbInputConnections( *node ) == 0 )
+                {
+                    _nodeRead = node;
+                }
+                if ( _graph->getNbOutputConnections( *node ) == 0 )
+                {
+                    _nodeFinal = node;
+                }
+                std::cout << "node:" << node->getLabel() << std::endl;
             }
+            std::cout << "_nodeRead:" << _nodeRead->getLabel() << std::endl;
+            std::cout << "_nodeFinal:" << _nodeFinal->getLabel() << std::endl;
         }
     }
     catch( ... )

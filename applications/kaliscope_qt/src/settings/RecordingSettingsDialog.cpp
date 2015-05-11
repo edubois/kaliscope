@@ -26,8 +26,8 @@ RecordingSettingsDialog::RecordingSettingsDialog( QWidget *parent )
 
     widget.listPipeline->setMovement( QListView::Static );
     widget.listPipeline->setDragDropMode( QAbstractItemView::InternalMove );
-    widget.listPipeline->setDragDropMode( QAbstractItemView::InternalMove );
     connect( widget.listPipeline, SIGNAL( itemDoubleClicked(QListWidgetItem *) ), this, SLOT( editPluginParams( QListWidgetItem * ) ) );
+    widget.listPipeline->viewport()->installEventFilter( this );
 
     _pipelineSettings.read( QDir::homePath().toStdString() + "/" + kKaliscopeDefaultPipelineSettingsFilename );
     buildPipelineFrom( _pipelineSettings );
@@ -37,16 +37,25 @@ RecordingSettingsDialog::~RecordingSettingsDialog()
 {
 }
 
-void RecordingSettingsDialog::buildPipelineFrom( const mvpplayer::Settings & pipelineSettings )
+bool RecordingSettingsDialog::eventFilter( QObject* sender, QEvent* event )
 {
-    _pluginsSettings = splitOfxNodesSettings( _pipelineSettings );
-    rebuildPipeline();
+    if ( event->type() == QEvent::Drop )
+    {
+        const bool res = sender->eventFilter( sender, event );
+        if ( res )
+        {
+            rebuildPipelineSettings();
+        }
+        return res;
+    }
+    return false;
 }
 
-void RecordingSettingsDialog::rebuildPipeline()
+void RecordingSettingsDialog::buildPipelineFrom( const mvpplayer::Settings & pipelineSettings )
 {
     widget.listPipeline->clear();
-    for( const auto &p: _pluginsSettings )
+    std::map<PluginItem, mvpplayer::Settings> pluginsSettings = splitOfxNodesSettings( _pipelineSettings );
+    for( const auto &p: pluginsSettings )
     {
         using namespace tuttle::host;
         try
@@ -58,7 +67,7 @@ void RecordingSettingsDialog::rebuildPipeline()
             }
             plugFx->loadAndDescribeActions();
 
-            addPlugin( *plugFx );
+            addPlugin( *plugFx, p.second );
         }
         catch( ... )
         {
@@ -67,25 +76,23 @@ void RecordingSettingsDialog::rebuildPipeline()
     }
 }
 
+void RecordingSettingsDialog::rebuildPipelineSettings()
+{
+    const int cnt = widget.listPipeline->count();
+    _pipelineSettings.clear();
+    for( int i = 0; i < cnt; ++i )
+    {
+        TablePluginItem * pluginItem = static_cast<TablePluginItem*>( widget.listPipeline->item( i ) );
+        _pipelineSettings.set( std::string(), std::to_string( i ), pluginItem->settings().tree() );
+    }
+}
+
 void RecordingSettingsDialog::removePluginSelection()
 {
-    const int pluginIndex = widget.listPipeline->currentRow();
-    if ( pluginIndex >= 0 )
+    if ( widget.listPipeline->currentItem() )
     {
-        std::map<PluginItem, mvpplayer::Settings> pluginsSettings = _pluginsSettings;
-        _pluginsSettings.clear();
-        for( const auto p: pluginsSettings )
-        {
-            if ( p.first.index < pluginIndex )
-            {
-                _pluginsSettings[ p.first ] = p.second;
-            }
-            else if ( p.first.index > pluginIndex )
-            {
-                _pluginsSettings[ PluginItem( p.first.index - 1, p.first.pluginIdentifier ) ] = p.second;
-            }
-        }
-        rebuildPipeline();
+        widget.listPipeline->removeItemWidget( widget.listPipeline->currentItem() );
+        rebuildPipelineSettings();
     }
 }
 
@@ -94,16 +101,17 @@ void RecordingSettingsDialog::addPlugin()
     PluginListDialog dlg( !widget.listPipeline->count(), this );
     if ( dlg.exec() && dlg.selectedPlugin() )
     {
-        TablePluginItem *plugItem = addPlugin( *dlg.selectedPlugin() );
-        
+        mvpplayer::Settings nodeSettings;
+        TablePluginItem *plugItem = addPlugin( *dlg.selectedPlugin(), nodeSettings );
+
         // Edit plugin parameters
         editPluginParams( plugItem );
     }
 }
 
-TablePluginItem * RecordingSettingsDialog::addPlugin( const tuttle::host::ofx::imageEffect::OfxhImageEffectPlugin & plugin )
+TablePluginItem * RecordingSettingsDialog::addPlugin( const tuttle::host::ofx::imageEffect::OfxhImageEffectPlugin & plugin, const mvpplayer::Settings & settings )
 {
-    TablePluginItem *plugItem = new TablePluginItem( plugin );
+    TablePluginItem *plugItem = new TablePluginItem( plugin, settings );
     widget.listPipeline->addItem( plugItem );
     QWidget *w = buildPluginWidgetFrom( plugItem );
     widget.listPipeline->setItemWidget( plugItem, w );
@@ -147,18 +155,13 @@ void RecordingSettingsDialog::editPluginParams( QListWidgetItem * item )
         const int itemIndex = widget.listPipeline->row( item );
 
         PluginItem key( itemIndex, pluginItem->plugin().getIdentifier() );
-        mvpplayer::Settings *currentSettings = nullptr;
-        const auto itPlugSettings = _pluginsSettings.find( key );
-        if ( itPlugSettings != _pluginsSettings.end() )
-        {
-            currentSettings = &itPlugSettings->second;
-        }
+        mvpplayer::Settings & currentSettings = pluginItem->settings();
 
         std::unique_ptr<tuttle::host::INode> plugNode( tuttle::host::createNode( pluginItem->plugin().getIdentifier() ) );
-        EditPluginParamsDialog dlg( pluginItem->plugin().getIdentifier(), *plugNode, currentSettings, this );
+        EditPluginParamsDialog dlg( pluginItem->plugin().getIdentifier(), *plugNode, &currentSettings, this );
         if ( dlg.exec() )
         {
-            _pluginsSettings[ key ] = dlg.nodeSettings();
+            currentSettings = dlg.nodeSettings();
         }
     }
     catch( ... )
@@ -169,18 +172,7 @@ void RecordingSettingsDialog::editPluginParams( QListWidgetItem * item )
 
 void RecordingSettingsDialog::accept()
 {
-    const int cnt = widget.listPipeline->count();
-    _pipelineSettings.clear();
-    for( int i = 0; i < cnt; ++i )
-    {
-        TablePluginItem * pluginItem = static_cast<TablePluginItem*>( widget.listPipeline->item( i ) );
-        const auto itPlugSettings = _pluginsSettings.find( PluginItem( i, pluginItem->plugin().getIdentifier() ) );
-        if ( itPlugSettings != _pluginsSettings.end() )
-        {
-            _pipelineSettings.set( std::string(), std::to_string( i ), itPlugSettings->second.tree() );
-        }
-    }
-    
+    rebuildPipelineSettings();
     Parent::accept();
 }
 

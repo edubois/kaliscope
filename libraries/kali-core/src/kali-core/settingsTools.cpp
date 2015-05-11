@@ -11,6 +11,18 @@ namespace kaliscope
 {
 
 /**
+ * @brief get settings from a node
+ * @param plugIdentifier target plugin identifier
+ * @param settings output settings
+ * @param fxNode input ofx node
+ */
+void getSettingsFromNode( std::string & plugIdentifier, mvpplayer::Settings & settings, const tuttle::host::INode & fxNode )
+{
+    plugIdentifier = fxNode.getName();
+    settings.clear();
+}
+
+/**
  * @brief setup a node parameters according to settings
  * @param plugIdentifier target plugin identifier
  * @param fxNode ofx node
@@ -184,18 +196,26 @@ void setupGraphWithSettings( tuttle::host::Graph & graph, const mvpplayer::Setti
     std::map<PluginItem, mvpplayer::Settings> nodesSettings = splitOfxNodesSettings( settings );
 
     using namespace tuttle::host;
-    INode *lastNode = nullptr;
-    for( const auto & p: nodesSettings )
+    try
     {
-        INode & node = graph.createNode( p.first.pluginIdentifier );
-        setNodeSettings( p.first.pluginIdentifier, node, p.second );
-        if ( lastNode )
+        INode *lastNode = nullptr;
+        for( const auto & p: nodesSettings )
         {
-            graph.connect( *lastNode, node );
+            INode & node = graph.createNode( p.first.pluginIdentifier );
+            setNodeSettings( p.first.pluginIdentifier, node, p.second );
+            if ( lastNode )
+            {
+                TUTTLE_LOG_INFO( "Connecting: '" << lastNode->getLabel() << "' to: '" << node.getLabel() << "'" );
+                graph.connect( *lastNode, node );
+            }
+            lastNode = &node;
         }
-        lastNode = &node;
+        graph.setup();
     }
-    graph.setup();
+    catch( ... )
+    {
+        TUTTLE_LOG_CURRENT_EXCEPTION;
+    }
 }
 
 

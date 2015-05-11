@@ -41,6 +41,15 @@ namespace kaliscope
         std::size_t index = 0;
         std::string pluginIdentifier;
     };
+
+/**
+ * @brief get settings from a node
+ * @param plugIdentifier target plugin identifier
+ * @param settings output settings
+ * @param fxNode input ofx node
+ */
+void getSettingsFromNode( std::string & plugIdentifier, mvpplayer::Settings & settings, const tuttle::host::INode & fxNode );
+
 /**
  * @brief setup a node parameters according to settings
  * @param plugIdentifier target plugin identifier
