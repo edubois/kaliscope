@@ -49,7 +49,8 @@ void PlayerOpenGLWidget::paintGL()
 {
     std::unique_lock<std::mutex> lock( _mutexDisplay );
 
-    glColor3f(1,1,1);
+    glColor3f( 0.0f, 0.0f, 0.0f );
+    glClear( GL_COLOR_BUFFER_BIT );
     glEnable( GL_TEXTURE_2D );
     glBindTexture( GL_TEXTURE_2D, _currentTexture );
 
