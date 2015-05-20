@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RCC version="1.0">
+    <qresource prefix="shaders">
+        <file>negative_frag.glsl</file>
+        <file>negative_vert.glsl</file>
+    </qresource>
+</RCC>

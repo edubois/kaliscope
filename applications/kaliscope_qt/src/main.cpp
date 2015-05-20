@@ -78,6 +78,7 @@ int main( int argc, char **argv )
     QApplication app( argc, argv );
 
     initResources();
+    Q_INIT_RESOURCE( shaders );
 
     Dialog dlg;
 

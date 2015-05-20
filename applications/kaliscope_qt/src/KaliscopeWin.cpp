@@ -31,6 +31,7 @@ KaliscopeWin::KaliscopeWin()
 
     connect( _btnPlayPause, SIGNAL( toggled(bool) ), this, SLOT( slotViewHitPlayStopBtn() ) );
     connect( widget.btnSettings, SIGNAL( released() ), this, SLOT( editSettings() ) );
+    connect( widget.cbInvertColors, SIGNAL( toggled(bool) ), this, SLOT( invertDisplayColors( const bool ) ) );
 }
 
 KaliscopeWin::~KaliscopeWin()
@@ -147,6 +148,11 @@ void KaliscopeWin::dropEvent( QDropEvent *de )
         signalViewAppendTrackItems( fileItems );
         de->accept();
     }
+}
+
+void KaliscopeWin::invertDisplayColors( const bool active )
+{
+    _viewer->setInvertColors( active );
 }
 
 void KaliscopeWin::editSettings()

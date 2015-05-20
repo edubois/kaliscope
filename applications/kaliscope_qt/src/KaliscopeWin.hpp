@@ -91,6 +91,7 @@ protected Q_SLOTS:
     void slotViewHitButton();
     void changeTrackPosition( const int positionInPercent );
     void changeVolume( const int volume );
+    void invertDisplayColors( const bool );
     void editSettings();
     void startStopServer( const bool start = true );
     void playPlaylistItemAtIndex( const int playlistIndex );

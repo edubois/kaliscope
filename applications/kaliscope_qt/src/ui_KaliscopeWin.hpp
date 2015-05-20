@@ -13,6 +13,7 @@
 #include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QButtonGroup>
+#include <QtWidgets/QCheckBox>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QLabel>
@@ -34,6 +35,9 @@ public:
     QVBoxLayout *verticalLayout;
     QVBoxLayout *layoutVideo;
     QVBoxLayout *layoutViewer;
+    QHBoxLayout *horizontalLayout_4;
+    QCheckBox *cbInvertColors;
+    QSpacerItem *horizontalSpacer_2;
     QLabel *lblCurrentTrack;
     QHBoxLayout *horizontalLayout_3;
     QSlider *sliderPosition;
@@ -50,7 +54,7 @@ public:
     {
         if (KaliscopeWin->objectName().isEmpty())
             KaliscopeWin->setObjectName(QStringLiteral("KaliscopeWin"));
-        KaliscopeWin->resize(718, 510);
+        KaliscopeWin->resize(718, 514);
         QIcon icon;
         icon.addFile(QStringLiteral(":/kaliscope/icons/app/kaliscope.png"), QSize(), QIcon::Normal, QIcon::Off);
         KaliscopeWin->setWindowIcon(icon);
@@ -65,6 +69,20 @@ public:
         layoutViewer->setSizeConstraint(QLayout::SetMaximumSize);
 
         layoutVideo->addLayout(layoutViewer);
+
+        horizontalLayout_4 = new QHBoxLayout();
+        horizontalLayout_4->setObjectName(QStringLiteral("horizontalLayout_4"));
+        cbInvertColors = new QCheckBox(centralwidget);
+        cbInvertColors->setObjectName(QStringLiteral("cbInvertColors"));
+
+        horizontalLayout_4->addWidget(cbInvertColors);
+
+        horizontalSpacer_2 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_4->addItem(horizontalSpacer_2);
+
+
+        layoutVideo->addLayout(horizontalLayout_4);
 
         lblCurrentTrack = new QLabel(centralwidget);
         lblCurrentTrack->setObjectName(QStringLiteral("lblCurrentTrack"));
@@ -133,6 +151,8 @@ public:
         statusbar = new QStatusBar(KaliscopeWin);
         statusbar->setObjectName(QStringLiteral("statusbar"));
         KaliscopeWin->setStatusBar(statusbar);
+        QWidget::setTabOrder(cbInvertColors, sliderPosition);
+        QWidget::setTabOrder(sliderPosition, btnSettings);
 
         retranslateUi(KaliscopeWin);
 
@@ -142,6 +162,7 @@ public:
     void retranslateUi(QMainWindow *KaliscopeWin)
     {
         KaliscopeWin->setWindowTitle(QApplication::translate("KaliscopeWin", "Kaliscope film scanner", 0));
+        cbInvertColors->setText(QApplication::translate("KaliscopeWin", "Invert colors", 0));
         lblCurrentTrack->setText(QString());
         lblTrackLength->setText(QString());
         btnSettings->setText(QApplication::translate("KaliscopeWin", "S", 0));
