@@ -23,7 +23,7 @@ namespace qt
 KaliscopeWin::KaliscopeWin()
 {
     widget.setupUi(this);
-    
+
     mvpplayer::gui::qt::initDialog( *this );
     _viewer = new PlayerOpenGLWidget( this );
     _viewer->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
@@ -153,6 +153,7 @@ void KaliscopeWin::dropEvent( QDropEvent *de )
 void KaliscopeWin::invertDisplayColors( const bool active )
 {
     _viewer->setInvertColors( active );
+    _viewer->update();
 }
 
 void KaliscopeWin::editSettings()
