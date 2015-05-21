@@ -143,6 +143,7 @@ void GpioWatcher::worker()
         if ( ( _stop = getValGpio( gpioValue ) ) && lastValue != gpioValue )
         {
             signalGpioValueChanged( _gpioId, gpioValue );
+            std::cout << "gpio has changed from: " << lastValue << " to " << gpioValue << std::endl;
             lastValue = gpioValue;
         }
     }
