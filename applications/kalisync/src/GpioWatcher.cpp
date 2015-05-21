@@ -140,10 +140,17 @@ void GpioWatcher::worker()
     {
         std::this_thread::sleep_for( std::chrono::microseconds( _microsecDelay ) );
         bool gpioValue = false;
-        if ( ( _stop = getValGpio( gpioValue ) ) && lastValue != gpioValue )
+        if ( getValGpio( gpioValue ) )
         {
-            signalGpioValueChanged( _gpioId, gpioValue );
-            lastValue = gpioValue;
+            if ( lastValue != gpioValue )
+            {
+                signalGpioValueChanged( _gpioId, gpioValue );
+                lastValue = gpioValue;
+            }
+        }
+        else
+        {
+            _stop = true;
         }
     }
 }
@@ -157,6 +164,7 @@ void GpioWatcher::startWatching( const std::size_t microsecDelay )
     _microsecDelay = microsecDelay;
     exportGpio();
     setDirGpio( "in" );
+    _stop = false;
     _watcherThread.reset( new std::thread( &This::worker, this ) );
 }
 
