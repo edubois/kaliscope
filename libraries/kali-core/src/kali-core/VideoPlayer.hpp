@@ -11,6 +11,9 @@
 #include <tuttle/host/Graph.hpp>
 #include <ofxCore.h>
 
+#include <mutex>
+#include <condition_variable>
+
 namespace kaliscope
 {
 

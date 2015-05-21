@@ -1,3 +1,3 @@
 export OFX_PLUGIN_PATH=/usr/local/OFX/
-export MVPPLAYER_PLUGIN_PATH=/Users/djarwood/_DEV/kaliscope/dist/MacBook-Pro-de-Djarwood/clang-unknown/release/bin/plugins/
-export DYLD_LIBRARY_PATH=/Users/djarwood/_DEV/3rdParties/boost-mac-c++11/stage/lib:/Users/djarwood/_DEV/3rdParties/fmod/api/lowlevel/lib/:$DYLD_LIBRARY_PATH
+export MVPPLAYER_PLUGIN_PATH=/home/pi/_DEV/kaliscope/dist/raspberrypi/gcc-4.8/release/bin/plugins/
+export LD_LIBRARY_PATH=/home/pi/_DEV/3rdParties/boost/stage/lib:/home/pi/_DEV/3rdParties/fmod/api/lowlevel/lib/:/home/pi/_DEV/kaliscope/dist/raspberrypi/gcc-4.8/release/lib:$LD_LIBRARY_PATH

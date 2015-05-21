@@ -10,6 +10,7 @@
 
 #include <boost/signals2.hpp>
 #include <thread>
+#include <mutex>
 
 namespace kaliscope
 {

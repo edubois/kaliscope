@@ -10,32 +10,25 @@ unix = not windows
 mode='release'
 check_libs=0
 
-jobs=8
+jobs=1
 
 extern = '#../3rdParties'
 
-CPPDEFINES.extend([
-#                    'WITHOUT_BOOST_LOG', 
-                    'BOOST_ALL_DYN_LINK',
-                    'BOOST_LOG_DYN_LINK',
-                    'BOOST_SPIRIT_USE_PHOENIX_V3',
-                    'BOOST_SIGNALS_NO_DEPRECATION_WARNING',
-                  ])
+CPPDEFINES.extend(['BOOST_ALL_DYN_LINK', 'BOOST_LOG_DYN_LINK', 'BOOST_SPIRIT_USE_PHOENIX_V3', 'BOOST_SIGNALS_NO_DEPRECATION_WARNING' ])
 
-default = ['kaliscope_qt','KaliscopeTelecinemaPlugin']
+aliases = [('mvp_player_ncurses')]
+#default = 'mvp_player_ncurses'
+default = ['KaliscopeTelecinemaPlugin', 'kaliscope_qt']
 
 ccache = False
-ccachedir = join(extern,'kaliscope_cache')
+ccachedir = join(extern,'mvp_player_cache')
 
-incdir_qt5 = join(extern, 'qt5/5.4/clang_64/include')
-fwkdir_qt5 = '/Users/djarwood/_DEV/3rdParties/qt5/5.4/clang_64/lib'
+incdir_qt5 = '/usr/local/qt5/include'
+libdir_qt5 = '/usr/local/qt5/lib/'
+lib_qt5 = [ 'Qt5Network', 'Qt5Core', 'Qt5Gui', 'Qt5PrintSupport', 'Qt5Widgets', 'Qt5OpenGL', 'Qt5Sql' ]
 
-fwkdir_gl = '/System/Library/Frameworks/OpenGL.framework/lib'
-
-incdir_tuttleHost = '/usr/local/include'
-libdir_tuttleHost = '/usr/local/lib'
-incdir_boost = join(extern,'boost-mac-c++11')
-libdir_boost = join(extern,'boost-mac-c++11/stage/lib')
+incdir_boost = join(extern,'boost')
+libdir_boost = join(extern,'boost/stage/lib')
 incdir_ncurses = join(extern,'ncurses/include')
 libdir_ncurses = join(extern,'ncurses/lib')
 incdir_cdk = join(extern,'cdk/include')
@@ -43,6 +36,4 @@ libdir_cdk = join(extern,'cdk/')
 incdir_fmod = join(extern,'fmod/api/lowlevel/inc')
 libdir_fmod = join(extern,'fmod/api/lowlevel/lib')
 
-compiler="clang"
-CXXFLAGS=['-Wc++11-narrowing', '-Wno-deprecated-register', '-ftemplate-depth=256', '-std=c++11', '-stdlib=libc++', '-isysroot/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk']
-LINKFLAGS=['-stdlib=libc++','-Wl,-syslibroot,/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk']
+CXXFLAGS = ['-std=c++11']

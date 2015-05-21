@@ -38,7 +38,8 @@ void captureTriggered( mvpplayer::network::server::Server & server, const bool p
     {
         // Send next track
         mvpplayer::logic::EvNextTrack event;
-        server.sendEventMulticast( event );
+        std::cout << "Next frame!" << std::endl;
+	server.sendEventMulticast( event );
     }
 }
 
