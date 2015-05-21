@@ -45,6 +45,7 @@ public:
     QHBoxLayout *horizontalLayout_2;
     QHBoxLayout *horizontalLayout;
     QToolButton *btnSettings;
+    QToolButton *btnConnect;
     QHBoxLayout *layoutButtonsBar;
     QSpacerItem *horizontalSpacer;
     QMenuBar *menubar;
@@ -127,6 +128,16 @@ public:
 
         horizontalLayout->addWidget(btnSettings);
 
+        btnConnect = new QToolButton(centralwidget);
+        btnConnect->setObjectName(QStringLiteral("btnConnect"));
+        QIcon icon2;
+        icon2.addFile(QStringLiteral(":/mvpplayer/toolbar/network-settings.png"), QSize(), QIcon::Normal, QIcon::Off);
+        btnConnect->setIcon(icon2);
+        btnConnect->setIconSize(QSize(32, 32));
+        btnConnect->setCheckable(true);
+
+        horizontalLayout->addWidget(btnConnect);
+
 
         horizontalLayout_2->addLayout(horizontalLayout);
 
@@ -166,6 +177,7 @@ public:
         lblCurrentTrack->setText(QString());
         lblTrackLength->setText(QString());
         btnSettings->setText(QApplication::translate("KaliscopeWin", "S", 0));
+        btnConnect->setText(QApplication::translate("KaliscopeWin", "...", 0));
     } // retranslateUi
 
 };

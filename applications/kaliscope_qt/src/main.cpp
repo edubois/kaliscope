@@ -13,6 +13,7 @@
 #include <mvp-player-qtgui/MVPPlayerSettingsDialog.hpp>
 #include <mvp-player-qtgui/resources.hpp>
 #include <mvp-player-pluger/PluginLoader.hpp>
+#include <mvp-player-net/client/Client.hpp>
 
 #include <boost-adds/environment.hpp>
 #include <boost/log/core.hpp>
@@ -92,6 +93,9 @@ int main( int argc, char **argv )
     // Core (model): a sound player engine
     kaliscope::KaliscopeEngine playerEngine( &kaliscope::VideoPlayer::getInstance() );
 
+    // Network remote for synchronization (raspberry pi for example)
+    mvpplayer::network::client::Client remote;
+
     // Presenter (presenter: logic-glu between model and view)
     mvpplayer::logic::MVPPlayerPresenter presenter;
     presenter.startStateMachine<mvpplayer::logic::PlayerStateMachine>();
@@ -112,7 +116,25 @@ int main( int argc, char **argv )
     mvpplayer::gui::setupMainBehavior( playerEngine, dlg, presenter );
     // Settings editor binding
     dlg.signalViewHitEditSettings.connect( boost::bind( &editSettings, &dlg, boost::ref( playerEngine ), boost::ref( dlg ), boost::ref( presenter ) ) );
-    
+
+    // Transfer events received from the network to the presenter's state machine
+    remote.signalEvent.connect( boost::bind( &mvpplayer::logic::MVPPlayerPresenter::processEvent, &presenter, _1 ) );
+
+    // Network setup
+    dlg.signalViewConnect.connect(
+        [&remote, &dlg]()
+        {
+            static QString serverIP = "192.168.1.72";
+            bool ok = false;
+            serverIP = QInputDialog::getText( &dlg, QObject::tr("Connection"), QObject::tr("Kalisync server IP:"), QLineEdit::Normal, serverIP, &ok);
+            if ( ok )
+            {
+                remote.connect( serverIP.toStdString() );
+            }
+        }
+    );
+    dlg.signalViewDisconnect.connect( boost::bind( &mvpplayer::network::client::Client::disconnect, &remote ) );
+
     // Bind 'frame ready' signal to display function
     playerEngine.signalFrameReady.connect( boost::bind( &Dialog::displayFrame, &dlg, _1, _2 ) );
     dlg.viewer()->signalFrameDone.connect( boost::bind( &kaliscope::KaliscopeEngine::frameProcessed, &playerEngine, _1 ) );
@@ -128,6 +150,7 @@ int main( int argc, char **argv )
     dlg.viewer()->signalFrameDone.disconnect_all_slots();
     playerEngine.signalFrameReady.disconnect_all_slots();
     presenter.signalEvent.disconnect_all_slots();
+    remote.signalEvent.disconnect_all_slots();
     app.processEvents();
     // Unload plugins
     mvpplayer::plugins::PluginLoader::getInstance().unloadPlugins();

@@ -86,6 +86,7 @@ private:
     void dragLeaveEvent( QDragLeaveEvent *event );
 
 protected Q_SLOTS:
+    void connectDisconnectClient( const bool start = true );
     QString slotOpenFile( const QString & title, const QString & extensions, const logic::EFileDialogMode mode );
     void slotDisplayError( const QString & msg );
     void slotViewHitButton();
@@ -106,6 +107,13 @@ protected Q_SLOTS:
     void slotSetTrackLength( const std::size_t lengthInMS );
     void slotSetVolume( const float volume );
     void slotDisplayFrame( const std::size_t nFrame, const DefaultImageT & image );
+
+/*
+ * signals
+ */
+public:
+    boost::signals2::signal<void()> signalViewConnect;      ///< Signal connect
+    boost::signals2::signal<void()> signalViewDisconnect;   ///< Signal disconnect
 
 protected:
     std::size_t _currentTrackLength = 0;

@@ -30,6 +30,7 @@ KaliscopeWin::KaliscopeWin()
     widget.layoutViewer->addWidget( _viewer );
 
     connect( _btnPlayPause, SIGNAL( toggled(bool) ), this, SLOT( slotViewHitPlayStopBtn() ) );
+    connect( widget.btnConnect, SIGNAL( clicked(bool) ), this, SLOT( connectDisconnectClient( const bool ) ) );
     connect( widget.btnSettings, SIGNAL( released() ), this, SLOT( editSettings() ) );
     connect( widget.cbInvertColors, SIGNAL( toggled(bool) ), this, SLOT( invertDisplayColors( const bool ) ) );
 }
@@ -52,6 +53,18 @@ boost::optional<boost::filesystem::path> KaliscopeWin::openFile( const std::stri
     else
     {
         return boost::none;
+    }
+}
+
+void KaliscopeWin::connectDisconnectClient( const bool start )
+{
+    if ( start )
+    {
+        signalViewConnect();
+    }
+    else
+    {
+        signalViewDisconnect();
     }
 }
 
