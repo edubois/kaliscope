@@ -3,7 +3,6 @@
 #include <tuttle/host/attribute/Image.hpp>
 
 #include <QtGui/QSurfaceFormat>
-#include <GL/gl.h>
 
 #include <boost/gil/extension/io/jpeg_io.hpp>
 
