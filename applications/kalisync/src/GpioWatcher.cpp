@@ -19,7 +19,10 @@ namespace kaliscope
 GpioWatcher::GpioWatcher( const std::size_t pinId, const int microsecDelay )
 : _gpioId( pinId )
 {
-    startWatching( microsecDelay );
+    if ( microsecDelay >= 0 )
+    {
+        startWatching( microsecDelay );
+    }
 }
 
 GpioWatcher::~GpioWatcher()

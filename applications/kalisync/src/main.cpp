@@ -17,6 +17,8 @@ static const char * kServerPortOptionString( "port" );
 static const char * kServerPortOptionMessage( "Port for network server" );
 static const char * kWatchInputPinOptionString( "watch" );
 static const char * kWatchInputPinOptionMessage( "Watch input pin (gpio id)" );
+static const char * kLedPinOptionString( "ledPin" );
+static const char * kLedPinOptionMessage( "Led output pin (gpio id)" );
 
 void kalisync_terminate( void )
 {
@@ -58,6 +60,7 @@ int main( int argc, char** argv )
         bpo::options_description mainOptions( "Allowed options" );
         mainOptions.add_options()
             ( kServerPortOptionString,  bpo::value<unsigned short>()->default_value( mvpplayer::network::server::kDefaultServerPort ), kServerPortOptionMessage )
+            ( kLedPinOptionString, bpo::value<int>()->required(), kLedPinOptionMessage )
             ( kWatchInputPinOptionString, bpo::value<int>()->required(), kWatchInputPinOptionMessage );
 
         //parse the command line, and put the result in vm
@@ -78,11 +81,18 @@ int main( int argc, char** argv )
         using namespace mvpplayer::network::server;
 
         GpioWatcher gpioWatcher( vm[kWatchInputPinOptionString].as<int>(), 0 );
+        GpioWatcher gpioLedFrameDone( vm[kLedPinOptionString].as<int>() );
+        gpioLedFrameDone.exportGpio();
+        gpioLedFrameDone.setDirGpio( "out" );
+
         std::cout << "[Kalisync] GPIO Watcher started..." << std::endl;
         Server server( vm[kServerPortOptionString].as<unsigned short>() );
         server.run();
         std::cout << "[Kalisync] GPIO Server started..." << std::endl;
         gpioWatcher.signalGpioValueChanged.connect( boost::bind( &captureTriggered, boost::ref( server ), _2 ) );
+        // Blink led
+        gpioWatcher.signalGpioValueChanged.connect( boost::bind( &GpioWatcher::setValGpio, &gpioLedFrameDone, true ) );
+        gpioWatcher.signalGpioValueChanged.connect( boost::bind( &GpioWatcher::setValGpio, &gpioLedFrameDone, false ) );
         server.wait();
     }
     catch( ... )

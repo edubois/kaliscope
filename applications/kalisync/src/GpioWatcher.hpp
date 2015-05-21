@@ -46,12 +46,6 @@ public:
      */
     void stop();
 
-protected:
-    /**
-     * @brief watching work
-     */
-    void worker();
-
     /**
      * @brief export gpio for further use
      * @return false if failure, true otherwise
@@ -84,7 +78,13 @@ protected:
      * @return false if failure, true otherwise
      */
     bool getValGpio( bool & val );
-    
+
+protected:
+    /**
+     * @brief watching work
+     */
+    virtual void worker();
+
 /**
  * @brief signals
  */
