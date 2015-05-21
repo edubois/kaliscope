@@ -36,6 +36,8 @@ To compile, you will need Qt5, Boost, Fmod, ncurses, cdk and scons:
 * NCURSES: http://ftp.gnu.org/pub/gnu/ncurses/
 * CDK: http://invisible-island.net/cdk/
 
+Please note that due to the intensive use of templates, you will need at least 1.6GB of memory.
+This is important if you plan to compile this directly on the Raspberry PI.
 
 First, clone the repository:
 
@@ -63,8 +65,11 @@ When you are ready, enter:
 
 ```scons mode=release```
 
-This should build an executable showing a recorder dialog, where you can 
+This should build an executable kaliscope_qt showing a recorder dialog, where you can 
 control your telecinema.
+
+Edit init.ksh according to your configuration, then source it and execute the binary file.
+
 You only have to connect your Hall Sensor to GPIO INPUT 1 of the ximea device.
 The Hall sensor must be activated by a magnet each time a film frame has to be captured.
 Connecting it to the GPIO1 will synchronize the triggering of the camera exposure afterwhat we can capture images.
