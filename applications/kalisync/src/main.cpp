@@ -84,15 +84,15 @@ int main( int argc, char** argv )
         GpioWatcher gpioLedFrameDone( vm[kLedPinOptionString].as<int>() );
         gpioLedFrameDone.exportGpio();
         gpioLedFrameDone.setDirGpio( "out" );
+        gpioLedFrameDone.setValGpio( false );
 
         std::cout << "[Kalisync] GPIO Watcher started..." << std::endl;
         Server server( vm[kServerPortOptionString].as<unsigned short>() );
         server.run();
         std::cout << "[Kalisync] GPIO Server started..." << std::endl;
         gpioWatcher.signalGpioValueChanged.connect( boost::bind( &captureTriggered, boost::ref( server ), _2 ) );
-        // Blink led
-        gpioWatcher.signalGpioValueChanged.connect( boost::bind( &GpioWatcher::setValGpio, &gpioLedFrameDone, true ) );
-        gpioWatcher.signalGpioValueChanged.connect( boost::bind( &GpioWatcher::setValGpio, &gpioLedFrameDone, false ) );
+        // Toggle led value
+        gpioWatcher.signalGpioValueChanged.connect( boost::bind( &GpioWatcher::toggleValue, &gpioLedFrameDone ) );
         server.wait();
     }
     catch( ... )

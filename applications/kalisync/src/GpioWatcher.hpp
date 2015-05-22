@@ -73,6 +73,11 @@ public:
     bool setValGpio( const bool value ); // Set GPIO Value (putput pins)
 
     /**
+     * @brief toggle gpio value
+     */
+    void toggleValue();
+
+    /**
      * @brief get gpio value
      * @param val[out] output value
      * @return false if failure, true otherwise
@@ -92,6 +97,7 @@ public:
     boost::signals2::signal<void( const std::size_t pinNum, const bool value )> signalGpioValueChanged; ///< Signalize that the GPIO value has changed
 
 private:
+    bool _value = false;            ///< Value
     const std::size_t _gpioId;      ///< GPIO number associated with the instance of an object
     std::unique_ptr<std::thread> _watcherThread;       ///< Watcher's thread
     bool _stop = true;              ///< Stops watcher thread

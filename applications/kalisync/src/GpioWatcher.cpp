@@ -30,6 +30,12 @@ GpioWatcher::~GpioWatcher()
     stop();
 }
 
+void GpioWatcher::toggleValue()
+{
+    _value = !_value;
+    setValGpio( _value );
+}
+
 bool GpioWatcher::exportGpio()
 {
     static const std::string exportStr( "/sys/class/gpio/export" );
@@ -99,6 +105,7 @@ bool GpioWatcher::setValGpio( const bool value )
 
     // write boolean value to value file
     setvalgpio << value;
+    _value = value;
     // close value file
     setvalgpio.close();
     return true;
