@@ -35,11 +35,11 @@ public:
     QFormLayout *formLayout;
     QLabel *label;
     QHBoxLayout *horizontalLayout_2;
-    QComboBox *comboBox;
+    QComboBox *comboInput;
     QToolButton *btnBrowseInput;
     QLabel *label_2;
     QHBoxLayout *horizontalLayout_3;
-    QLineEdit *lineEdit;
+    QLineEdit *editOutput;
     QToolButton *btnBrowseOutput;
     QSpacerItem *verticalSpacer;
     QLabel *label_3;
@@ -48,7 +48,7 @@ public:
     QToolButton *btnRemovePlugin;
     QToolButton *btnLoadConfig;
     QToolButton *btnSaveConfig;
-    QSpacerItem *horizontalSpacer;
+    QComboBox *comboPresets;
     QListWidget *listPipeline;
     QDialogButtonBox *buttonBox;
 
@@ -73,16 +73,16 @@ public:
         horizontalLayout_2 = new QHBoxLayout();
         horizontalLayout_2->setObjectName(QStringLiteral("horizontalLayout_2"));
         horizontalLayout_2->setSizeConstraint(QLayout::SetMaximumSize);
-        comboBox = new QComboBox(RecordingSettingsDialog);
-        comboBox->setObjectName(QStringLiteral("comboBox"));
+        comboInput = new QComboBox(RecordingSettingsDialog);
+        comboInput->setObjectName(QStringLiteral("comboInput"));
         QSizePolicy sizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
-        sizePolicy.setHeightForWidth(comboBox->sizePolicy().hasHeightForWidth());
-        comboBox->setSizePolicy(sizePolicy);
-        comboBox->setEditable(true);
+        sizePolicy.setHeightForWidth(comboInput->sizePolicy().hasHeightForWidth());
+        comboInput->setSizePolicy(sizePolicy);
+        comboInput->setEditable(true);
 
-        horizontalLayout_2->addWidget(comboBox);
+        horizontalLayout_2->addWidget(comboInput);
 
         btnBrowseInput = new QToolButton(RecordingSettingsDialog);
         btnBrowseInput->setObjectName(QStringLiteral("btnBrowseInput"));
@@ -100,12 +100,12 @@ public:
         horizontalLayout_3 = new QHBoxLayout();
         horizontalLayout_3->setObjectName(QStringLiteral("horizontalLayout_3"));
         horizontalLayout_3->setSizeConstraint(QLayout::SetMaximumSize);
-        lineEdit = new QLineEdit(RecordingSettingsDialog);
-        lineEdit->setObjectName(QStringLiteral("lineEdit"));
-        sizePolicy.setHeightForWidth(lineEdit->sizePolicy().hasHeightForWidth());
-        lineEdit->setSizePolicy(sizePolicy);
+        editOutput = new QLineEdit(RecordingSettingsDialog);
+        editOutput->setObjectName(QStringLiteral("editOutput"));
+        sizePolicy.setHeightForWidth(editOutput->sizePolicy().hasHeightForWidth());
+        editOutput->setSizePolicy(sizePolicy);
 
-        horizontalLayout_3->addWidget(lineEdit);
+        horizontalLayout_3->addWidget(editOutput);
 
         btnBrowseOutput = new QToolButton(RecordingSettingsDialog);
         btnBrowseOutput->setObjectName(QStringLiteral("btnBrowseOutput"));
@@ -149,9 +149,11 @@ public:
 
         horizontalLayout->addWidget(btnSaveConfig);
 
-        horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+        comboPresets = new QComboBox(RecordingSettingsDialog);
+        comboPresets->setObjectName(QStringLiteral("comboPresets"));
+        comboPresets->setEditable(true);
 
-        horizontalLayout->addItem(horizontalSpacer);
+        horizontalLayout->addWidget(comboPresets);
 
 
         verticalLayout->addLayout(horizontalLayout);
@@ -184,14 +186,15 @@ public:
 
         verticalLayout->addWidget(buttonBox);
 
-        QWidget::setTabOrder(comboBox, btnBrowseInput);
-        QWidget::setTabOrder(btnBrowseInput, lineEdit);
-        QWidget::setTabOrder(lineEdit, btnBrowseOutput);
+        QWidget::setTabOrder(comboInput, btnBrowseInput);
+        QWidget::setTabOrder(btnBrowseInput, editOutput);
+        QWidget::setTabOrder(editOutput, btnBrowseOutput);
         QWidget::setTabOrder(btnBrowseOutput, btnAddPlugin);
         QWidget::setTabOrder(btnAddPlugin, btnRemovePlugin);
         QWidget::setTabOrder(btnRemovePlugin, btnLoadConfig);
         QWidget::setTabOrder(btnLoadConfig, btnSaveConfig);
-        QWidget::setTabOrder(btnSaveConfig, listPipeline);
+        QWidget::setTabOrder(btnSaveConfig, comboPresets);
+        QWidget::setTabOrder(comboPresets, listPipeline);
 
         retranslateUi(RecordingSettingsDialog);
         QObject::connect(buttonBox, SIGNAL(accepted()), RecordingSettingsDialog, SLOT(accept()));
@@ -212,6 +215,9 @@ public:
         btnRemovePlugin->setText(QApplication::translate("RecordingSettingsDialog", "-", 0));
         btnLoadConfig->setText(QApplication::translate("RecordingSettingsDialog", "Load", 0));
         btnSaveConfig->setText(QApplication::translate("RecordingSettingsDialog", "Save", 0));
+#ifndef QT_NO_TOOLTIP
+        comboPresets->setToolTip(QApplication::translate("RecordingSettingsDialog", "preset name", 0));
+#endif // QT_NO_TOOLTIP
     } // retranslateUi
 
 };

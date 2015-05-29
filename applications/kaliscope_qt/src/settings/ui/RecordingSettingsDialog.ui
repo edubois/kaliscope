@@ -36,7 +36,7 @@
         <enum>QLayout::SetMaximumSize</enum>
        </property>
        <item>
-        <widget class="QComboBox" name="comboBox">
+        <widget class="QComboBox" name="comboInput">
          <property name="sizePolicy">
           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
            <horstretch>0</horstretch>
@@ -70,7 +70,7 @@
         <enum>QLayout::SetMaximumSize</enum>
        </property>
        <item>
-        <widget class="QLineEdit" name="lineEdit">
+        <widget class="QLineEdit" name="editOutput">
          <property name="sizePolicy">
           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
            <horstretch>0</horstretch>
@@ -141,17 +141,14 @@
       </widget>
      </item>
      <item>
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+      <widget class="QComboBox" name="comboPresets">
+       <property name="toolTip">
+        <string>preset name</string>
        </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
+       <property name="editable">
+        <bool>true</bool>
        </property>
-      </spacer>
+      </widget>
      </item>
     </layout>
    </item>
@@ -220,14 +217,15 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>comboBox</tabstop>
+  <tabstop>comboInput</tabstop>
   <tabstop>btnBrowseInput</tabstop>
-  <tabstop>lineEdit</tabstop>
+  <tabstop>editOutput</tabstop>
   <tabstop>btnBrowseOutput</tabstop>
   <tabstop>btnAddPlugin</tabstop>
   <tabstop>btnRemovePlugin</tabstop>
   <tabstop>btnLoadConfig</tabstop>
   <tabstop>btnSaveConfig</tabstop>
+  <tabstop>comboPresets</tabstop>
   <tabstop>listPipeline</tabstop>
  </tabstops>
  <resources>

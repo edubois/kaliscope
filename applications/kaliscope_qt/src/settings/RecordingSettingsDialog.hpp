@@ -43,6 +43,8 @@ private Q_SLOTS:
     void rebuildPipelineSettings();
     void addPlugin();
     void editPluginParams( QListWidgetItem * item );
+    void loadConfig();
+    void saveConfig();
 
 private:
     TablePluginItem * addPlugin( const tuttle::host::ofx::imageEffect::OfxhImageEffectPlugin & plugin, const mvpplayer::Settings & settings );

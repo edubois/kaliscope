@@ -7,6 +7,7 @@
 #include <QtCore/QSize>
 #include <QtGui/QDropEvent>
 #include <QtCore/QDir>
+#include <QtWidgets/QFileDialog>
 
 #include <boost/format.hpp>
 
@@ -23,6 +24,8 @@ RecordingSettingsDialog::RecordingSettingsDialog( QWidget *parent )
     widget.setupUi( this );
     connect( widget.btnAddPlugin, SIGNAL( released() ), this, SLOT( addPlugin() ) );
     connect( widget.btnRemovePlugin, SIGNAL( released() ), this, SLOT( removePluginSelection() ) );
+    connect( widget.btnLoadConfig, SIGNAL( released() ), this, SLOT( loadConfig() ) );
+    connect( widget.btnSaveConfig, SIGNAL( released() ), this, SLOT( saveConfig() ) );
 
     widget.listPipeline->setMovement( QListView::Static );
     widget.listPipeline->setDragDropMode( QAbstractItemView::InternalMove );
@@ -35,6 +38,37 @@ RecordingSettingsDialog::RecordingSettingsDialog( QWidget *parent )
 
 RecordingSettingsDialog::~RecordingSettingsDialog()
 {
+}
+
+void RecordingSettingsDialog::loadConfig()
+{
+    static QString filename;
+    if ( !filename.size() )
+    {
+        filename = QDir::homePath();
+    }
+
+    filename = QFileDialog::getOpenFileName( this, tr("Pipeline configuration file"), filename, tr("Config files (*.json *.xml *.ini)") );
+    if ( filename.size() )
+    {
+        _pipelineSettings.read( filename.toStdString() );
+        buildPipelineFrom( _pipelineSettings );
+    }
+}
+
+void RecordingSettingsDialog::saveConfig()
+{
+    static QString filename;
+    if ( !filename.size() )
+    {
+        filename = QDir::homePath();
+    }
+
+    filename = QFileDialog::getSaveFileName( this, tr("Pipeline configuration file"), filename, tr("Config files (*.json *.xml *.ini)") );
+    if ( filename.size() )
+    {
+        _pipelineSettings.write( filename.toStdString() );
+    }
 }
 
 bool RecordingSettingsDialog::eventFilter( QObject* sender, QEvent* event )
