@@ -20,6 +20,7 @@ namespace qt
 {
 
 static const std::string kKaliscopeDefaultPipelineSettingsFilename( ".kaliDefaultPipeline.json" );
+static const std::string kPresetsDirectory( "presets" );
 
 /**
  * @brief recording dialog settings
@@ -43,6 +44,7 @@ private Q_SLOTS:
     void rebuildPipelineSettings();
     void addPlugin();
     void editPluginParams( QListWidgetItem * item );
+    void loadPreset( const int index );
     void loadConfig();
     void saveConfig();
 
@@ -52,8 +54,10 @@ private:
     QWidget* buildPluginWidgetFrom( TablePluginItem *plugItem );
     void accept();
     bool eventFilter( QObject* sender, QEvent* event );
+    void loadPresetItems();
 
 private:
+    std::map<int, mvpplayer::Settings> _presets;                    ///< Presets
     Ui::RecordingSettingsDialog widget;
     mvpplayer::Settings _pipelineSettings;                          ///< The pipeline global settings
 };
