@@ -272,11 +272,11 @@ OfxRangeD VideoPlayer::getTimeDomain() const
 
 /**
  * @brief set current track position
- * @param position position in percent (0-100), ms or frames
- * @param seekType seek position in frame, percent or milliseconds
- * @return false on success, true if error
+ * @param[in] position position in percent (0-100), ms or frames
+ * @param[in] seekType seek position in frame, percent or milliseconds
+ * @return true on success, false if error
  */
-bool VideoPlayer::setPosition( const std::size_t position, const mvpplayer::ESeekPosition seekType )
+bool VideoPlayer::setPosition( const double position, const mvpplayer::ESeekPosition seekType )
 {
     // Set the right filename if playing a sequence
     if ( _inputSequence )
@@ -292,22 +292,22 @@ bool VideoPlayer::setPosition( const std::size_t position, const mvpplayer::ESee
         {
             _currentPosition = position;
             signalPositionChanged( _currentPosition, _currentLength );
-            return false;
+            return true;
         }
         case mvpplayer::eSeekPositionPercent:
         {
-            _currentPosition = position * _currentLength;
+            _currentPosition = (position / 100.0) * _currentLength;
             signalPositionChanged( _currentPosition, _currentLength );
-            return false;
+            return true;
         }
         case mvpplayer::eSeekPositionMS:
         {
             _currentPosition = ( position / 1000.0 ) * _currentFPS;
             signalPositionChanged( _currentPosition, _currentLength );
-            return false;
+            return true;
         }
     }
-    return true;
+    return false;
 }
 
 /**

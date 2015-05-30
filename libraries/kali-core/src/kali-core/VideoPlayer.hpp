@@ -125,11 +125,11 @@ public:
 
     /**
      * @brief set current track position
-     * @param position position in percent (0-100) or ms
-     * @param seekType seek position in frame, percent or milliseconds
-     * @return false on success, true if error
+     * @param[in] position position in percent (0-100), ms or frames
+     * @param[in] seekType seek position in frame, percent or milliseconds
+     * @return true on success, false if error
      */
-    bool setPosition( const std::size_t positionInPercent, const mvpplayer::ESeekPosition seekType = mvpplayer::eSeekPositionSample ) override;
+    bool setPosition( const double position, const mvpplayer::ESeekPosition seekType = mvpplayer::eSeekPositionSample ) override;
 
     /**
      * @brief get the current track's position
