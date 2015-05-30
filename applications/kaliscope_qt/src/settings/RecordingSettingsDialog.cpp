@@ -38,7 +38,7 @@ RecordingSettingsDialog::RecordingSettingsDialog( QWidget *parent )
     widget.listPipeline->setMovement( QListView::Static );
     widget.listPipeline->setDragDropMode( QAbstractItemView::InternalMove );
     connect( widget.listPipeline, SIGNAL( itemDoubleClicked(QListWidgetItem *) ), this, SLOT( editPluginParams( QListWidgetItem * ) ) );
-    widget.listPipeline->viewport()->installEventFilter( this );
+//    widget.listPipeline->installEventFilter( this );
 
     _pipelineSettings.read( QDir::homePath().toStdString() + "/" + kKaliscopeDefaultPipelineSettingsFilename );
     buildPipelineFrom( _pipelineSettings );
@@ -80,16 +80,16 @@ void RecordingSettingsDialog::setConfigPaths()
     if ( !widget.comboInput->lineEdit()->text().isEmpty() )
     {
         _pipelineSettings.set( "configPath", "inputFilePath", widget.comboInput->lineEdit()->text().toStdString() );
-        _pipelineSettings.set( "configPath", "inputIsSequence", widget.cbInputIsSequence->isChecked() );
     }
+    _pipelineSettings.set( "configPath", "inputIsSequence", widget.cbInputIsSequence->isChecked() );
 
     if ( !widget.editOutput->text().isEmpty() )
     {
         _pipelineSettings.set( "configPath", "outputDirPath", widget.editOutput->text().toStdString() );
         _pipelineSettings.set( "configPath", "outputPrefix", widget.editPrefix->text().toStdString() );
         _pipelineSettings.set( "configPath", "outputExtension", widget.editExtension->text().toStdString() );
-        _pipelineSettings.set( "configPath", "outputIsSequence", widget.cbOutputIsSequence->isChecked() );
     }
+    _pipelineSettings.set( "configPath", "outputIsSequence", widget.cbOutputIsSequence->isChecked() );
 }
 
 void RecordingSettingsDialog::recomputeNbImages()
@@ -208,6 +208,8 @@ void RecordingSettingsDialog::saveConfig()
 
     if ( sFilePath.size() )
     {
+        // Rebuild gui to settings
+        rebuildPipelineSettings();
         _pipelineSettings.set( "", "presetName", widget.comboPresets->lineEdit()->text().toStdString() );
         setConfigPaths();
         _pipelineSettings.write( sFilePath.toStdString() );
@@ -218,20 +220,6 @@ void RecordingSettingsDialog::saveConfig()
             _presets[index] = _pipelineSettings;
         }
     }
-}
-
-bool RecordingSettingsDialog::eventFilter( QObject* sender, QEvent* event )
-{
-    if ( event->type() == QEvent::Drop )
-    {
-        const bool res = sender->eventFilter( sender, event );
-        if ( res )
-        {
-            rebuildPipelineSettings();
-        }
-        return res;
-    }
-    return false;
 }
 
 void RecordingSettingsDialog::buildPipelineFrom( const mvpplayer::Settings & pipelineSettings )
@@ -272,13 +260,13 @@ void RecordingSettingsDialog::rebuildPipelineSettings()
 
     // Set name
     _pipelineSettings.set( "", "presetName", widget.comboPresets->lineEdit()->text().toStdString() );
+    setConfigPaths();
+
     const int index = widget.comboPresets->findText( widget.comboPresets->lineEdit()->text() );
     if ( index >= 0 )
     {
         _presets[index] = _pipelineSettings;
     }
-
-    setConfigPaths();
 }
 
 void RecordingSettingsDialog::removePluginSelection()

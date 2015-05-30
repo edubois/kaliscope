@@ -57,7 +57,6 @@ private:
     void buildPipelineFrom( const mvpplayer::Settings & pipelineSettings );
     QWidget* buildPluginWidgetFrom( TablePluginItem *plugItem );
     void accept();
-    bool eventFilter( QObject* sender, QEvent* event );
     void loadPresetItems();
     void setConfigPaths();
 
