@@ -60,7 +60,7 @@ void KaliscopeEngine::playWork()
         }
 
         std::unique_lock<std::mutex> synchro( _mutexSynchro );
-        for( double nFrame = timeDomain.min; nFrame < timeDomain.max && !_stopped; nFrame += step )
+        for( double nFrame = timeDomain.min; nFrame <= timeDomain.max && !_stopped; nFrame += step )
         {
             image.reset();
 
