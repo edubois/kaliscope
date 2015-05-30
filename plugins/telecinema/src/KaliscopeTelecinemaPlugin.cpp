@@ -142,6 +142,7 @@ void KaliscopeTelecinemaPlugin::record( const mvpplayer::Settings & settings )
             _kaliscopeEngine->setOutputFileExtension( std::string() );
         }
 
+        _kaliscopeEngine->setIsOutputSequence( settings.get<bool>( "configPath", "outputIsSequence", false ) );
         _kaliscopeEngine->setIsInputSequence( settings.get<bool>( "configPath", "inputIsSequence", false ) );
 
         _previousGraph = _kaliscopeEngine->setProcessingGraph( graph );

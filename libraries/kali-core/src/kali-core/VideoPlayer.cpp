@@ -204,6 +204,25 @@ DefaultImageT VideoPlayer::getFrame( const double nFrame )
 
 /**
  * @brief set output filename
+ * @param filePath[in] input file path
+ * @param isSequence[in] is filepath a sequence
+ */
+void VideoPlayer::setInputFilename( const boost::filesystem::path & filePath, const bool isSequence )
+{
+    if ( isSequence )
+    {
+        initSequence( filePath.string() );
+    }
+    else
+    {
+        auto & param = _nodeRead->getParam( "filename" );
+        param.setValue( filePath.string() );
+    }
+}
+
+
+/**
+ * @brief set output filename
  * @param nFrame[in] frame number
  * @param nbTotalFrames[in] total frame number
  * @param filePathPrefix[in] file path prefix
@@ -224,6 +243,24 @@ void VideoPlayer::setOutputFilename( const double nFrame, const std::size_t nbTo
             os << nFrame;
             os << "." << extension;
             param.setValue( os.str() );
+        }
+    }
+    catch( ... )
+    {}
+}
+
+/**
+ * @brief set output filename
+ * @param filePath[in] output file path
+ */
+void VideoPlayer::setOutputFilename( const std::string & filePath )
+{
+    try
+    {
+        if ( _nodeRead != _nodeFinal )
+        {
+            auto & param = _nodeFinal->getParam( "filename" );
+            param.setValue( filePath );
         }
     }
     catch( ... )

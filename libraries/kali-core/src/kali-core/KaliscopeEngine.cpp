@@ -40,9 +40,14 @@ void KaliscopeEngine::playWork()
         using namespace tuttle::host;
         DefaultImageT image;
 
-        if ( _isInputSequence )
+        if ( !_inputFilePath.empty() )
         {
-            _videoPlayer->initSequence( _inputFilePath.string() );
+            _videoPlayer->setInputFilename( _inputFilePath.string(), _isInputSequence );
+        }
+
+        if ( !_isOutputSequence && !_outputFilePathPrefix.empty() )
+        {
+            _videoPlayer->setOutputFilename( _outputFilePathPrefix );
         }
 
         const OfxRangeD timeDomain = _videoPlayer->getTimeDomain();
@@ -54,7 +59,6 @@ void KaliscopeEngine::playWork()
             TUTTLE_LOG_INFO( "Video is empty!" );
         }
 
-        _processFrame = timeDomain.min;
         std::unique_lock<std::mutex> synchro( _mutexSynchro );
         for( double nFrame = timeDomain.min; nFrame < timeDomain.max && !_stopped; nFrame += step )
         {
@@ -66,7 +70,10 @@ void KaliscopeEngine::playWork()
                 if ( !_stopped )
                 {
                     _videoPlayer->setPosition( nFrame, mvpplayer::eSeekPositionSample );
-                    _videoPlayer->setOutputFilename( nFrame, std::ceil( timeDomain.max ), _outputFilePathPrefix, _outputFileExtension );
+                    if ( _isOutputSequence )
+                    {
+                        _videoPlayer->setOutputFilename( nFrame, std::ceil( timeDomain.max ), _outputFilePathPrefix, _outputFileExtension );
+                    }
                     image = _videoPlayer->getFrame();
                 }
                 else
@@ -141,7 +148,6 @@ void KaliscopeEngine::stopWorker()
  */
 void KaliscopeEngine::frameProcessed( const double nFrame )
 {
-    _processFrame = nFrame+1;
     _synchroCondition.notify_all();
 }
 

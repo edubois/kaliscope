@@ -209,6 +209,7 @@ void RecordingSettingsDialog::saveConfig()
     if ( sFilePath.size() )
     {
         _pipelineSettings.set( "", "presetName", widget.comboPresets->lineEdit()->text().toStdString() );
+        setConfigPaths();
         _pipelineSettings.write( sFilePath.toStdString() );
         
         // Update preset if needed

@@ -97,6 +97,9 @@ public:
     void setIsInputSequence( const bool isSequence )
     { _isInputSequence = isSequence; }
 
+    void setIsOutputSequence( const bool isSequence )
+    { _isOutputSequence = isSequence; }
+
 private:
 
     /**
@@ -118,11 +121,11 @@ private:
     VideoPlayer *_videoPlayer = nullptr;                ///< Pointer to the video player
     bool _stopped = false;
     bool _frameStepping = false;                        ///< Frame stepping
-    double _processFrame = -1.0;                        ///< Process a given frame
     boost::filesystem::path _inputFilePath;             ///< Input path
     std::string _outputFilePathPrefix;                  ///< Output path prefix
     std::string _outputFileExtension;                   ///< Output file extension
     bool _isInputSequence = false;                      ///< Is input a sequence ?
+    bool _isOutputSequence = false;                     ///< Is output a sequence ?
 
 // Thread related
 private:

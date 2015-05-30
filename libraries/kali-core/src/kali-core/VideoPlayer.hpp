@@ -191,6 +191,19 @@ public:
     void setOutputFilename( const double nFrame, const std::size_t nbTotalFrames, const std::string & filePathPrefix, const std::string & extension );
 
     /**
+     * @brief set output filename
+     * @param filePath[in] output file path
+     */
+    void setOutputFilename( const std::string & filePath );
+
+    /**
+     * @brief set output filename
+     * @param filePath[in] input file path
+     * @param isSequence[in] is filepath a sequence
+     */
+    void setInputFilename( const boost::filesystem::path & filePath, const bool isSequence = false );
+
+    /**
      * @brief initialize sequence
      * @param filePath[in] full file path
      */
