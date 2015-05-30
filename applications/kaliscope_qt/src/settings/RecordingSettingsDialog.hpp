@@ -50,6 +50,7 @@ private Q_SLOTS:
     void browseInput();
     void browseOutput();
     void recomputeNbImages();
+    void setConfigPathParamsFromSettings();
 
 private:
     TablePluginItem * addPlugin( const tuttle::host::ofx::imageEffect::OfxhImageEffectPlugin & plugin, const mvpplayer::Settings & settings );

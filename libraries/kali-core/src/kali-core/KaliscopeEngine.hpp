@@ -76,6 +76,27 @@ public:
     inline void processNextFrame()
     { _frameSteppingCondition.notify_all(); }
 
+    const boost::filesystem::path & inputFilePath() const
+    { return _inputFilePath; }
+
+    void setInputFilePath( const boost::filesystem::path & path )
+    { _inputFilePath = path; }
+
+    const std::string & outputFilePathPrefix() const
+    { return _outputFilePathPrefix; }
+
+    const std::string & outputFileExtension() const
+    { return _outputFileExtension; }
+
+    void setOutputFilePathPrefix( const std::string & prefix )
+    { _outputFilePathPrefix = prefix; }
+
+    void setOutputFileExtension( const std::string & extension )
+    { _outputFileExtension = extension; }
+
+    void setIsInputSequence( const bool isSequence )
+    { _isInputSequence = isSequence; }
+
 private:
 
     /**
@@ -98,6 +119,10 @@ private:
     bool _stopped = false;
     bool _frameStepping = false;                        ///< Frame stepping
     double _processFrame = -1.0;                        ///< Process a given frame
+    boost::filesystem::path _inputFilePath;             ///< Input path
+    std::string _outputFilePathPrefix;                  ///< Output path prefix
+    std::string _outputFileExtension;                   ///< Output file extension
+    bool _isInputSequence = false;                      ///< Is input a sequence ?
 
 // Thread related
 private:

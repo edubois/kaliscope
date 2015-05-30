@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>707</width>
+    <width>722</width>
     <height>481</height>
    </rect>
   </property>
@@ -73,7 +73,7 @@
         <item row="1" column="1">
          <layout class="QHBoxLayout" name="horizontalLayout_3">
           <property name="sizeConstraint">
-           <enum>QLayout::SetMaximumSize</enum>
+           <enum>QLayout::SetMinAndMaxSize</enum>
           </property>
           <item>
            <widget class="QLineEdit" name="editOutput">
@@ -89,6 +89,70 @@
            <widget class="QToolButton" name="btnBrowseOutput">
             <property name="text">
              <string>...</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_4">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Prefix:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="editPrefix">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>96</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>output_</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_8">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Extension:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="editExtension">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>64</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="inputMask">
+             <string/>
             </property>
            </widget>
           </item>
@@ -116,7 +180,10 @@
          <number>0</number>
         </property>
         <item>
-         <widget class="QLabel" name="label_4">
+         <widget class="QLabel" name="labelEstimatedInputMins">
+          <property name="toolTip">
+           <string>Used to set the right filename's number of padding '0'</string>
+          </property>
           <property name="text">
            <string>Estimated max input minutes:</string>
           </property>
@@ -340,6 +407,8 @@
   <tabstop>btnBrowseInput</tabstop>
   <tabstop>editOutput</tabstop>
   <tabstop>btnBrowseOutput</tabstop>
+  <tabstop>editPrefix</tabstop>
+  <tabstop>editExtension</tabstop>
   <tabstop>cbInputIsSequence</tabstop>
   <tabstop>cbOutputIsSequence</tabstop>
   <tabstop>spinInputMinutes</tabstop>

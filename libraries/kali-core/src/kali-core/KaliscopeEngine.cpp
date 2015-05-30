@@ -39,23 +39,34 @@ void KaliscopeEngine::playWork()
     {
         using namespace tuttle::host;
         DefaultImageT image;
+
+        if ( _isInputSequence )
+        {
+            _videoPlayer->initSequence( _inputFilePath.string() );
+        }
+
         const OfxRangeD timeDomain = _videoPlayer->getTimeDomain();
+        const double step = _videoPlayer->getFrameStep();
+
         std::cout << "Time domain: {" << timeDomain.min << "," << timeDomain.max << "}" << std::endl;
         if ( timeDomain.min == timeDomain.max )
         {
             TUTTLE_LOG_INFO( "Video is empty!" );
         }
+
         _processFrame = timeDomain.min;
         std::unique_lock<std::mutex> synchro( _mutexSynchro );
-        for( double nFrame = timeDomain.min; nFrame < timeDomain.max && !_stopped; ++nFrame )
+        for( double nFrame = timeDomain.min; nFrame < timeDomain.max && !_stopped; nFrame += step )
         {
             image.reset();
+
             try
             {
                 boost::this_thread::interruption_point();
                 if ( !_stopped )
                 {
                     _videoPlayer->setPosition( nFrame, mvpplayer::eSeekPositionSample );
+                    _videoPlayer->setOutputFilename( nFrame, std::ceil( timeDomain.max ), _outputFilePathPrefix, _outputFileExtension );
                     image = _videoPlayer->getFrame();
                 }
                 else
@@ -150,6 +161,7 @@ void KaliscopeEngine::start()
 bool KaliscopeEngine::playFile( const boost::filesystem::path & filename )
 {
     stop();
+    _isInputSequence = false;
 
     if ( boost::iends_with( filename.string(), ".m3u" ) )
     {

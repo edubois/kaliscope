@@ -147,7 +147,7 @@ void VideoPlayer::load( const boost::filesystem::path & filename )
         {
             using namespace tuttle::host;
             _nodeRead->getParam( "filename" ).setValue( filename.string() );
-            _graph->setup();
+            _inputSequence.reset();
             const OfxRangeD timeDomain = getTimeDomain();
             _currentPosition = timeDomain.min;
             _currentLength = timeDomain.max;
@@ -203,6 +203,74 @@ DefaultImageT VideoPlayer::getFrame( const double nFrame )
 }
 
 /**
+ * @brief set output filename
+ * @param nFrame[in] frame number
+ * @param nbTotalFrames[in] total frame number
+ * @param filePathPrefix[in] file path prefix
+ * @param extenstion[in] file extension
+ * @warning if the final node is not a writer, this will have no effect
+ */
+void VideoPlayer::setOutputFilename( const double nFrame, const std::size_t nbTotalFrames, const std::string & filePathPrefix, const std::string & extension )
+{
+    try
+    {
+        if ( _nodeRead != _nodeFinal )
+        {
+            auto & param = _nodeFinal->getParam( "filename" );
+            std::ostringstream os;
+            os << filePathPrefix;
+            os.fill( '0' );
+            os.width( std::ceil( std::log( nbTotalFrames ) / std::log( 10.0 ) ) );
+            os << nFrame;
+            os << "." << extension;
+            param.setValue( os.str() );
+        }
+    }
+    catch( ... )
+    {}
+}
+
+/**
+ * @brief initialize sequence
+ * @param filePath[in] full file path
+ */
+void VideoPlayer::initSequence( const std::string & filePath )
+{
+    if ( !filePath.empty() )
+    {
+        _inputSequence.reset( new sequenceParser::Sequence( filePath ) );
+        _inputSequence->initFromDetection( filePath, sequenceParser::Sequence::ePatternStandard );
+        _frameStep = _inputSequence->getStep();
+    }
+    else
+    {
+        _inputSequence.reset();
+        _frameStep = 1.0;
+    }
+}
+
+/**
+ * @brief get time domain definition
+ * @return the time domain {min, max}
+ */
+OfxRangeD VideoPlayer::getTimeDomain() const
+{
+    assert( _nodeRead != nullptr );
+    _graph->setup();
+    if ( _inputSequence )
+    {
+        OfxRangeD timeDomain;
+        timeDomain.min = _inputSequence->getFirstTime();
+        timeDomain.max = _inputSequence->getLastTime();
+        return timeDomain;
+    }
+    else
+    {
+        return _nodeRead->getTimeDomain();
+    }
+}
+
+/**
  * @brief set current track position
  * @param position position in percent (0-100), ms or frames
  * @param seekType seek position in frame, percent or milliseconds
@@ -210,6 +278,14 @@ DefaultImageT VideoPlayer::getFrame( const double nFrame )
  */
 bool VideoPlayer::setPosition( const std::size_t position, const mvpplayer::ESeekPosition seekType )
 {
+    // Set the right filename if playing a sequence
+    if ( _inputSequence )
+    {
+        auto & param = _nodeRead->getParam( "filename" );
+        const std::string inputSeqFilename = _inputSequence->getAbsoluteFilenameAt( position );
+        param.setValue( inputSeqFilename );
+    }
+
     switch( seekType )
     {
         case mvpplayer::eSeekPositionSample:

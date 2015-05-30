@@ -86,6 +86,8 @@ void RecordingSettingsDialog::setConfigPaths()
     if ( !widget.editOutput->text().isEmpty() )
     {
         _pipelineSettings.set( "configPath", "outputDirPath", widget.editOutput->text().toStdString() );
+        _pipelineSettings.set( "configPath", "outputPrefix", widget.editPrefix->text().toStdString() );
+        _pipelineSettings.set( "configPath", "outputExtension", widget.editExtension->text().toStdString() );
         _pipelineSettings.set( "configPath", "outputIsSequence", widget.cbOutputIsSequence->isChecked() );
     }
 }
@@ -170,7 +172,20 @@ void RecordingSettingsDialog::loadConfig()
             _pipelineSettings.set( "", "presetName", filepath.filename().string() );
             widget.comboPresets->setEditText( QString::fromStdString( filepath.filename().string() ) );
         }
+
+        setConfigPathParamsFromSettings();
     }
+}
+
+void RecordingSettingsDialog::setConfigPathParamsFromSettings()
+{
+    widget.comboInput->setEditText( QString::fromStdString( _pipelineSettings.get<std::string>( "configPath", "inputFilePath" ) ) );
+    widget.cbInputIsSequence->setChecked( _pipelineSettings.get<bool>( "configPath", "inputIsSequence", false ) );
+
+    widget.editOutput->setText( QString::fromStdString( _pipelineSettings.get<std::string>( "configPath", "outputDirPath" ) ) );
+    widget.editPrefix->setText( QString::fromStdString( _pipelineSettings.get<std::string>( "configPath", "outputPrefix" ) ) );
+    widget.editExtension->setText( QString::fromStdString( _pipelineSettings.get<std::string>( "configPath", "outputExtension" ) ) );
+    widget.cbOutputIsSequence->setChecked( _pipelineSettings.get<bool>( "configPath", "outputIsSequence", false ) );
 }
 
 void RecordingSettingsDialog::saveConfig()
@@ -241,6 +256,7 @@ void RecordingSettingsDialog::buildPipelineFrom( const mvpplayer::Settings & pip
             std::cerr << "Unable to load plugin: " << p.first.pluginIdentifier << std::endl;
         }
     }
+    setConfigPathParamsFromSettings();
 }
 
 void RecordingSettingsDialog::rebuildPipelineSettings()

@@ -48,10 +48,14 @@ public:
     QHBoxLayout *horizontalLayout_3;
     QLineEdit *editOutput;
     QToolButton *btnBrowseOutput;
+    QLabel *label_4;
+    QLineEdit *editPrefix;
+    QLabel *label_8;
+    QLineEdit *editExtension;
     QCheckBox *cbInputIsSequence;
     QCheckBox *cbOutputIsSequence;
     QHBoxLayout *horizontalLayout_5;
-    QLabel *label_4;
+    QLabel *labelEstimatedInputMins;
     QSpinBox *spinInputMinutes;
     QLabel *label_5;
     QDoubleSpinBox *spinFps;
@@ -74,7 +78,7 @@ public:
     {
         if (RecordingSettingsDialog->objectName().isEmpty())
             RecordingSettingsDialog->setObjectName(QStringLiteral("RecordingSettingsDialog"));
-        RecordingSettingsDialog->resize(707, 481);
+        RecordingSettingsDialog->resize(722, 481);
         QIcon icon;
         icon.addFile(QStringLiteral(":/kaliscope/icons/app/kaliscope.png"), QSize(), QIcon::Normal, QIcon::Off);
         RecordingSettingsDialog->setWindowIcon(icon);
@@ -121,7 +125,7 @@ public:
 
         horizontalLayout_3 = new QHBoxLayout();
         horizontalLayout_3->setObjectName(QStringLiteral("horizontalLayout_3"));
-        horizontalLayout_3->setSizeConstraint(QLayout::SetMaximumSize);
+        horizontalLayout_3->setSizeConstraint(QLayout::SetMinAndMaxSize);
         editOutput = new QLineEdit(groupBox);
         editOutput->setObjectName(QStringLiteral("editOutput"));
         sizePolicy.setHeightForWidth(editOutput->sizePolicy().hasHeightForWidth());
@@ -133,6 +137,42 @@ public:
         btnBrowseOutput->setObjectName(QStringLiteral("btnBrowseOutput"));
 
         horizontalLayout_3->addWidget(btnBrowseOutput);
+
+        label_4 = new QLabel(groupBox);
+        label_4->setObjectName(QStringLiteral("label_4"));
+        QSizePolicy sizePolicy1(QSizePolicy::Maximum, QSizePolicy::Preferred);
+        sizePolicy1.setHorizontalStretch(0);
+        sizePolicy1.setVerticalStretch(0);
+        sizePolicy1.setHeightForWidth(label_4->sizePolicy().hasHeightForWidth());
+        label_4->setSizePolicy(sizePolicy1);
+
+        horizontalLayout_3->addWidget(label_4);
+
+        editPrefix = new QLineEdit(groupBox);
+        editPrefix->setObjectName(QStringLiteral("editPrefix"));
+        QSizePolicy sizePolicy2(QSizePolicy::Maximum, QSizePolicy::Fixed);
+        sizePolicy2.setHorizontalStretch(0);
+        sizePolicy2.setVerticalStretch(0);
+        sizePolicy2.setHeightForWidth(editPrefix->sizePolicy().hasHeightForWidth());
+        editPrefix->setSizePolicy(sizePolicy2);
+        editPrefix->setMaximumSize(QSize(96, 16777215));
+
+        horizontalLayout_3->addWidget(editPrefix);
+
+        label_8 = new QLabel(groupBox);
+        label_8->setObjectName(QStringLiteral("label_8"));
+        sizePolicy1.setHeightForWidth(label_8->sizePolicy().hasHeightForWidth());
+        label_8->setSizePolicy(sizePolicy1);
+
+        horizontalLayout_3->addWidget(label_8);
+
+        editExtension = new QLineEdit(groupBox);
+        editExtension->setObjectName(QStringLiteral("editExtension"));
+        sizePolicy2.setHeightForWidth(editExtension->sizePolicy().hasHeightForWidth());
+        editExtension->setSizePolicy(sizePolicy2);
+        editExtension->setMaximumSize(QSize(64, 16777215));
+
+        horizontalLayout_3->addWidget(editExtension);
 
 
         formLayout->setLayout(1, QFormLayout::FieldRole, horizontalLayout_3);
@@ -153,10 +193,10 @@ public:
         horizontalLayout_5 = new QHBoxLayout();
         horizontalLayout_5->setObjectName(QStringLiteral("horizontalLayout_5"));
         horizontalLayout_5->setContentsMargins(-1, 0, -1, -1);
-        label_4 = new QLabel(groupBox);
-        label_4->setObjectName(QStringLiteral("label_4"));
+        labelEstimatedInputMins = new QLabel(groupBox);
+        labelEstimatedInputMins->setObjectName(QStringLiteral("labelEstimatedInputMins"));
 
-        horizontalLayout_5->addWidget(label_4);
+        horizontalLayout_5->addWidget(labelEstimatedInputMins);
 
         spinInputMinutes = new QSpinBox(groupBox);
         spinInputMinutes->setObjectName(QStringLiteral("spinInputMinutes"));
@@ -167,9 +207,6 @@ public:
 
         label_5 = new QLabel(groupBox);
         label_5->setObjectName(QStringLiteral("label_5"));
-        QSizePolicy sizePolicy1(QSizePolicy::Maximum, QSizePolicy::Preferred);
-        sizePolicy1.setHorizontalStretch(0);
-        sizePolicy1.setVerticalStretch(0);
         sizePolicy1.setHeightForWidth(label_5->sizePolicy().hasHeightForWidth());
         label_5->setSizePolicy(sizePolicy1);
         label_5->setMinimumSize(QSize(0, 0));
@@ -258,11 +295,11 @@ public:
 
         listPipeline = new QListWidget(RecordingSettingsDialog);
         listPipeline->setObjectName(QStringLiteral("listPipeline"));
-        QSizePolicy sizePolicy2(QSizePolicy::Expanding, QSizePolicy::Preferred);
-        sizePolicy2.setHorizontalStretch(0);
-        sizePolicy2.setVerticalStretch(0);
-        sizePolicy2.setHeightForWidth(listPipeline->sizePolicy().hasHeightForWidth());
-        listPipeline->setSizePolicy(sizePolicy2);
+        QSizePolicy sizePolicy3(QSizePolicy::Expanding, QSizePolicy::Preferred);
+        sizePolicy3.setHorizontalStretch(0);
+        sizePolicy3.setVerticalStretch(0);
+        sizePolicy3.setHeightForWidth(listPipeline->sizePolicy().hasHeightForWidth());
+        listPipeline->setSizePolicy(sizePolicy3);
         listPipeline->setMaximumSize(QSize(16777215, 192));
         listPipeline->setAutoScroll(true);
         listPipeline->setTabKeyNavigation(true);
@@ -287,7 +324,9 @@ public:
         QWidget::setTabOrder(comboInput, btnBrowseInput);
         QWidget::setTabOrder(btnBrowseInput, editOutput);
         QWidget::setTabOrder(editOutput, btnBrowseOutput);
-        QWidget::setTabOrder(btnBrowseOutput, cbInputIsSequence);
+        QWidget::setTabOrder(btnBrowseOutput, editPrefix);
+        QWidget::setTabOrder(editPrefix, editExtension);
+        QWidget::setTabOrder(editExtension, cbInputIsSequence);
         QWidget::setTabOrder(cbInputIsSequence, cbOutputIsSequence);
         QWidget::setTabOrder(cbOutputIsSequence, spinInputMinutes);
         QWidget::setTabOrder(spinInputMinutes, spinFps);
@@ -314,9 +353,16 @@ public:
         btnBrowseInput->setText(QApplication::translate("RecordingSettingsDialog", "...", 0));
         label_2->setText(QApplication::translate("RecordingSettingsDialog", "Output directory:", 0));
         btnBrowseOutput->setText(QApplication::translate("RecordingSettingsDialog", "...", 0));
+        label_4->setText(QApplication::translate("RecordingSettingsDialog", "Prefix:", 0));
+        editPrefix->setText(QApplication::translate("RecordingSettingsDialog", "output_", 0));
+        label_8->setText(QApplication::translate("RecordingSettingsDialog", "Extension:", 0));
+        editExtension->setInputMask(QString());
         cbInputIsSequence->setText(QApplication::translate("RecordingSettingsDialog", "Input is a sequence", 0));
         cbOutputIsSequence->setText(QApplication::translate("RecordingSettingsDialog", "Output is a sequence", 0));
-        label_4->setText(QApplication::translate("RecordingSettingsDialog", "Estimated max input minutes:", 0));
+#ifndef QT_NO_TOOLTIP
+        labelEstimatedInputMins->setToolTip(QApplication::translate("RecordingSettingsDialog", "Used to set the right filename's number of padding '0'", 0));
+#endif // QT_NO_TOOLTIP
+        labelEstimatedInputMins->setText(QApplication::translate("RecordingSettingsDialog", "Estimated max input minutes:", 0));
         label_5->setText(QApplication::translate("RecordingSettingsDialog", "at fps:", 0));
         label_6->setText(QApplication::translate("RecordingSettingsDialog", "Total:", 0));
         label_7->setText(QApplication::translate("RecordingSettingsDialog", "images.", 0));
