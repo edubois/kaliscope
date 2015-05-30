@@ -144,6 +144,12 @@ void RecordingSettingsDialog::saveConfig()
     {
         _pipelineSettings.set( "", "presetName", widget.comboPresets->lineEdit()->text().toStdString() );
         _pipelineSettings.write( sFilePath.toStdString() );
+        
+        // Update preset if needed
+        if ( index >= 0 )
+        {
+            _presets[index] = _pipelineSettings;
+        }
     }
 }
 
@@ -194,6 +200,14 @@ void RecordingSettingsDialog::rebuildPipelineSettings()
     {
         TablePluginItem * pluginItem = static_cast<TablePluginItem*>( widget.listPipeline->item( i ) );
         _pipelineSettings.set( std::string(), std::to_string( i ), pluginItem->settings().tree() );
+    }
+
+    // Set name
+    _pipelineSettings.set( "", "presetName", widget.comboPresets->lineEdit()->text().toStdString() );
+    const int index = widget.comboPresets->findText( widget.comboPresets->lineEdit()->text() );
+    if ( index >= 0 )
+    {
+        _presets[index] = _pipelineSettings;
     }
 }
 
@@ -262,16 +276,14 @@ void RecordingSettingsDialog::editPluginParams( QListWidgetItem * item )
     try
     {
         TablePluginItem * pluginItem = static_cast<TablePluginItem*>( item );
-        const int itemIndex = widget.listPipeline->row( item );
-
-        PluginItem key( itemIndex, pluginItem->plugin().getIdentifier() );
         mvpplayer::Settings & currentSettings = pluginItem->settings();
 
         std::unique_ptr<tuttle::host::INode> plugNode( tuttle::host::createNode( pluginItem->plugin().getIdentifier() ) );
         EditPluginParamsDialog dlg( pluginItem->plugin().getIdentifier(), *plugNode, &currentSettings, this );
-        if ( dlg.exec() )
+        if ( dlg.exec() == QDialog::Accepted )
         {
             currentSettings = dlg.nodeSettings();
+            rebuildPipelineSettings();
         }
     }
     catch( ... )
