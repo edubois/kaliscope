@@ -233,6 +233,7 @@ private:
 private:
     tuttle::host::Graph::Node *_nodeFinal = nullptr;        ///< Final effect node
     tuttle::host::Graph::Node *_nodeRead = nullptr;         ///< File reader
+    tuttle::host::Graph::Node *_nodeWrite = nullptr;        ///< File wirter
     tuttle::host::memory::MemoryCache _outputCache;         ///< Cache for video output
     std::shared_ptr<tuttle::host::Graph> _graph;                ///< effects processing graph
 };

@@ -68,12 +68,20 @@ void VideoPlayer::initialize()
         }
         else
         {
+            _nodeRead = nullptr;
+            _nodeWrite = nullptr;
+            _nodeFinal = nullptr;
+            using namespace tuttle::ofx::imageEffect;
             std::vector<Graph::Node*> nodes = _graph->getNodes();
             for( Graph::Node* node: nodes )
             {
                 if ( _graph->getNbInputConnections( *node ) == 0 )
                 {
                     _nodeRead = node;
+                }
+                if ( node->asImageEffectNode().isContextSupported( mapContextEnumToString( eContextWriter ) ) )
+                {
+                    _nodeWrite = node;
                 }
                 if ( _graph->getNbOutputConnections( *node ) == 0 )
                 {
@@ -233,9 +241,9 @@ void VideoPlayer::setOutputFilename( const double nFrame, const std::size_t nbTo
 {
     try
     {
-        if ( _nodeRead != _nodeFinal )
+        if ( _nodeWrite )
         {
-            auto & param = _nodeFinal->getParam( "filename" );
+            auto & param = _nodeWrite->getParam( "filename" );
             std::ostringstream os;
             os << filePathPrefix;
             os.fill( '0' );
@@ -257,9 +265,9 @@ void VideoPlayer::setOutputFilename( const std::string & filePath )
 {
     try
     {
-        if ( _nodeRead != _nodeFinal )
+        if ( _nodeWrite )
         {
-            auto & param = _nodeFinal->getParam( "filename" );
+            auto & param = _nodeWrite->getParam( "filename" );
             param.setValue( filePath );
         }
     }
