@@ -89,7 +89,7 @@ void RecordingSettingsDialog::loadConfig()
     static QString sFilePath;
     if ( !sFilePath.size() )
     {
-        sFilePath = QDir::homePath();
+        sFilePath = QString::fromStdString( ( boost::filesystem::current_path() / kPresetsDirectory ).string() );
     }
 
     sFilePath = QFileDialog::getOpenFileName( this, tr("Pipeline configuration file"), sFilePath, tr("Config files (*.json *.xml *.ini)") );
@@ -124,26 +124,26 @@ void RecordingSettingsDialog::loadConfig()
 
 void RecordingSettingsDialog::saveConfig()
 {
-    static QString filename;
-    if ( !filename.size() )
+    static QString sFilePath;
+    if ( !sFilePath.size() )
     {
-        filename = QDir::homePath();
+        sFilePath = QString::fromStdString( ( boost::filesystem::current_path() / kPresetsDirectory ).string() );
     }
 
     const int index = widget.comboPresets->findText( widget.comboPresets->lineEdit()->text() );
     if ( index != -1 )
     {
-        filename = widget.comboPresets->itemData( index ).toString();
+        sFilePath = widget.comboPresets->itemData( index ).toString();
     }
     else
     {
-        filename = QFileDialog::getSaveFileName( this, tr("Pipeline configuration file"), filename, tr("Config files (*.json *.xml *.ini)") );
+        sFilePath = QFileDialog::getSaveFileName( this, tr("Pipeline configuration file"), sFilePath, tr("Config files (*.json *.xml *.ini)") );
     }
 
-    if ( filename.size() )
+    if ( sFilePath.size() )
     {
         _pipelineSettings.set( "", "presetName", widget.comboPresets->lineEdit()->text().toStdString() );
-        _pipelineSettings.write( filename.toStdString() );
+        _pipelineSettings.write( sFilePath.toStdString() );
     }
 }
 
