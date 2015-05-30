@@ -124,6 +124,26 @@ void KaliscopeTelecinemaPlugin::record( const mvpplayer::Settings & settings )
 
         std::shared_ptr<tuttle::host::Graph> graph( new tuttle::host::Graph() );
         setupGraphWithSettings( *graph, settings );
+
+        // Set path configuration        
+        _kaliscopeEngine->setInputFilePath( settings.get<std::string>( "configPath", "inputFilePath" ) );
+
+        const boost::filesystem::path outputDirPath = settings.get<std::string>( "configPath", "outputDirPath" );
+        std::string outputPrefix = settings.get<std::string>( "configPath", "outputPrefix", "output_" );
+        const std::string outputExtension = settings.get<std::string>( "configPath", "outputExtension" );
+        if ( !outputDirPath.empty() )
+        {
+            _kaliscopeEngine->setOutputFilePathPrefix( ( outputDirPath / outputPrefix ).string() );
+            _kaliscopeEngine->setOutputFileExtension( outputExtension );
+        }
+        else
+        {
+            _kaliscopeEngine->setOutputFilePathPrefix( std::string() );
+            _kaliscopeEngine->setOutputFileExtension( std::string() );
+        }
+
+        _kaliscopeEngine->setIsInputSequence( settings.get<bool>( "configPath", "inputIsSequence", false ) );
+
         _previousGraph = _kaliscopeEngine->setProcessingGraph( graph );
         _kaliscopeEngine->start();
     }

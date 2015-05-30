@@ -241,6 +241,9 @@ void VideoPlayer::initSequence( const std::string & filePath )
         _inputSequence.reset( new sequenceParser::Sequence( filePath ) );
         _inputSequence->initFromDetection( filePath, sequenceParser::Sequence::ePatternStandard );
         _frameStep = _inputSequence->getStep();
+        _currentLength = _inputSequence->getDuration();
+        signalPositionChanged( _currentPosition, _currentLength );
+        signalTrackLength( _currentLength );
     }
     else
     {
