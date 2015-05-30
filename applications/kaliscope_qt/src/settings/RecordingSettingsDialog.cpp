@@ -29,6 +29,10 @@ RecordingSettingsDialog::RecordingSettingsDialog( QWidget *parent )
     connect( widget.btnRemovePlugin, SIGNAL( released() ), this, SLOT( removePluginSelection() ) );
     connect( widget.btnLoadConfig, SIGNAL( released() ), this, SLOT( loadConfig() ) );
     connect( widget.btnSaveConfig, SIGNAL( released() ), this, SLOT( saveConfig() ) );
+    connect( widget.btnBrowseInput, SIGNAL( released() ), this, SLOT( browseInput() ) );
+    connect( widget.btnBrowseOutput, SIGNAL( released() ), this, SLOT( browseOutput() ) );
+    connect( widget.spinInputMinutes, SIGNAL( valueChanged(int) ), this, SLOT( recomputeNbImages() ) );
+    connect( widget.spinFps, SIGNAL( valueChanged(double) ), this, SLOT( recomputeNbImages() ) );
     connect( widget.comboPresets, SIGNAL( currentIndexChanged( const int ) ), this, SLOT( loadPreset( const int ) ) );
 
     widget.listPipeline->setMovement( QListView::Static );
@@ -43,6 +47,53 @@ RecordingSettingsDialog::RecordingSettingsDialog( QWidget *parent )
 
 RecordingSettingsDialog::~RecordingSettingsDialog()
 {
+}
+
+void RecordingSettingsDialog::browseInput()
+{
+    static QString sFilePath;
+
+    sFilePath = QFileDialog::getOpenFileName( this, tr("Input file"), sFilePath, tr("Media files (*.*)") );
+    if ( !sFilePath.isEmpty() )
+    {
+        widget.comboInput->setEditText( sFilePath );
+        if ( widget.comboInput->findText( sFilePath ) == -1 )
+        {
+            widget.comboInput->addItem( sFilePath );
+        }
+    }
+}
+
+void RecordingSettingsDialog::browseOutput()
+{
+    static QString sDirPath;
+
+    sDirPath = QFileDialog::getExistingDirectory( this, tr("Output directory"), sDirPath );
+    if ( !sDirPath.isEmpty() )
+    {
+        widget.editOutput->setText( sDirPath );
+    }
+}
+
+void RecordingSettingsDialog::setConfigPaths()
+{
+    if ( !widget.comboInput->lineEdit()->text().isEmpty() )
+    {
+        _pipelineSettings.set( "configPath", "inputFilePath", widget.comboInput->lineEdit()->text().toStdString() );
+        _pipelineSettings.set( "configPath", "inputIsSequence", widget.cbInputIsSequence->isChecked() );
+    }
+
+    if ( !widget.editOutput->text().isEmpty() )
+    {
+        _pipelineSettings.set( "configPath", "outputDirPath", widget.editOutput->text().toStdString() );
+        _pipelineSettings.set( "configPath", "outputIsSequence", widget.cbOutputIsSequence->isChecked() );
+    }
+}
+
+void RecordingSettingsDialog::recomputeNbImages()
+{
+    const int nbImages = widget.spinInputMinutes->value() * 60 * widget.spinFps->value();
+    widget.spinNbImg->setValue( nbImages );
 }
 
 void RecordingSettingsDialog::loadPresetItems()
@@ -209,6 +260,8 @@ void RecordingSettingsDialog::rebuildPipelineSettings()
     {
         _presets[index] = _pipelineSettings;
     }
+
+    setConfigPaths();
 }
 
 void RecordingSettingsDialog::removePluginSelection()

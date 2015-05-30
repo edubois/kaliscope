@@ -47,6 +47,9 @@ private Q_SLOTS:
     void loadPreset( const int index );
     void loadConfig();
     void saveConfig();
+    void browseInput();
+    void browseOutput();
+    void recomputeNbImages();
 
 private:
     TablePluginItem * addPlugin( const tuttle::host::ofx::imageEffect::OfxhImageEffectPlugin & plugin, const mvpplayer::Settings & settings );
@@ -55,6 +58,7 @@ private:
     void accept();
     bool eventFilter( QObject* sender, QEvent* event );
     void loadPresetItems();
+    void setConfigPaths();
 
 private:
     std::map<int, mvpplayer::Settings> _presets;                    ///< Presets
