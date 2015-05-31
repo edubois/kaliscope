@@ -199,8 +199,8 @@ DefaultImageT VideoPlayer::getFrame( const double nFrame )
     try
     {
         std::unique_lock<std::mutex> lock( _mutexPlayer );
-        DefaultImageT frame;
         _currentPosition = nFrame;
+        _outputCache.clearUnused();
         _graph->compute( _outputCache, *_nodeFinal, tuttle::host::ComputeOptions( nFrame ) );
         return cache().get( _nodeFinal->getName(), nFrame );
     }
