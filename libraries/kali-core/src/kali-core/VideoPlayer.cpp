@@ -53,6 +53,7 @@ void VideoPlayer::initialize()
     try
     {
         std::unique_lock<std::mutex> lock( _mutexPlayer );
+        _inputSequence.reset();
         if ( !_graph )
         {
             _graph.reset( new tuttle::host::Graph() );
@@ -223,6 +224,7 @@ void VideoPlayer::setInputFilename( const boost::filesystem::path & filePath, co
     }
     else
     {
+        _inputSequence.reset();
         auto & param = _nodeRead->getParam( "filename" );
         param.setValue( filePath.string() );
     }
