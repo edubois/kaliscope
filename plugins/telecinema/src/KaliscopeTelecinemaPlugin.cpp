@@ -27,6 +27,7 @@ void KaliscopeTelecinemaPlugin::setup( mvpplayer::MVPPlayerEngine & model, mvppl
     _plugPresenter.signalRecord.connect( boost::bind( &KaliscopeTelecinemaPlugin::record, this, _1 ) );
     _plugPresenter.signalStopRecord.connect( boost::bind( &MVPPlayerPresenter::processCommandActive, &presenter, std::string( "Record" ), false ) );
     _plugPresenter.signalNextFrame.connect( boost::bind( &KaliscopeTelecinemaPlugin::captureNextFrame, this ) );
+    _plugPresenter.signalContinuousRecording.connect( boost::bind( &KaliscopeTelecinemaPlugin::continuousRecording, this, true ) );
 }
 
 KaliscopeTelecinemaPlugin::~KaliscopeTelecinemaPlugin()
@@ -109,6 +110,18 @@ boost::statechart::detail::reaction_result KaliscopeTelecinemaPlugin::recordTran
 }
 
 /**
+ * @brief Triggered when we want to record continuously
+ * @param continuous[in] continuous or frame by frame capture
+ */
+void KaliscopeTelecinemaPlugin::continuousRecording( const bool continuous )
+{
+    // Recording goes here:
+    _kaliscopeEngine = dynamic_cast<KaliscopeEngine*>( _model );
+    assert( _kaliscopeEngine != nullptr );
+    _kaliscopeEngine->setFrameStepping( !continuous );
+}
+
+/**
  * Triggered when we want to start the recording using given settings
  * @param settings recording settings
  */
@@ -161,7 +174,6 @@ void KaliscopeTelecinemaPlugin::captureNextFrame()
 {
     if ( _kaliscopeEngine )
     {
-        std::cout << "processing next frame" << std::endl;
         _kaliscopeEngine->processNextFrame();
     }
 }
