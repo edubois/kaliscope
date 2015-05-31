@@ -86,21 +86,23 @@ void KaliscopeEngine::playWork()
             {
                 TUTTLE_LOG_CURRENT_EXCEPTION;
             }
-
-            if ( image )
+            if ( !_stopped )
             {
-                std::cout << "Frame " << nFrame << " is ready!" << std::endl;
-                signalFrameReady( nFrame, image );
-            }
-            else
-            {
-                std::cerr << "Unable to read frame!" << std::endl;
-                break;
-            }
-            _synchroCondition.wait( synchro );
-            if ( _frameStepping )
-            {
-                _frameSteppingCondition.wait( synchro );
+                if ( image )
+                {
+                    std::cout << "Frame " << nFrame << " is ready!" << std::endl;
+                    signalFrameReady( nFrame, image );
+                }
+                else
+                {
+                    std::cerr << "Unable to read frame!" << std::endl;
+                    break;
+                }
+                _synchroCondition.wait( synchro );
+                if ( _frameStepping )
+                {
+                    _frameSteppingCondition.wait( synchro );
+                }
             }
         }
     }
