@@ -136,7 +136,10 @@ void KaliscopeEngine::stopWorker()
             _stopped = true;
             _synchroCondition.notify_all();
             _frameSteppingCondition.notify_all();
-            _playerThread->join();
+            if ( _playerThread->joinable() )
+            {
+                _playerThread->join();
+            }
         }
         catch( ... )
         {}
