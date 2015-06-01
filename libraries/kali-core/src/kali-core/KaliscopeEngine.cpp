@@ -59,7 +59,8 @@ void KaliscopeEngine::playWork()
             TUTTLE_LOG_INFO( "Video is empty!" );
         }
 
-        std::unique_lock<std::mutex> synchro( _mutexSynchro );
+        _semaphoreSynchro.takeAll();
+        _semaphoreFrameStepping.takeAll();
         for( double nFrame = timeDomain.min; nFrame <= timeDomain.max && !_stopped; nFrame += step )
         {
             image.reset();
@@ -90,7 +91,6 @@ void KaliscopeEngine::playWork()
             {
                 if ( image )
                 {
-                    std::cout << "Frame " << nFrame << " is ready!" << std::endl;
                     signalFrameReady( nFrame, image );
                 }
                 else
@@ -98,10 +98,10 @@ void KaliscopeEngine::playWork()
                     std::cerr << "Unable to read frame!" << std::endl;
                     break;
                 }
-                _synchroCondition.wait( synchro );
+                _semaphoreSynchro.wait();
                 if ( _frameStepping )
                 {
-                    _frameSteppingCondition.wait( synchro );
+                    _semaphoreFrameStepping.wait();
                 }
             }
         }
@@ -134,15 +134,17 @@ void KaliscopeEngine::stopWorker()
         try
         {
             _stopped = true;
-            _synchroCondition.notify_all();
-            _frameSteppingCondition.notify_all();
+            _semaphoreSynchro.post();
+            _semaphoreFrameStepping.post();
             if ( _playerThread->joinable() )
             {
                 _playerThread->join();
             }
         }
         catch( ... )
-        {}
+        {
+        }
+        _playerThread.reset();
     }
 }
 
@@ -153,7 +155,7 @@ void KaliscopeEngine::stopWorker()
  */
 void KaliscopeEngine::frameProcessed( const double nFrame )
 {
-    _synchroCondition.notify_all();
+    _semaphoreSynchro.post();
 }
 
 /**

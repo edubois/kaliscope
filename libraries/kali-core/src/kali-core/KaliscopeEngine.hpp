@@ -6,6 +6,7 @@
 
 #include <mvp-player-core/MVPPlayerEngine.hpp>
 
+#include <boost-adds/thread/Semaphore.hpp>
 #include <boost/gil/image_view.hpp>
 #include <boost/gil/typedefs.hpp>
 #include <boost/thread.hpp>
@@ -74,7 +75,7 @@ public:
      * @brief process next frame
      */
     inline void processNextFrame()
-    { _frameSteppingCondition.notify_all(); }
+    { _semaphoreFrameStepping.post(); }
 
     const boost::filesystem::path & inputFilePath() const
     { return _inputFilePath; }
@@ -131,9 +132,9 @@ private:
 private:
     std::mutex _mutexPlayer;                            ///< Mutex thread
     std::mutex _mutexSynchro;                           ///< Mutex thread
-    std::condition_variable _synchroCondition;          ///< Synchronization condition
-    std::condition_variable _frameSteppingCondition;    ///< To play step by step
-    std::unique_ptr<std::thread> _playerThread;       ///< Player's thread
+    boost::Semaphore _semaphoreSynchro;                 ///< Synchronization semaphore
+    boost::Semaphore _semaphoreFrameStepping;           ///< To play step by step
+    std::unique_ptr<std::thread> _playerThread;         ///< Player's thread
 };
 
 }
