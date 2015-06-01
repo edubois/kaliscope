@@ -182,13 +182,21 @@ void VideoPlayer::unload()
 }
 
 /**
- * @brief plays a sound
+ * @brief plays a video
  * @param pause pause playing
- * @return false on success, true if error
+ * @return true on success, false if error
  */
 bool VideoPlayer::play( const bool pause )
 {
-    return false;
+    if ( !pause )
+    {
+        return true;
+    }
+    else
+    {
+        
+    }
+    return true;
 }
 
 /**
@@ -384,8 +392,7 @@ std::size_t VideoPlayer::getLength() const
  */
 bool VideoPlayer::restart()
 {
-    ///@todo restart track
-    return false;
+    return setPosition( 0, mvpplayer::eSeekPositionSample );
 }
 
 /**
