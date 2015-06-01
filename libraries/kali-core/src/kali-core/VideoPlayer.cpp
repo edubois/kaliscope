@@ -177,6 +177,7 @@ void VideoPlayer::load( const boost::filesystem::path & filename )
 void VideoPlayer::unload()
 {
     std::unique_lock<std::mutex> lock( _mutexPlayer );
+    _outputCache.clearAll();
     signalEndOfTrack();
 }
 
