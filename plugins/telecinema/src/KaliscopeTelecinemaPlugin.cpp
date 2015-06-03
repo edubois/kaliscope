@@ -20,7 +20,7 @@ void KaliscopeTelecinemaPlugin::setup( mvpplayer::MVPPlayerEngine & model, mvppl
     // Call base class' setup
     IMVPPlugin::setup( model, view, presenter );
     // Intercept record button click
-    view.signalViewHitButton.connect( [this, &presenter]( const std::string & commandName, const bool record ) { if ( commandName == "Record" ) this->recordClicked( record ); } );
+    view.signalViewHitButton.connect( [this]( const std::string & commandName, const bool record ) { if ( commandName == "Record" ) this->recordClicked( record ); } );
     presenter.askStoppedStateExternalTransition.connect( boost::bind( &KaliscopeTelecinemaPlugin::recordTransition, this, _1, _2 ) );
 
     presenter.registerPluginPresenter( kMVPPlayerPluginName, _plugPresenter );
