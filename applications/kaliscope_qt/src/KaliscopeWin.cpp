@@ -90,7 +90,9 @@ void KaliscopeWin::setButtonChecked( const std::string & buttonName, const bool 
     auto it = _playerButtonsWidgets.find( buttonName );
     if ( it != _playerButtonsWidgets.end() )
     {
-        it->second->setChecked( false );
+        it->second->blockSignals( true ); // Don't forget to put this to avoid dead locks
+        it->second->setChecked( checked );
+        it->second->blockSignals( false ); // Don't forget to put this to avoid dead locks
     }
 }
 
@@ -196,12 +198,16 @@ void KaliscopeWin::startStopServer( const bool start )
 
 void KaliscopeWin::slotSetIconStop()
 {
+    _btnPlayPause->blockSignals( true ); // Don't forget to put this to avoid dead locks
     _btnPlayPause->setChecked( true );
+    _btnPlayPause->blockSignals( false );
 }
 
 void KaliscopeWin::slotSetIconPlay()
 {
+    _btnPlayPause->blockSignals( true ); // Don't forget to put this to avoid dead locks
     _btnPlayPause->setChecked( false );
+    _btnPlayPause->blockSignals( false );
 }
 
 void KaliscopeWin::slotSetPlaylistItemIndex( const int row )
