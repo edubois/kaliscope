@@ -106,6 +106,7 @@ powerful computer which will do the frame capture job.
 To compile this tool, you will need to build kalisync on a raspberry pi (or by using a cross-compilation tool).
 
 ```cp default-rpi.sconf default.sconf```
+
 ```scons kalisync```
 
 I personally had issues to compile this program on my raspberry pi2 because it needs more than 2GB of RAM.
