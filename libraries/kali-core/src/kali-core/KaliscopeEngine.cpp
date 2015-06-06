@@ -106,8 +106,10 @@ void KaliscopeEngine::playWork()
             }
         }
     }
-    catch( boost::thread_interrupted& )
-    {}
+    catch( ... )
+    {
+        TUTTLE_LOG_CURRENT_EXCEPTION;
+    }
 
     _videoPlayer->unload();
     _stopped = true;
@@ -177,7 +179,7 @@ bool KaliscopeEngine::playFile( const boost::filesystem::path & filename )
     {
         openPlaylist( filename );
         playList();
-        return false;
+        return true;
     }
     else
     {
@@ -191,12 +193,12 @@ bool KaliscopeEngine::playFile( const boost::filesystem::path & filename )
                 signalPlayedTrack( filename );
             }
             start();
-            return false;
+            return true;
         }
         catch( ... )
         {
             TUTTLE_LOG_CURRENT_EXCEPTION;
-            return true;
+            return false;
         }
     }
 }
