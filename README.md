@@ -103,7 +103,7 @@ synchronization signal on a GPIO input pin (18 in the following example).
 When a signal is detected on the input pin, a network event is sent to another
 powerful computer which will do the frame capture job.
 
-To compile this tool, you will need to build kalisync on a raspberry pi (or by using a cross-compilation tool).
+To compile this tool, you will need to build kalisync on a raspberry pi with a recent g++ (>=4.8) (or by using a cross-compilation tool).
 
 ```cp default-rpi.sconf default.sconf```
 
