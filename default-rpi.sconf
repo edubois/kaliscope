@@ -1,0 +1,39 @@
+import os
+import sys
+import glob
+
+windows = os.name.lower() == "nt" and sys.platform.lower().startswith("win")
+macos = sys.platform.lower().startswith("darwin")
+linux = not windows and not macos
+unix = not windows
+
+mode='release'
+check_libs=0
+
+jobs=1
+
+extern = '#../3rdParties'
+
+CPPDEFINES.extend(['BOOST_ALL_DYN_LINK', 'BOOST_LOG_DYN_LINK', 'BOOST_SPIRIT_USE_PHOENIX_V3', 'BOOST_SIGNALS_NO_DEPRECATION_WARNING' ])
+
+aliases = [('kalisync')]
+default = ['kalisync']
+
+ccache = False
+ccachedir = join(extern,'kaliscope_cache')
+
+incdir_qt5 = '/usr/local/qt5/include'
+libdir_qt5 = '/usr/local/qt5/lib/'
+lib_qt5 = [ 'Qt5Network', 'Qt5Core', 'Qt5Gui', 'Qt5PrintSupport', 'Qt5Widgets', 'Qt5OpenGL', 'Qt5Sql' ]
+
+incdir_boost = join(extern,'boost')
+libdir_boost = join(extern,'boost/stage/lib')
+incdir_ncurses = join(extern,'ncurses/include')
+libdir_ncurses = join(extern,'ncurses/lib')
+incdir_cdk = join(extern,'cdk/include')
+libdir_cdk = join(extern,'cdk/')
+incdir_fmod = join(extern,'fmod/api/lowlevel/inc')
+libdir_fmod = join(extern,'fmod/api/lowlevel/lib')
+
+CXXFLAGS = ['-std=c++11']
+
