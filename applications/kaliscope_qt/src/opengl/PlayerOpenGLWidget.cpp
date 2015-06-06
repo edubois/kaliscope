@@ -145,9 +145,6 @@ void PlayerOpenGLWidget::paintGL()
     _quadIndiceBuffer.release();
 
     glDisable( GL_TEXTURE_2D );
-
-    // We are done, process next
-    signalFrameDone( _currentFrameNumber );
 }
 
 void PlayerOpenGLWidget::rebuildVertexBuffer( const int iw, const int ih )
@@ -232,14 +229,16 @@ void PlayerOpenGLWidget::setFrame( const std::size_t frameNumber, const DefaultI
                   GL_RGB, GL_UNSIGNED_BYTE,
                   boost::gil::interleaved_view_get_raw_data( originalFrameView ) );
 
+    // We are done, process next frame (as early as possible)
+    _currentFrameNumber = frameNumber;
+    signalFrameDone( _currentFrameNumber );
+
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 
     glDisable( GL_TEXTURE_2D );
-
-    _currentFrameNumber = frameNumber;
     doneCurrent();
     update();
 }

@@ -63,6 +63,12 @@ public:
      */
     void captureNextFrame();
 
+    /**
+     * @brief Triggered when we want to record continuously
+     * @param continuous[in] continuous or frame by frame capture
+     */
+    void continuousRecording( const bool continuous );
+
 private:
     logic::plugin::TelecinemaPluginPresenter _plugPresenter;
     KaliscopeEngine* _kaliscopeEngine = nullptr;

@@ -20,13 +20,15 @@ void KaliscopeTelecinemaPlugin::setup( mvpplayer::MVPPlayerEngine & model, mvppl
     // Call base class' setup
     IMVPPlugin::setup( model, view, presenter );
     // Intercept record button click
-    view.signalViewHitButton.connect( [this, &presenter]( const std::string & commandName, const bool record ) { if ( commandName == "Record" ) this->recordClicked( record ); } );
+    presenter.signalCommandActive.connect( [this]( const std::string & commandName, const bool record ) { if ( commandName == "Record" ) this->recordClicked( record ); } );
+    view.signalViewHitButton.connect( [this]( const std::string & commandName, const bool record ) { if ( commandName == "Record" ) this->recordClicked( record ); } );
     presenter.askStoppedStateExternalTransition.connect( boost::bind( &KaliscopeTelecinemaPlugin::recordTransition, this, _1, _2 ) );
 
     presenter.registerPluginPresenter( kMVPPlayerPluginName, _plugPresenter );
     _plugPresenter.signalRecord.connect( boost::bind( &KaliscopeTelecinemaPlugin::record, this, _1 ) );
     _plugPresenter.signalStopRecord.connect( boost::bind( &MVPPlayerPresenter::processCommandActive, &presenter, std::string( "Record" ), false ) );
     _plugPresenter.signalNextFrame.connect( boost::bind( &KaliscopeTelecinemaPlugin::captureNextFrame, this ) );
+    _plugPresenter.signalContinuousRecording.connect( boost::bind( &KaliscopeTelecinemaPlugin::continuousRecording, this, true ) );
 }
 
 KaliscopeTelecinemaPlugin::~KaliscopeTelecinemaPlugin()
@@ -109,6 +111,18 @@ boost::statechart::detail::reaction_result KaliscopeTelecinemaPlugin::recordTran
 }
 
 /**
+ * @brief Triggered when we want to record continuously
+ * @param continuous[in] continuous or frame by frame capture
+ */
+void KaliscopeTelecinemaPlugin::continuousRecording( const bool continuous )
+{
+    // Recording goes here:
+    _kaliscopeEngine = dynamic_cast<KaliscopeEngine*>( _model );
+    assert( _kaliscopeEngine != nullptr );
+    _kaliscopeEngine->setFrameStepping( !continuous );
+}
+
+/**
  * Triggered when we want to start the recording using given settings
  * @param settings recording settings
  */
@@ -124,6 +138,27 @@ void KaliscopeTelecinemaPlugin::record( const mvpplayer::Settings & settings )
 
         std::shared_ptr<tuttle::host::Graph> graph( new tuttle::host::Graph() );
         setupGraphWithSettings( *graph, settings );
+
+        // Set path configuration        
+        _kaliscopeEngine->setInputFilePath( settings.get<std::string>( "configPath", "inputFilePath" ) );
+
+        const boost::filesystem::path outputDirPath = settings.get<std::string>( "configPath", "outputDirPath" );
+        std::string outputPrefix = settings.get<std::string>( "configPath", "outputPrefix", "output_" );
+        const std::string outputExtension = settings.get<std::string>( "configPath", "outputExtension" );
+        if ( !outputDirPath.empty() )
+        {
+            _kaliscopeEngine->setOutputFilePathPrefix( ( outputDirPath / outputPrefix ).string() );
+            _kaliscopeEngine->setOutputFileExtension( outputExtension );
+        }
+        else
+        {
+            _kaliscopeEngine->setOutputFilePathPrefix( std::string() );
+            _kaliscopeEngine->setOutputFileExtension( std::string() );
+        }
+
+        _kaliscopeEngine->setIsOutputSequence( settings.get<bool>( "configPath", "outputIsSequence", false ) );
+        _kaliscopeEngine->setIsInputSequence( settings.get<bool>( "configPath", "inputIsSequence", false ) );
+
         _previousGraph = _kaliscopeEngine->setProcessingGraph( graph );
         _kaliscopeEngine->start();
     }
@@ -140,7 +175,6 @@ void KaliscopeTelecinemaPlugin::captureNextFrame()
 {
     if ( _kaliscopeEngine )
     {
-        std::cout << "processing next frame" << std::endl;
         _kaliscopeEngine->processNextFrame();
     }
 }

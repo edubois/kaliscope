@@ -34,8 +34,18 @@ sc::result Recording::react( const EvStop & ev )
  */
 sc::result Recording::react( const EvNextTrack & )
 {
-    std::cout << "next ! " << std::endl;
     TelecinemaPluginPresenter & plugPresenter = context< PlayerStateMachine >().presenter.presenterOfPlugin<TelecinemaPluginPresenter>( plugins::kMVPPlayerPluginName );
+    plugPresenter.signalNextFrame();
+    return transit< Recording >();
+}
+
+/**
+ * @brief reaction on next frame event
+ */
+sc::result Recording::react( const EvPlay & )
+{
+    TelecinemaPluginPresenter & plugPresenter = context< PlayerStateMachine >().presenter.presenterOfPlugin<TelecinemaPluginPresenter>( plugins::kMVPPlayerPluginName );
+    plugPresenter.signalContinuousRecording();
     plugPresenter.signalNextFrame();
     return transit< Recording >();
 }

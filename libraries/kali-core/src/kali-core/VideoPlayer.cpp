@@ -53,6 +53,7 @@ void VideoPlayer::initialize()
     try
     {
         std::unique_lock<std::mutex> lock( _mutexPlayer );
+        _inputSequence.reset();
         if ( !_graph )
         {
             _graph.reset( new tuttle::host::Graph() );
@@ -68,12 +69,20 @@ void VideoPlayer::initialize()
         }
         else
         {
+            _nodeRead = nullptr;
+            _nodeWrite = nullptr;
+            _nodeFinal = nullptr;
+            using namespace tuttle::ofx::imageEffect;
             std::vector<Graph::Node*> nodes = _graph->getNodes();
             for( Graph::Node* node: nodes )
             {
                 if ( _graph->getNbInputConnections( *node ) == 0 )
                 {
                     _nodeRead = node;
+                }
+                if ( node->asImageEffectNode().isContextSupported( mapContextEnumToString( eContextWriter ) ) )
+                {
+                    _nodeWrite = node;
                 }
                 if ( _graph->getNbOutputConnections( *node ) == 0 )
                 {
@@ -147,7 +156,7 @@ void VideoPlayer::load( const boost::filesystem::path & filename )
         {
             using namespace tuttle::host;
             _nodeRead->getParam( "filename" ).setValue( filename.string() );
-            _graph->setup();
+            _inputSequence.reset();
             const OfxRangeD timeDomain = getTimeDomain();
             _currentPosition = timeDomain.min;
             _currentLength = timeDomain.max;
@@ -168,17 +177,26 @@ void VideoPlayer::load( const boost::filesystem::path & filename )
 void VideoPlayer::unload()
 {
     std::unique_lock<std::mutex> lock( _mutexPlayer );
+    _outputCache.clearAll();
     signalEndOfTrack();
 }
 
 /**
- * @brief plays a sound
+ * @brief plays a video
  * @param pause pause playing
- * @return false on success, true if error
+ * @return true on success, false if error
  */
 bool VideoPlayer::play( const bool pause )
 {
-    return false;
+    if ( !pause )
+    {
+        return true;
+    }
+    else
+    {
+        
+    }
+    return true;
 }
 
 /**
@@ -190,8 +208,8 @@ DefaultImageT VideoPlayer::getFrame( const double nFrame )
     try
     {
         std::unique_lock<std::mutex> lock( _mutexPlayer );
-        DefaultImageT frame;
         _currentPosition = nFrame;
+        _outputCache.clearUnused();
         _graph->compute( _outputCache, *_nodeFinal, tuttle::host::ComputeOptions( nFrame ) );
         return cache().get( _nodeFinal->getName(), nFrame );
     }
@@ -203,35 +221,152 @@ DefaultImageT VideoPlayer::getFrame( const double nFrame )
 }
 
 /**
- * @brief set current track position
- * @param position position in percent (0-100), ms or frames
- * @param seekType seek position in frame, percent or milliseconds
- * @return false on success, true if error
+ * @brief set output filename
+ * @param filePath[in] input file path
+ * @param isSequence[in] is filepath a sequence
  */
-bool VideoPlayer::setPosition( const std::size_t position, const mvpplayer::ESeekPosition seekType )
+void VideoPlayer::setInputFilename( const boost::filesystem::path & filePath, const bool isSequence )
 {
+    if ( isSequence )
+    {
+        initSequence( filePath.string() );
+    }
+    else
+    {
+        _inputSequence.reset();
+        auto & param = _nodeRead->getParam( "filename" );
+        param.setValue( filePath.string() );
+    }
+}
+
+
+/**
+ * @brief set output filename
+ * @param nFrame[in] frame number
+ * @param nbTotalFrames[in] total frame number
+ * @param filePathPrefix[in] file path prefix
+ * @param extenstion[in] file extension
+ * @warning if the final node is not a writer, this will have no effect
+ */
+void VideoPlayer::setOutputFilename( const double nFrame, const std::size_t nbTotalFrames, const std::string & filePathPrefix, const std::string & extension )
+{
+    try
+    {
+        if ( _nodeWrite )
+        {
+            auto & param = _nodeWrite->getParam( "filename" );
+            std::ostringstream os;
+            os << filePathPrefix;
+            os.fill( '0' );
+            os.width( std::ceil( std::log( nbTotalFrames ) / std::log( 10.0 ) ) );
+            os << nFrame;
+            os << "." << extension;
+            param.setValue( os.str() );
+        }
+    }
+    catch( ... )
+    {}
+}
+
+/**
+ * @brief set output filename
+ * @param filePath[in] output file path
+ */
+void VideoPlayer::setOutputFilename( const std::string & filePath )
+{
+    try
+    {
+        if ( _nodeWrite )
+        {
+            auto & param = _nodeWrite->getParam( "filename" );
+            param.setValue( filePath );
+        }
+    }
+    catch( ... )
+    {}
+}
+
+/**
+ * @brief initialize sequence
+ * @param filePath[in] full file path
+ */
+void VideoPlayer::initSequence( const std::string & filePath )
+{
+    if ( !filePath.empty() )
+    {
+        _inputSequence.reset( new sequenceParser::Sequence( filePath ) );
+        _inputSequence->initFromDetection( filePath, sequenceParser::Sequence::ePatternStandard );
+        _frameStep = _inputSequence->getStep();
+        _currentLength = _inputSequence->getDuration();
+        signalPositionChanged( _currentPosition, _currentLength );
+        signalTrackLength( _currentLength );
+    }
+    else
+    {
+        _inputSequence.reset();
+        _frameStep = 1.0;
+    }
+}
+
+/**
+ * @brief get time domain definition
+ * @return the time domain {min, max}
+ */
+OfxRangeD VideoPlayer::getTimeDomain() const
+{
+    assert( _nodeRead != nullptr );
+    _graph->setup();
+    if ( _inputSequence )
+    {
+        OfxRangeD timeDomain;
+        timeDomain.min = _inputSequence->getFirstTime();
+        timeDomain.max = _inputSequence->getLastTime();
+        return timeDomain;
+    }
+    else
+    {
+        return _nodeRead->getTimeDomain();
+    }
+}
+
+/**
+ * @brief set current track position
+ * @param[in] position position in percent (0-100), ms or frames
+ * @param[in] seekType seek position in frame, percent or milliseconds
+ * @return true on success, false if error
+ */
+bool VideoPlayer::setPosition( const double position, const mvpplayer::ESeekPosition seekType )
+{
+    // Set the right filename if playing a sequence
+    if ( _inputSequence )
+    {
+        auto & param = _nodeRead->getParam( "filename" );
+        const std::string inputSeqFilename = _inputSequence->getAbsoluteFilenameAt( position );
+        param.setValue( inputSeqFilename );
+    }
+
     switch( seekType )
     {
         case mvpplayer::eSeekPositionSample:
         {
             _currentPosition = position;
             signalPositionChanged( _currentPosition, _currentLength );
-            return false;
+            return true;
         }
         case mvpplayer::eSeekPositionPercent:
         {
-            _currentPosition = position * _currentLength;
+            _currentPosition = (position / 100.0) * _currentLength;
             signalPositionChanged( _currentPosition, _currentLength );
-            return false;
+            return true;
         }
         case mvpplayer::eSeekPositionMS:
         {
             _currentPosition = ( position / 1000.0 ) * _currentFPS;
             signalPositionChanged( _currentPosition, _currentLength );
-            return false;
+            return true;
         }
     }
-    return true;
+    return false;
 }
 
 /**
@@ -257,8 +392,7 @@ std::size_t VideoPlayer::getLength() const
  */
 bool VideoPlayer::restart()
 {
-    ///@todo restart track
-    return false;
+    return setPosition( 0, mvpplayer::eSeekPositionSample );
 }
 
 /**

@@ -7,6 +7,7 @@ project.SharedLibrary( 'kali_core',
                        libraries = [
                                      libs.tuttleHost,
                                      libs.tuttlePlugin,
+                                     libs.boostAdds,
                                      libs.boost,
                                      libs.mvp_player_core,
                                     ],

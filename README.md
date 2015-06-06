@@ -16,6 +16,10 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+## Presentation video
+
+http://youtu.be/W9B1whn3qKo
+
 ## Main features
 
 * The pipeline is OpenFX based, meaning that you can plug commercial plugins
@@ -89,4 +93,24 @@ Please note that, if using a firewall, you must allow communication on port 1199
 OR some of them:
 
 ```scons unittest-kaliscope-core```
+
+
+## Compilation and running of kalisync
+
+Kalisync is a tool that is used to synchronize the telecinema capture device.
+It has been designed for raspberry pi. The main idea is to watch for a 
+synchronization signal on a GPIO input pin (18 in the following example).
+When a signal is detected on the input pin, a network event is sent to another
+powerful computer which will do the frame capture job.
+
+To compile this tool, you will need to build kalisync on a raspberry pi (or by using a cross-compilation tool).
+
+```cp default-rpi.sconf default.sconf```
+
+```scons kalisync```
+
+I personally had issues to compile this program on my raspberry pi2 because it needs more than 2GB of RAM.
+I had to connect a USB solid hard drive and set up a ramdisk on it, then after 1 hour of compilation, I was able
+to get a working program. Please note that if you set a swap on a flash disk (sdcard for example), you might break it.
+
 

@@ -4,11 +4,15 @@
 
 #include <kali-core/settingsTools.hpp>
 
+#include <boost-adds/environment.hpp>
+
 #include <QtCore/QSize>
 #include <QtGui/QDropEvent>
 #include <QtCore/QDir>
+#include <QtWidgets/QFileDialog>
 
 #include <boost/format.hpp>
+#include <boost/filesystem.hpp>
 
 namespace kaliscope
 {
@@ -23,32 +27,199 @@ RecordingSettingsDialog::RecordingSettingsDialog( QWidget *parent )
     widget.setupUi( this );
     connect( widget.btnAddPlugin, SIGNAL( released() ), this, SLOT( addPlugin() ) );
     connect( widget.btnRemovePlugin, SIGNAL( released() ), this, SLOT( removePluginSelection() ) );
+    connect( widget.btnLoadConfig, SIGNAL( released() ), this, SLOT( loadConfig() ) );
+    connect( widget.btnSaveConfig, SIGNAL( released() ), this, SLOT( saveConfig() ) );
+    connect( widget.btnBrowseInput, SIGNAL( released() ), this, SLOT( browseInput() ) );
+    connect( widget.btnBrowseOutput, SIGNAL( released() ), this, SLOT( browseOutput() ) );
+    connect( widget.spinInputMinutes, SIGNAL( valueChanged(int) ), this, SLOT( recomputeNbImages() ) );
+    connect( widget.spinFps, SIGNAL( valueChanged(double) ), this, SLOT( recomputeNbImages() ) );
+    connect( widget.comboPresets, SIGNAL( currentIndexChanged( const int ) ), this, SLOT( loadPreset( const int ) ) );
 
     widget.listPipeline->setMovement( QListView::Static );
     widget.listPipeline->setDragDropMode( QAbstractItemView::InternalMove );
     connect( widget.listPipeline, SIGNAL( itemDoubleClicked(QListWidgetItem *) ), this, SLOT( editPluginParams( QListWidgetItem * ) ) );
-    widget.listPipeline->viewport()->installEventFilter( this );
+//    widget.listPipeline->installEventFilter( this );
 
     _pipelineSettings.read( QDir::homePath().toStdString() + "/" + kKaliscopeDefaultPipelineSettingsFilename );
     buildPipelineFrom( _pipelineSettings );
+    loadPresetItems();
 }
 
 RecordingSettingsDialog::~RecordingSettingsDialog()
 {
 }
 
-bool RecordingSettingsDialog::eventFilter( QObject* sender, QEvent* event )
+void RecordingSettingsDialog::browseInput()
 {
-    if ( event->type() == QEvent::Drop )
+    static QString sFilePath;
+
+    sFilePath = QFileDialog::getOpenFileName( this, tr("Input file"), sFilePath, tr("Media files (*.*)") );
+    if ( !sFilePath.isEmpty() )
     {
-        const bool res = sender->eventFilter( sender, event );
-        if ( res )
+        widget.comboInput->setEditText( sFilePath );
+        if ( widget.comboInput->findText( sFilePath ) == -1 )
         {
-            rebuildPipelineSettings();
+            widget.comboInput->addItem( sFilePath );
         }
-        return res;
     }
-    return false;
+}
+
+void RecordingSettingsDialog::browseOutput()
+{
+    static QString sDirPath;
+
+    sDirPath = QFileDialog::getExistingDirectory( this, tr("Output directory"), sDirPath );
+    if ( !sDirPath.isEmpty() )
+    {
+        widget.editOutput->setText( sDirPath );
+    }
+}
+
+void RecordingSettingsDialog::setConfigPaths()
+{
+    if ( !widget.comboInput->lineEdit()->text().isEmpty() )
+    {
+        _pipelineSettings.set( "configPath", "inputFilePath", widget.comboInput->lineEdit()->text().toStdString() );
+    }
+    _pipelineSettings.set( "configPath", "inputIsSequence", widget.cbInputIsSequence->isChecked() );
+
+    if ( !widget.editOutput->text().isEmpty() )
+    {
+        _pipelineSettings.set( "configPath", "outputDirPath", widget.editOutput->text().toStdString() );
+        _pipelineSettings.set( "configPath", "outputPrefix", widget.editPrefix->text().toStdString() );
+        _pipelineSettings.set( "configPath", "outputExtension", widget.editExtension->text().toStdString() );
+    }
+    _pipelineSettings.set( "configPath", "outputIsSequence", widget.cbOutputIsSequence->isChecked() );
+}
+
+void RecordingSettingsDialog::recomputeNbImages()
+{
+    const int nbImages = widget.spinInputMinutes->value() * 60 * widget.spinFps->value();
+    widget.spinNbImg->setValue( nbImages );
+}
+
+void RecordingSettingsDialog::loadPresetItems()
+{
+    using namespace boost::filesystem;
+    // Try to read from application path
+    path presetsPath( current_path() / kPresetsDirectory );
+    directory_iterator it( presetsPath ), eod;
+
+    widget.comboPresets->clear();
+    _presets.clear();
+    int i = 0;
+    BOOST_FOREACH( path const &p, std::make_pair(it, eod) )   
+    {
+        if( is_regular_file( p ) )
+        {
+            if ( _presets[i].read( p ) )
+            {
+                QString itemText = QString::fromStdString( _presets[i].get<std::string>( "", "presetName" ) );
+                if ( itemText.isEmpty() )
+                {
+                    _presets[i].set( "", "presetName", p.filename().string() );
+                    itemText = QString::fromStdString( p.filename().string() );
+                }
+                widget.comboPresets->addItem( itemText, QVariant( QString::fromStdString( p.string() ) ) );
+                ++i;
+            }
+        } 
+    }
+}
+
+void RecordingSettingsDialog::loadPreset( const int index )
+{
+    auto itSettings = _presets.find( index );
+    if ( itSettings != _presets.end() )
+    {
+        _pipelineSettings = itSettings->second;
+        buildPipelineFrom( _pipelineSettings );
+    }
+}
+
+void RecordingSettingsDialog::loadConfig()
+{
+    static QString sFilePath;
+    if ( !sFilePath.size() )
+    {
+        sFilePath = QString::fromStdString( ( boost::filesystem::current_path() / kPresetsDirectory ).string() );
+    }
+
+    sFilePath = QFileDialog::getOpenFileName( this, tr("Pipeline configuration file"), sFilePath, tr("Config files (*.json *.xml *.ini)") );
+    if ( sFilePath.size() )
+    {
+        boost::filesystem::path filepath( sFilePath.toStdString() );
+        _pipelineSettings.read( filepath );
+        buildPipelineFrom( _pipelineSettings );
+
+        QString presetName = QString::fromStdString( _pipelineSettings.get<std::string>( "", "presetName" ) );
+        
+        if ( !presetName.isEmpty() )
+        {
+            const int index = widget.comboPresets->findText( presetName );
+            if ( index == -1 )
+            {
+                widget.comboPresets->addItem( presetName, QVariant( sFilePath ) );
+                widget.comboPresets->setCurrentIndex( index );
+            }
+            else
+            {
+                widget.comboPresets->setEditText( presetName );
+            }
+        }
+        else
+        {
+            _pipelineSettings.set( "", "presetName", filepath.filename().string() );
+            widget.comboPresets->setEditText( QString::fromStdString( filepath.filename().string() ) );
+        }
+
+        setConfigPathParamsFromSettings();
+    }
+}
+
+void RecordingSettingsDialog::setConfigPathParamsFromSettings()
+{
+    widget.comboInput->setEditText( QString::fromStdString( _pipelineSettings.get<std::string>( "configPath", "inputFilePath" ) ) );
+    widget.cbInputIsSequence->setChecked( _pipelineSettings.get<bool>( "configPath", "inputIsSequence", false ) );
+
+    widget.editOutput->setText( QString::fromStdString( _pipelineSettings.get<std::string>( "configPath", "outputDirPath" ) ) );
+    widget.editPrefix->setText( QString::fromStdString( _pipelineSettings.get<std::string>( "configPath", "outputPrefix" ) ) );
+    widget.editExtension->setText( QString::fromStdString( _pipelineSettings.get<std::string>( "configPath", "outputExtension" ) ) );
+    widget.cbOutputIsSequence->setChecked( _pipelineSettings.get<bool>( "configPath", "outputIsSequence", false ) );
+}
+
+void RecordingSettingsDialog::saveConfig()
+{
+    static QString sFilePath;
+    if ( !sFilePath.size() )
+    {
+        sFilePath = QString::fromStdString( ( boost::filesystem::current_path() / kPresetsDirectory ).string() );
+    }
+
+    const int index = widget.comboPresets->findText( widget.comboPresets->lineEdit()->text() );
+    if ( index != -1 )
+    {
+        sFilePath = widget.comboPresets->itemData( index ).toString();
+    }
+    else
+    {
+        sFilePath = QFileDialog::getSaveFileName( this, tr("Pipeline configuration file"), sFilePath, tr("Config files (*.json *.xml *.ini)") );
+    }
+
+    if ( sFilePath.size() )
+    {
+        // Rebuild gui to settings
+        rebuildPipelineSettings();
+        _pipelineSettings.set( "", "presetName", widget.comboPresets->lineEdit()->text().toStdString() );
+        setConfigPaths();
+        _pipelineSettings.write( sFilePath.toStdString() );
+        
+        // Update preset if needed
+        if ( index >= 0 )
+        {
+            _presets[index] = _pipelineSettings;
+        }
+    }
 }
 
 void RecordingSettingsDialog::buildPipelineFrom( const mvpplayer::Settings & pipelineSettings )
@@ -74,6 +245,7 @@ void RecordingSettingsDialog::buildPipelineFrom( const mvpplayer::Settings & pip
             std::cerr << "Unable to load plugin: " << p.first.pluginIdentifier << std::endl;
         }
     }
+    setConfigPathParamsFromSettings();
 }
 
 void RecordingSettingsDialog::rebuildPipelineSettings()
@@ -84,6 +256,16 @@ void RecordingSettingsDialog::rebuildPipelineSettings()
     {
         TablePluginItem * pluginItem = static_cast<TablePluginItem*>( widget.listPipeline->item( i ) );
         _pipelineSettings.set( std::string(), std::to_string( i ), pluginItem->settings().tree() );
+    }
+
+    // Set name
+    _pipelineSettings.set( "", "presetName", widget.comboPresets->lineEdit()->text().toStdString() );
+    setConfigPaths();
+
+    const int index = widget.comboPresets->findText( widget.comboPresets->lineEdit()->text() );
+    if ( index >= 0 )
+    {
+        _presets[index] = _pipelineSettings;
     }
 }
 
@@ -152,16 +334,14 @@ void RecordingSettingsDialog::editPluginParams( QListWidgetItem * item )
     try
     {
         TablePluginItem * pluginItem = static_cast<TablePluginItem*>( item );
-        const int itemIndex = widget.listPipeline->row( item );
-
-        PluginItem key( itemIndex, pluginItem->plugin().getIdentifier() );
         mvpplayer::Settings & currentSettings = pluginItem->settings();
 
         std::unique_ptr<tuttle::host::INode> plugNode( tuttle::host::createNode( pluginItem->plugin().getIdentifier() ) );
         EditPluginParamsDialog dlg( pluginItem->plugin().getIdentifier(), *plugNode, &currentSettings, this );
-        if ( dlg.exec() )
+        if ( dlg.exec() == QDialog::Accepted )
         {
             currentSettings = dlg.nodeSettings();
+            rebuildPipelineSettings();
         }
     }
     catch( ... )

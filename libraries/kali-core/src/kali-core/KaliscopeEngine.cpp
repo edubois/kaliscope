@@ -39,23 +39,42 @@ void KaliscopeEngine::playWork()
     {
         using namespace tuttle::host;
         DefaultImageT image;
+
+        if ( !_inputFilePath.empty() )
+        {
+            _videoPlayer->setInputFilename( _inputFilePath.string(), _isInputSequence );
+        }
+
+        if ( !_isOutputSequence && !_outputFilePathPrefix.empty() )
+        {
+            _videoPlayer->setOutputFilename( _outputFilePathPrefix );
+        }
+
         const OfxRangeD timeDomain = _videoPlayer->getTimeDomain();
+        const double step = _videoPlayer->getFrameStep();
+
         std::cout << "Time domain: {" << timeDomain.min << "," << timeDomain.max << "}" << std::endl;
         if ( timeDomain.min == timeDomain.max )
         {
             TUTTLE_LOG_INFO( "Video is empty!" );
         }
-        _processFrame = timeDomain.min;
-        std::unique_lock<std::mutex> synchro( _mutexSynchro );
-        for( double nFrame = timeDomain.min; nFrame < timeDomain.max && !_stopped; ++nFrame )
+
+        _semaphoreSynchro.takeAll();
+        _semaphoreFrameStepping.takeAll();
+        for( double nFrame = timeDomain.min; nFrame <= timeDomain.max && !_stopped; nFrame += step )
         {
             image.reset();
+
             try
             {
                 boost::this_thread::interruption_point();
                 if ( !_stopped )
                 {
                     _videoPlayer->setPosition( nFrame, mvpplayer::eSeekPositionSample );
+                    if ( _isOutputSequence )
+                    {
+                        _videoPlayer->setOutputFilename( nFrame, std::ceil( timeDomain.max ), _outputFilePathPrefix, _outputFileExtension );
+                    }
                     image = _videoPlayer->getFrame();
                 }
                 else
@@ -68,31 +87,31 @@ void KaliscopeEngine::playWork()
             {
                 TUTTLE_LOG_CURRENT_EXCEPTION;
             }
-
-            if ( image )
+            if ( !_stopped )
             {
-                std::cout << "Frame " << nFrame << " is ready!" << std::endl;
-                signalFrameReady( nFrame, image );
-            }
-            else
-            {
-                std::cerr << "Unable to read frame!" << std::endl;
-                break;
-            }
-            _synchroCondition.wait( synchro );
-            if ( _frameStepping )
-            {
-                _frameSteppingCondition.wait( synchro );
+                if ( image )
+                {
+                    signalFrameReady( nFrame, image );
+                }
+                else
+                {
+                    std::cerr << "Unable to read frame!" << std::endl;
+                    break;
+                }
+                _semaphoreSynchro.wait();
+                if ( _frameStepping )
+                {
+                    _semaphoreFrameStepping.wait();
+                }
             }
         }
     }
-    catch( boost::thread_interrupted& )
-    {}
-
-    if ( !_stopped )
+    catch( ... )
     {
-        _videoPlayer->unload();
+        TUTTLE_LOG_CURRENT_EXCEPTION;
     }
+
+    _videoPlayer->unload();
     _stopped = true;
 }
 
@@ -114,12 +133,17 @@ void KaliscopeEngine::stopWorker()
         try
         {
             _stopped = true;
-            _synchroCondition.notify_all();
-            _frameSteppingCondition.notify_all();
-            _playerThread->join();
+            _semaphoreSynchro.post();
+            _semaphoreFrameStepping.post();
+            if ( _playerThread->joinable() )
+            {
+                _playerThread->join();
+            }
         }
         catch( ... )
-        {}
+        {
+        }
+        _playerThread.reset();
     }
 }
 
@@ -130,8 +154,7 @@ void KaliscopeEngine::stopWorker()
  */
 void KaliscopeEngine::frameProcessed( const double nFrame )
 {
-    _processFrame = nFrame+1;
-    _synchroCondition.notify_all();
+    _semaphoreSynchro.post();
 }
 
 /**
@@ -150,12 +173,13 @@ void KaliscopeEngine::start()
 bool KaliscopeEngine::playFile( const boost::filesystem::path & filename )
 {
     stop();
+    _isInputSequence = false;
 
     if ( boost::iends_with( filename.string(), ".m3u" ) )
     {
         openPlaylist( filename );
         playList();
-        return false;
+        return true;
     }
     else
     {
@@ -169,12 +193,12 @@ bool KaliscopeEngine::playFile( const boost::filesystem::path & filename )
                 signalPlayedTrack( filename );
             }
             start();
-            return false;
+            return true;
         }
         catch( ... )
         {
             TUTTLE_LOG_CURRENT_EXCEPTION;
-            return true;
+            return false;
         }
     }
 }

@@ -10,6 +10,7 @@
 #include <tuttle/common/utils/global.hpp>
 #include <tuttle/host/Graph.hpp>
 #include <ofxCore.h>
+#include <Sequence.hpp>
 
 #include <mutex>
 #include <condition_variable>
@@ -47,11 +48,7 @@ public:
      * @brief get time domain definition
      * @return the time domain {min, max}
      */
-    OfxRangeD getTimeDomain() const
-    {
-        assert( _nodeRead != nullptr );
-        return _nodeRead->getTimeDomain();
-    }
+    OfxRangeD getTimeDomain() const;
 
     /**
      * @brief get the frames per seconds
@@ -128,11 +125,11 @@ public:
 
     /**
      * @brief set current track position
-     * @param position position in percent (0-100) or ms
-     * @param seekType seek position in frame, percent or milliseconds
-     * @return false on success, true if error
+     * @param[in] position position in percent (0-100), ms or frames
+     * @param[in] seekType seek position in frame, percent or milliseconds
+     * @return true on success, false if error
      */
-    bool setPosition( const std::size_t positionInPercent, const mvpplayer::ESeekPosition seekType = mvpplayer::eSeekPositionSample ) override;
+    bool setPosition( const double position, const mvpplayer::ESeekPosition seekType = mvpplayer::eSeekPositionSample ) override;
 
     /**
      * @brief get the current track's position
@@ -183,11 +180,49 @@ public:
      */
     bool isPaused() const override;
 
+    /**
+     * @brief set output filename
+     * @param nFrame[in] frame number
+     * @param nbTotalFrames[in] total frame number
+     * @param filePathPrefix[in] file path prefix
+     * @param extenstion[in] file extension
+     * @warning if the final node is not a writer, this will have no effect
+     */
+    void setOutputFilename( const double nFrame, const std::size_t nbTotalFrames, const std::string & filePathPrefix, const std::string & extension );
+
+    /**
+     * @brief set output filename
+     * @param filePath[in] output file path
+     */
+    void setOutputFilename( const std::string & filePath );
+
+    /**
+     * @brief set output filename
+     * @param filePath[in] input file path
+     * @param isSequence[in] is filepath a sequence
+     */
+    void setInputFilename( const boost::filesystem::path & filePath, const bool isSequence = false );
+
+    /**
+     * @brief initialize sequence
+     * @param filePath[in] full file path
+     */
+    void initSequence( const std::string & filePath );
+
+    /**
+     * @brief get frame step
+     * @return a double for the frame step (usually 1)
+     */
+    double getFrameStep() const
+    { return _frameStep; }
+
 // Various
 private:
-    double _currentPosition = 0.0;      //< Current track position
-    double _currentLength = 0.0;        //< Current track length
-    double _currentFPS = 0.0;           //< Current frames per seconds
+    std::unique_ptr<sequenceParser::Sequence> _inputSequence;   ///< Used to play sequence of images
+    double _frameStep = 1.0;            ///< Frame stepping (default: one frame)
+    double _currentPosition = 0.0;      ///< Current track position
+    double _currentLength = 0.0;        ///< Current track length
+    double _currentFPS = 0.0;           ///< Current frames per seconds
     bool _playing = false;              ///< 'Is playing track' status
 
 // Thread related
@@ -198,6 +233,7 @@ private:
 private:
     tuttle::host::Graph::Node *_nodeFinal = nullptr;        ///< Final effect node
     tuttle::host::Graph::Node *_nodeRead = nullptr;         ///< File reader
+    tuttle::host::Graph::Node *_nodeWrite = nullptr;        ///< File wirter
     tuttle::host::memory::MemoryCache _outputCache;         ///< Cache for video output
     std::shared_ptr<tuttle::host::Graph> _graph;                ///< effects processing graph
 };

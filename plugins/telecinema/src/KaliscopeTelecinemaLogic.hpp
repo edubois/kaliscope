@@ -25,6 +25,7 @@ struct TelecinemaPluginPresenter : mvpplayer::logic::IPluginPresenter
     boost::signals2::signal<void( const mvpplayer::Settings & settings )> signalRecord;
     boost::signals2::signal<void()> signalStopRecord;
     boost::signals2::signal<void()> signalNextFrame;
+    boost::signals2::signal<void()> signalContinuousRecording;
 };
 
 /**
@@ -34,6 +35,7 @@ struct Recording : sc::simple_state< Recording, mvpplayer::logic::Active >
 {
     typedef boost::mpl::list<
       sc::custom_reaction< EvRecord >,
+      sc::custom_reaction< mvpplayer::logic::EvPlay >,
       sc::custom_reaction< mvpplayer::logic::EvStop >,
       sc::custom_reaction< mvpplayer::logic::EvNextTrack >
     > reactions;
@@ -47,6 +49,11 @@ struct Recording : sc::simple_state< Recording, mvpplayer::logic::Active >
      * @brief reaction on stop track event
      */
     sc::result react( const mvpplayer::logic::EvStop & ev );
+
+    /**
+     * @brief reaction on play track event
+     */
+    sc::result react( const mvpplayer::logic::EvPlay & ev );
 
     /**
      * @brief reaction on next frame event
