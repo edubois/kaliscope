@@ -16,6 +16,7 @@ FilterCleanerPlugin::FilterCleanerPlugin( OfxImageEffectHandle handle )
     _paramRedFilterColor = fetchIntParam( kParamRedFilterColor );
     _paramGreenFilterColor = fetchIntParam( kParamGreenFilterColor );
     _paramBlueFilterColor = fetchIntParam( kParamBlueFilterColor );
+    _paramColorInvert = fetchBooleanParam( kParamColorInvert );
 }
 
 FilterCleanerProcessParams<FilterCleanerPlugin::Scalar> FilterCleanerPlugin::getProcessParams( const OfxPointD& renderScale ) const
@@ -25,6 +26,7 @@ FilterCleanerProcessParams<FilterCleanerPlugin::Scalar> FilterCleanerPlugin::get
     params.fRedFilterColor = _paramRedFilterColor->getValue() / 255.0f;
     params.fGreenFilterColor = _paramGreenFilterColor->getValue() / 255.0f;
     params.fBlueFilterColor = _paramBlueFilterColor->getValue() / 255.0f;
+    params.bInvert = _paramColorInvert->getValue();
     return params;
 }
 
@@ -33,7 +35,7 @@ void FilterCleanerPlugin::changedParam( const OFX::InstanceChangedArgs &args, co
     if( paramName == kParamHelpButton )
     {
         sendMessage( OFX::Message::eMessageMessage,
-                     "Go on a frame supposed to be white, click on analyze, then the filter should be removed.",
+                     "This plugin provides a way to reduce orange mask that can appears on some processed films",
                      kParamHelpString );
     }
 }

@@ -33,8 +33,9 @@ static const std::string kParamAlgorithm( "Algorithm" );
 static const std::string kParamAlgorithmRGBReduction( "RGB reduction" );
 static const std::string kParamAlgorithmYUVReduction( "YUV reduction" );
 
-static const std::string kParamAnalyze( "Analyze" );
-static const std::string kParamAnalyzeLabel( "Analyze filter" );
+static const std::string kParamColorInvert( "Invert colors" );
+static const std::string kParamColorInvertLabel( "Invert colors" );
+static const bool kParamDefaultColorInvertValue( false );
 
 }
 }

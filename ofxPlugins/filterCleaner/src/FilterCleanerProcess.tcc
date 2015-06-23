@@ -90,9 +90,19 @@ void FilterCleanerProcess<View>::multiThreadProcessImages( const OfxRectI& procW
                 const double r = get_color( wpix, red_t() );
                 const double g = get_color( wpix, green_t() );
                 const double b = get_color( wpix, blue_t() );
-                get_color( wpix, red_t() )   = vmax - std::min( vmax, std::max( vmin, ( params.fRedFilterColor - r ) * redFactor ) );
-                get_color( wpix, green_t() ) = vmax - std::min( vmax, std::max( vmin, ( params.fGreenFilterColor - g ) * greenFactor ) );
-                get_color( wpix, blue_t() )  = vmax - std::min( vmax, std::max( vmin, ( params.fBlueFilterColor - b ) * blueFactor ) );
+                if ( params.bInvert )
+                {
+                    get_color( wpix, red_t() )   = vmax - std::min( vmax, std::max( vmin, ( params.fRedFilterColor - r ) * redFactor ) );
+                    get_color( wpix, green_t() ) = vmax - std::min( vmax, std::max( vmin, ( params.fGreenFilterColor - g ) * greenFactor ) );
+                    get_color( wpix, blue_t() )  = vmax - std::min( vmax, std::max( vmin, ( params.fBlueFilterColor - b ) * blueFactor ) );
+                    color_convert( wpix, *dst_it );
+                }
+                else
+                {
+                    get_color( wpix, red_t() )   = std::min( vmax, std::max( vmin, ( params.fRedFilterColor - r ) * redFactor ) );
+                    get_color( wpix, green_t() ) = std::min( vmax, std::max( vmin, ( params.fGreenFilterColor - g ) * greenFactor ) );
+                    get_color( wpix, blue_t() )  = std::min( vmax, std::max( vmin, ( params.fBlueFilterColor - b ) * blueFactor ) );
+                }
                 color_convert( wpix, *dst_it );
             }
             if( this->progressForward( procWindowSize.x ) )

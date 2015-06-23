@@ -21,10 +21,10 @@ void FilterCleanerPluginFactory::describe( OFX::ImageEffectDescriptor& desc )
     desc.setLabels(
             "FilterCleaner",
             "FilterCleaner",
-            "Remove filter (often orange filter) from image" );
-    desc.setPluginGrouping( "tuttle" );
+            "Remove filter (often orange mask) from an image" );
+    desc.setPluginGrouping( "djarlabs" );
 
-    desc.setDescription( "Remove filter from the image. An orange filter is often appearing on silver films, this helps removing it." );
+    desc.setDescription( "Remove filter from the image. An orange filter is often appearing on silver films, this helps removing it" );
 
     // add the supported contexts, only filter at the moment
     desc.addSupportedContext( OFX::eContextFilter );
@@ -63,7 +63,7 @@ void FilterCleanerPluginFactory::describeInContext( OFX::ImageEffectDescriptor& 
     paramAlgo->setLabel( "Algorithm" );
     paramAlgo->setHint( "Filter removal algorithm" );
     paramAlgo->appendOption( kParamAlgorithmRGBReduction );
-    paramAlgo->appendOption( kParamAlgorithmYUVReduction );
+//    paramAlgo->appendOption( kParamAlgorithmYUVReduction );
 
     OFX::GroupParamDescriptor *groupFilterColorsParams = desc.defineGroupParam( "Filter color" );
 
@@ -91,8 +91,10 @@ void FilterCleanerPluginFactory::describeInContext( OFX::ImageEffectDescriptor& 
     blueFilterColor->setDisplayRange( 0, 255 );
     blueFilterColor->setHint( "Blue color of the filter" );
 
-    OFX::PushButtonParamDescriptor* analyze = desc.definePushButtonParam( kParamAnalyze );
-    analyze->setLabel( kParamAnalyzeLabel );
+    OFX::BooleanParamDescriptor *colorInvert = desc.defineBooleanParam( kParamColorInvert );
+    colorInvert->setLabels( kParamColorInvertLabel, kParamColorInvertLabel, kParamColorInvertLabel );
+    colorInvert->setParent( *groupFilterColorsParams );
+    colorInvert->setDefault( kParamDefaultColorInvertValue );
 
     OFX::PushButtonParamDescriptor* help = desc.definePushButtonParam( kParamHelpButton );
     help->setLabel( kParamHelpLabel );

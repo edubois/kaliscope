@@ -16,6 +16,7 @@ struct FilterCleanerProcessParams
     float fRedFilterColor;
     float fGreenFilterColor;
     float fBlueFilterColor;
+    bool bInvert;
 };
 
 /**
@@ -41,6 +42,7 @@ private:
     OFX::IntParam*	_paramRedFilterColor;
     OFX::IntParam*	_paramGreenFilterColor;
     OFX::IntParam*	_paramBlueFilterColor;
+    OFX::BooleanParam*	_paramColorInvert;
 };
 
 }
