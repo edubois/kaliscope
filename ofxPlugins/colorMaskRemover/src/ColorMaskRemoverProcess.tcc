@@ -1,22 +1,22 @@
-#include "FilterCleanerAlgorithm.hpp"
-#include "FilterCleanerPlugin.hpp"
+#include "ColorMaskRemoverAlgorithm.hpp"
+#include "ColorMaskRemoverPlugin.hpp"
 
 #include <boost/gil/gil_all.hpp>
 #include <terry/colorspace/layout/all.hpp>
 
 namespace tuttle {
 namespace plugin {
-namespace filterCleaner {
+namespace colorMaskRemover {
 
 template<class View>
-FilterCleanerProcess<View>::FilterCleanerProcess( FilterCleanerPlugin &effect )
+ColorMaskRemoverProcess<View>::ColorMaskRemoverProcess( ColorMaskRemoverPlugin &effect )
 : ImageGilFilterProcessor<View>( effect, eImageOrientationIndependant )
 , _plugin( effect )
 {
 }
 
 template<class View>
-void FilterCleanerProcess<View>::setup( const OFX::RenderArguments& args )
+void ColorMaskRemoverProcess<View>::setup( const OFX::RenderArguments& args )
 {
     ImageGilFilterProcessor<View>::setup( args );
     _params = _plugin.getProcessParams( args.renderScale );
@@ -27,10 +27,10 @@ void FilterCleanerProcess<View>::setup( const OFX::RenderArguments& args )
  * @param[in] procWindowRoW  Processing window
  */
 template<class View>
-void FilterCleanerProcess<View>::multiThreadProcessImages( const OfxRectI& procWindowRoW )
+void ColorMaskRemoverProcess<View>::multiThreadProcessImages( const OfxRectI& procWindowRoW )
 {
     using namespace boost::gil;
-    FilterCleanerProcessParams<FilterCleanerPlugin::Scalar> params = _plugin.getProcessParams();
+    ColorMaskRemoverProcessParams<ColorMaskRemoverPlugin::Scalar> params = _plugin.getProcessParams();
     OfxRectI procWindowOutput = this->translateRoWToOutputClipCoordinates( procWindowRoW );
     const OfxPointI procWindowSize = {
             procWindowRoW.x2 - procWindowRoW.x1,

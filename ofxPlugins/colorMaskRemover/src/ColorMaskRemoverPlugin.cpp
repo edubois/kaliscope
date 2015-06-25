@@ -1,15 +1,15 @@
-#include "FilterCleanerPlugin.hpp"
-#include "FilterCleanerProcess.hpp"
-#include "FilterCleanerDefinitions.hpp"
+#include "ColorMaskRemoverPlugin.hpp"
+#include "ColorMaskRemoverProcess.hpp"
+#include "ColorMaskRemoverDefinitions.hpp"
 
 #include <boost/gil/gil_all.hpp>
 
 namespace tuttle {
 namespace plugin {
-namespace filterCleaner {
+namespace colorMaskRemover {
 
 
-FilterCleanerPlugin::FilterCleanerPlugin( OfxImageEffectHandle handle )
+ColorMaskRemoverPlugin::ColorMaskRemoverPlugin( OfxImageEffectHandle handle )
 : ImageEffectGilPlugin( handle )
 {
     _paramAlgo = fetchChoiceParam( kParamAlgorithm );
@@ -19,9 +19,9 @@ FilterCleanerPlugin::FilterCleanerPlugin( OfxImageEffectHandle handle )
     _paramColorInvert = fetchBooleanParam( kParamColorInvert );
 }
 
-FilterCleanerProcessParams<FilterCleanerPlugin::Scalar> FilterCleanerPlugin::getProcessParams( const OfxPointD& renderScale ) const
+ColorMaskRemoverProcessParams<ColorMaskRemoverPlugin::Scalar> ColorMaskRemoverPlugin::getProcessParams( const OfxPointD& renderScale ) const
 {
-    FilterCleanerProcessParams<Scalar> params;
+    ColorMaskRemoverProcessParams<Scalar> params;
     params._algo  = static_cast<EParamAlgo>( _paramAlgo->getValue() );
     params.fRedFilterColor = _paramRedFilterColor->getValue() / 255.0f;
     params.fGreenFilterColor = _paramGreenFilterColor->getValue() / 255.0f;
@@ -30,7 +30,7 @@ FilterCleanerProcessParams<FilterCleanerPlugin::Scalar> FilterCleanerPlugin::get
     return params;
 }
 
-void FilterCleanerPlugin::changedParam( const OFX::InstanceChangedArgs &args, const std::string &paramName )
+void ColorMaskRemoverPlugin::changedParam( const OFX::InstanceChangedArgs &args, const std::string &paramName )
 {
     if( paramName == kParamHelpButton )
     {
@@ -40,7 +40,7 @@ void FilterCleanerPlugin::changedParam( const OFX::InstanceChangedArgs &args, co
     }
 }
 
-bool FilterCleanerPlugin::isIdentity( const OFX::RenderArguments& args, OFX::Clip*& identityClip, double& identityTime )
+bool ColorMaskRemoverPlugin::isIdentity( const OFX::RenderArguments& args, OFX::Clip*& identityClip, double& identityTime )
 {
     return false;
 }
@@ -49,9 +49,9 @@ bool FilterCleanerPlugin::isIdentity( const OFX::RenderArguments& args, OFX::Cli
  * @brief The overridden render function
  * @param[in]   args     Rendering parameters
  */
-void FilterCleanerPlugin::render( const OFX::RenderArguments &args )
+void ColorMaskRemoverPlugin::render( const OFX::RenderArguments &args )
 {
-    doGilRender<FilterCleanerProcess>( *this, args );
+    doGilRender<ColorMaskRemoverProcess>( *this, args );
 }
 
 

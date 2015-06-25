@@ -1,13 +1,13 @@
-#include "FilterCleanerPluginFactory.hpp"
-#include "FilterCleanerPlugin.hpp"
-#include "FilterCleanerDefinitions.hpp"
+#include "ColorMaskRemoverPluginFactory.hpp"
+#include "ColorMaskRemoverPlugin.hpp"
+#include "ColorMaskRemoverDefinitions.hpp"
 #include "ofxsImageEffect.h"
 
 #include <limits>
 
 namespace tuttle {
 namespace plugin {
-namespace filterCleaner {
+namespace colorMaskRemover {
 
 static const bool kSupportTiles = false;
 
@@ -16,15 +16,15 @@ static const bool kSupportTiles = false;
  * @brief Function called to describe the plugin main features.
  * @param[in, out] desc Effect descriptor
  */
-void FilterCleanerPluginFactory::describe( OFX::ImageEffectDescriptor& desc )
+void ColorMaskRemoverPluginFactory::describe( OFX::ImageEffectDescriptor& desc )
 {
     desc.setLabels(
-            "FilterCleaner",
-            "FilterCleaner",
-            "Remove filter (often orange mask) from an image" );
+            "ColorMaskRemover",
+            "ColorMaskRemover",
+            "Remove mask (often orange mask) from an image" );
     desc.setPluginGrouping( "djarlabs" );
 
-    desc.setDescription( "Remove filter from the image. An orange filter is often appearing on silver films, this helps removing it" );
+    desc.setDescription( "Remove colored mask from the image. An orange mask is often appearing on silver films, this helps removing it" );
 
     // add the supported contexts, only filter at the moment
     desc.addSupportedContext( OFX::eContextFilter );
@@ -45,7 +45,7 @@ void FilterCleanerPluginFactory::describe( OFX::ImageEffectDescriptor& desc )
  * @param[in, out]   desc       Effect descriptor
  * @param[in]        context    Application context
  */
-void FilterCleanerPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
+void ColorMaskRemoverPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
                                                   OFX::EContext context )
 {
     OFX::ClipDescriptor* srcClip = desc.defineClip( kOfxImageEffectSimpleSourceClipName );
@@ -61,11 +61,11 @@ void FilterCleanerPluginFactory::describeInContext( OFX::ImageEffectDescriptor& 
 
     OFX::ChoiceParamDescriptor* paramAlgo = desc.defineChoiceParam( kParamAlgorithm );
     paramAlgo->setLabel( "Algorithm" );
-    paramAlgo->setHint( "Filter removal algorithm" );
+    paramAlgo->setHint( "Colored mask removal algorithm" );
     paramAlgo->appendOption( kParamAlgorithmRGBReduction );
 //    paramAlgo->appendOption( kParamAlgorithmYUVReduction );
 
-    OFX::GroupParamDescriptor *groupFilterColorsParams = desc.defineGroupParam( "Filter color" );
+    OFX::GroupParamDescriptor *groupFilterColorsParams = desc.defineGroupParam( "Mask color" );
 
     OFX::IntParamDescriptor *redFilterColor = desc.defineIntParam( kParamRedFilterColor );
     redFilterColor->setLabels( kParamRedFilterColorLabel, kParamRedFilterColorLabel, kParamRedFilterColorLabel );
@@ -106,10 +106,10 @@ void FilterCleanerPluginFactory::describeInContext( OFX::ImageEffectDescriptor& 
  * @param[in] context Application context
  * @return  plugin instance
  */
-OFX::ImageEffect* FilterCleanerPluginFactory::createInstance( OfxImageEffectHandle handle,
+OFX::ImageEffect* ColorMaskRemoverPluginFactory::createInstance( OfxImageEffectHandle handle,
                                                             OFX::EContext context )
 {
-    return new FilterCleanerPlugin( handle );
+    return new ColorMaskRemoverPlugin( handle );
 }
 
 }

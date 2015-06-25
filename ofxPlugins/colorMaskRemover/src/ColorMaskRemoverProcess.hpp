@@ -5,25 +5,25 @@
 
 namespace tuttle {
 namespace plugin {
-namespace filterCleaner {
+namespace colorMaskRemover {
 
 /**
- * @brief FilterCleaner process
+ * @brief ColorMaskRemover process
  *
  */
 template<class View>
-class FilterCleanerProcess : public ImageGilFilterProcessor<View>
+class ColorMaskRemoverProcess : public ImageGilFilterProcessor<View>
 {
 public:
 	typedef typename View::value_type Pixel;
 	typedef typename boost::gil::channel_type<View>::type Channel;
 	typedef float Scalar;
 protected:
-    FilterCleanerPlugin&    _plugin;            ///< Rendering plugin
-	FilterCleanerProcessParams<Scalar> _params; ///< parameters
+    ColorMaskRemoverPlugin&    _plugin;            ///< Rendering plugin
+	ColorMaskRemoverProcessParams<Scalar> _params; ///< parameters
 
 public:
-    FilterCleanerProcess( FilterCleanerPlugin& effect );
+    ColorMaskRemoverProcess( ColorMaskRemoverPlugin& effect );
 
 	void setup( const OFX::RenderArguments& args );
 
@@ -34,6 +34,6 @@ public:
 }
 }
 
-#include "FilterCleanerProcess.tcc"
+#include "ColorMaskRemoverProcess.tcc"
 
 #endif

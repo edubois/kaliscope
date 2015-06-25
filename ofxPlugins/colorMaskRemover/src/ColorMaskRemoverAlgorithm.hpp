@@ -3,7 +3,7 @@
 
 namespace tuttle {
 namespace plugin {
-namespace filterCleaner {
+namespace colorMaskRemover {
 
 
 }

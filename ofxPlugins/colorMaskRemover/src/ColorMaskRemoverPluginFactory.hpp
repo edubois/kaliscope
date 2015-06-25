@@ -5,9 +5,9 @@
 
 namespace tuttle {
 namespace plugin {
-namespace filterCleaner {
+namespace colorMaskRemover {
 
-mDeclarePluginFactory( FilterCleanerPluginFactory, { }, { } );
+mDeclarePluginFactory( ColorMaskRemoverPluginFactory, { }, { } );
 
 }
 }
