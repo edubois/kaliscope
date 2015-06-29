@@ -4,10 +4,10 @@ project.StaticLibrary( 'tuttlePlugin',
                        sources   = project.scanFiles( ['src'] ),
                        includes  = ['src'],
                        libraries = [
-                                       libs.tuttleHost,
                                        libs.sequenceParser,
                                        libs.terry,
                                        libs.openfxHack,
+                                       libs.boost_log,
                                     ],
                        shared = False
                       )
