@@ -36,6 +36,9 @@ void ColorMaskRemoverProcess<View>::multiThreadProcessImages( const OfxRectI& pr
             procWindowRoW.x2 - procWindowRoW.x1,
             procWindowRoW.y2 - procWindowRoW.y1 };
 
+    const double redFactor = params.fRedFactor;
+    const double greenFactor = params.fGreenFactor;
+    const double blueFactor = params.fBlueFactor;
     if ( _params._algo == eParamAlgoYUVReduction )
     {
         using namespace terry::color::layout;
@@ -59,9 +62,9 @@ void ColorMaskRemoverProcess<View>::multiThreadProcessImages( const OfxRectI& pr
                 const double y = get_color( wpix, y_t() );
                 const double u = get_color( wpix, u_t() );
                 const double v = get_color( wpix, v_t() );
-                get_color( wpix, yuv::y_t() ) = std::min( 1.0, std::max( 0.0, y - ( yRef - y ) ) );
-                get_color( wpix, yuv::u_t() ) = std::min( 0.436, std::max( -0.436, u - uRef ) );
-                get_color( wpix, yuv::v_t() ) = std::min( 0.615, std::max( -0.615, v - vRef ) );
+                get_color( wpix, yuv::y_t() ) = std::min( 1.0, std::max( 0.0, y - ( yRef - y ) ) * redFactor );
+                get_color( wpix, yuv::u_t() ) = std::min( 0.436, std::max( -0.436, u - uRef ) * greenFactor );
+                get_color( wpix, yuv::v_t() ) = std::min( 0.615, std::max( -0.615, v - vRef ) * blueFactor );
                 color_convert( wpix, *dst_it );
             }
             if( this->progressForward( procWindowSize.x ) )
@@ -73,11 +76,11 @@ void ColorMaskRemoverProcess<View>::multiThreadProcessImages( const OfxRectI& pr
         rgb32f_pixel_t rgbRefFilterPix( params.fRedFilterColor, params.fGreenFilterColor, params.fBlueFilterColor );
         rgb32f_pixel_t wpix;
         // Red part in params.fRedFilterColor
-        const double redFactor = 1.0 + ( 1.0 / params.fRedFilterColor );
+        const double subRedFactor = 1.0 + ( 1.0 / params.fRedFilterColor );
         // Green part in params.fGreenFilterColor
-        const double greenFactor = 1.0 + ( 1.0 / params.fGreenFilterColor );
+        const double subGreenFactor = 1.0 + ( 1.0 / params.fGreenFilterColor );
         // Blue part in params.fBlueFilterColor
-        const double blueFactor = 1.0 + ( 1.0 / params.fBlueFilterColor );
+        const double subBlueFactor = 1.0 + ( 1.0 / params.fBlueFilterColor );
         const double vmin = channel_traits<bits32f>::min_value();
         const double vmax = channel_traits<bits32f>::max_value();
         for( int y = procWindowOutput.y1; y < procWindowOutput.y2; ++y )
@@ -92,16 +95,16 @@ void ColorMaskRemoverProcess<View>::multiThreadProcessImages( const OfxRectI& pr
                 const double b = get_color( wpix, blue_t() );
                 if ( params.bInvert )
                 {
-                    get_color( wpix, red_t() )   = vmax - std::min( vmax, std::max( vmin, ( params.fRedFilterColor - r ) * redFactor ) );
-                    get_color( wpix, green_t() ) = vmax - std::min( vmax, std::max( vmin, ( params.fGreenFilterColor - g ) * greenFactor ) );
-                    get_color( wpix, blue_t() )  = vmax - std::min( vmax, std::max( vmin, ( params.fBlueFilterColor - b ) * blueFactor ) );
+                    get_color( wpix, red_t() )   = vmax - std::min( vmax, std::max( vmin, ( params.fRedFilterColor - r ) * subRedFactor ) * redFactor );
+                    get_color( wpix, green_t() ) = vmax - std::min( vmax, std::max( vmin, ( params.fGreenFilterColor - g ) * subGreenFactor ) * greenFactor );
+                    get_color( wpix, blue_t() )  = vmax - std::min( vmax, std::max( vmin, ( params.fBlueFilterColor - b ) * subBlueFactor ) * blueFactor );
                     color_convert( wpix, *dst_it );
                 }
                 else
                 {
-                    get_color( wpix, red_t() )   = std::min( vmax, std::max( vmin, ( params.fRedFilterColor - r ) * redFactor ) );
-                    get_color( wpix, green_t() ) = std::min( vmax, std::max( vmin, ( params.fGreenFilterColor - g ) * greenFactor ) );
-                    get_color( wpix, blue_t() )  = std::min( vmax, std::max( vmin, ( params.fBlueFilterColor - b ) * blueFactor ) );
+                    get_color( wpix, red_t() )   = std::min( vmax, std::max( vmin, ( params.fRedFilterColor - r ) * subRedFactor ) * redFactor );
+                    get_color( wpix, green_t() ) = std::min( vmax, std::max( vmin, ( params.fGreenFilterColor - g ) * subGreenFactor ) * greenFactor );
+                    get_color( wpix, blue_t() )  = std::min( vmax, std::max( vmin, ( params.fBlueFilterColor - b ) * subBlueFactor ) * blueFactor );
                 }
                 color_convert( wpix, *dst_it );
             }

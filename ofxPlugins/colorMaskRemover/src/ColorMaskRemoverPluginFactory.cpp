@@ -67,7 +67,14 @@ void ColorMaskRemoverPluginFactory::describeInContext( OFX::ImageEffectDescripto
 
     OFX::GroupParamDescriptor *groupFilterColorsParams = desc.defineGroupParam( "Mask color" );
 
-    OFX::IntParamDescriptor *redFilterColor = desc.defineIntParam( kParamRedFilterColor );
+    OFX::IntParamDescriptor *maximumValue = desc.defineIntParam( kParamMaximumValue );
+    maximumValue->setLabels( kParamMaximumValueLabel, kParamMaximumValueLabel, kParamMaximumValueLabel );
+    maximumValue->setParent( *groupFilterColorsParams );
+    maximumValue->setDefault( kParamDefaultMaximumValue );
+    maximumValue->setDisplayRange( 0, 4096 );
+    maximumValue->setHint( "Maximum possible value of a channel value (usually 255 for 8 bit images)" );
+
+    OFX::DoubleParamDescriptor *redFilterColor = desc.defineDoubleParam( kParamRedFilterColor );
     redFilterColor->setLabels( kParamRedFilterColorLabel, kParamRedFilterColorLabel, kParamRedFilterColorLabel );
     redFilterColor->setParent( *groupFilterColorsParams );
     redFilterColor->setDefault( kParamDefaultRedFilterColor );
@@ -75,7 +82,7 @@ void ColorMaskRemoverPluginFactory::describeInContext( OFX::ImageEffectDescripto
     redFilterColor->setDisplayRange( 0, 255 );
     redFilterColor->setHint( "Red color of the filter" );
 
-    OFX::IntParamDescriptor *greenFilterColor = desc.defineIntParam( kParamGreenFilterColor );
+    OFX::DoubleParamDescriptor *greenFilterColor = desc.defineDoubleParam( kParamGreenFilterColor );
     greenFilterColor->setLabels( kParamGreenFilterColorLabel, kParamGreenFilterColorLabel, kParamGreenFilterColorLabel );
     greenFilterColor->setParent( *groupFilterColorsParams );
     greenFilterColor->setDefault( kParamDefaultGreenFilterColor );
@@ -83,13 +90,37 @@ void ColorMaskRemoverPluginFactory::describeInContext( OFX::ImageEffectDescripto
     greenFilterColor->setDisplayRange( 0, 255 );
     greenFilterColor->setHint( "Green color of the filter" );
 
-    OFX::IntParamDescriptor *blueFilterColor = desc.defineIntParam( kParamBlueFilterColor );
+    OFX::DoubleParamDescriptor *blueFilterColor = desc.defineDoubleParam( kParamBlueFilterColor );
     blueFilterColor->setLabels( kParamBlueFilterColorLabel, kParamBlueFilterColorLabel, kParamBlueFilterColorLabel );
     blueFilterColor->setParent( *groupFilterColorsParams );
     blueFilterColor->setDefault( kParamDefaultBlueFilterColor );
     blueFilterColor->setRange( 0, 255 );
     blueFilterColor->setDisplayRange( 0, 255 );
     blueFilterColor->setHint( "Blue color of the filter" );
+
+    OFX::DoubleParamDescriptor *redFactor = desc.defineDoubleParam( kParamRedFactor );
+    redFactor->setLabels( kParamRedFactorLabel, kParamRedFactorLabel, kParamRedFactorLabel );
+    redFactor->setParent( *groupFilterColorsParams );
+    redFactor->setDefault( kParamDefaultRedFactorColor );
+    redFactor->setRange( 0, 300.0 );
+    redFactor->setDisplayRange( 0, 300.0 );
+    redFactor->setHint( "Red factor" );
+
+    OFX::DoubleParamDescriptor *greenFactor = desc.defineDoubleParam( kParamGreenFactor );
+    greenFactor->setLabels( kParamGreenFactorLabel, kParamGreenFactorLabel, kParamGreenFactorLabel );
+    greenFactor->setParent( *groupFilterColorsParams );
+    greenFactor->setDefault( kParamDefaultGreenFactorColor );
+    greenFactor->setRange( 0, 300.0 );
+    greenFactor->setDisplayRange( 0, 300.0 );
+    greenFactor->setHint( OFX::getImageEffectHostDescription()->hostName );
+
+    OFX::DoubleParamDescriptor *blueFactor = desc.defineDoubleParam( kParamBlueFactor );
+    blueFactor->setLabels( kParamBlueFactorLabel, kParamBlueFactorLabel, kParamBlueFactorLabel );
+    blueFactor->setParent( *groupFilterColorsParams );
+    blueFactor->setDefault( kParamDefaultBlueFactorColor );
+    blueFactor->setRange( 0, 300.0 );
+    blueFactor->setDisplayRange( 0, 300.0 );
+    blueFactor->setHint( "Blue factor" );
 
     OFX::BooleanParamDescriptor *colorInvert = desc.defineBooleanParam( kParamColorInvert );
     colorInvert->setLabels( kParamColorInvertLabel, kParamColorInvertLabel, kParamColorInvertLabel );
@@ -98,6 +129,20 @@ void ColorMaskRemoverPluginFactory::describeInContext( OFX::ImageEffectDescripto
 
     OFX::PushButtonParamDescriptor* help = desc.definePushButtonParam( kParamHelpButton );
     help->setLabel( kParamHelpLabel );
+
+    OFX::PushButtonParamDescriptor* analyze = desc.definePushButtonParam( kParamAnalyzeButton );
+    analyze->setLabel( kParamAnalyzeLabel );
+    analyze->setHint( kParamAnalyzeHint );
+
+    OFX::IntParamDescriptor* forceNewRender = desc.defineIntParam( kParamFilterForceNewRender );
+    forceNewRender->setLabel( "Force new render" );
+    forceNewRender->setEnabled( false );
+    forceNewRender->setIsSecret( true );
+    forceNewRender->setIsPersistant( false );
+    forceNewRender->setAnimates( false );
+    forceNewRender->setCacheInvalidation( OFX::eCacheInvalidateValueAll );
+    forceNewRender->setEvaluateOnChange( true );
+    forceNewRender->setDefault( 0 );
 }
 
 /**
