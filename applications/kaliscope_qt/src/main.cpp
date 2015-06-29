@@ -77,19 +77,10 @@ int main( int argc, char **argv )
     );
 
     QApplication app( argc, argv );
-
-    initResources();
     Q_INIT_RESOURCE( shaders );
+    initResources();
 
     Dialog dlg;
-
-    using namespace tuttle::host;
-    using namespace tuttle::common;
-
-    Formatter::get();
-    core().preload();
-
-
     // Core (model): a sound player engine
     kaliscope::KaliscopeEngine playerEngine( &kaliscope::VideoPlayer::getInstance() );
 
@@ -100,52 +91,68 @@ int main( int argc, char **argv )
     mvpplayer::logic::MVPPlayerPresenter presenter;
     presenter.startStateMachine<mvpplayer::logic::PlayerStateMachine>();
 
-    // Main dialog (view)
-    QSystemTrayIcon trayIcon( QIcon( ":/mvpplayer/action/play.png" ) );
-    trayIcon.setVisible( true );
+    int res = 0;
+    try
+    {
+        using namespace tuttle::host;
+        using namespace tuttle::common;
 
-    // Specific connections (be careful of the order here)
+        Formatter::get();
+        core().preload();
 
-    // Display a message box on errors
-    presenter.signalFailed.connect( boost::bind( &Dialog::displayError, &dlg, _1 ) );
-    // When no file is provided and we hit play button, ask for a music file
-    presenter.signalAskForFile.connect( boost::bind( &Dialog::openFile, &dlg, _1, _2, "Musics (*.dpx *.tif *.mov *.avi *.mp4);; All files (*.*)" ) );
-    presenter.signalAskSettingsFor.connect( boost::bind( &editPipelineSettings, &dlg, _2 ) );
 
-    // Setup Model View Presenter behavior (binds the whole thing)
-    mvpplayer::gui::setupMainBehavior( playerEngine, dlg, presenter );
-    // Settings editor binding
-    dlg.signalViewHitEditSettings.connect( boost::bind( &editSettings, &dlg, boost::ref( playerEngine ), boost::ref( dlg ), boost::ref( presenter ) ) );
+        // Main dialog (view)
+        QSystemTrayIcon trayIcon( QIcon( ":/mvpplayer/action/play.png" ) );
+        trayIcon.setVisible( true );
 
-    // Transfer events received from the network to the presenter's state machine
-    remote.signalEvent.connect( boost::bind( &mvpplayer::logic::MVPPlayerPresenter::processEvent, &presenter, _1 ) );
+        // Specific connections (be careful of the order here)
 
-    // Network setup
-    dlg.signalViewConnect.connect(
-        [&remote, &dlg]()
-        {
-            static QString serverIP = "192.168.1.72";
-            bool ok = false;
-            serverIP = QInputDialog::getText( &dlg, QObject::tr("Connection"), QObject::tr("Kalisync server IP:"), QLineEdit::Normal, serverIP, &ok);
-            if ( ok )
+        // Display a message box on errors
+        presenter.signalFailed.connect( boost::bind( &Dialog::displayError, &dlg, _1 ) );
+        // When no file is provided and we hit play button, ask for a music file
+        presenter.signalAskForFile.connect( boost::bind( &Dialog::openFile, &dlg, _1, _2, "Musics (*.dpx *.tif *.mov *.avi *.mp4);; All files (*.*)" ) );
+        presenter.signalAskSettingsFor.connect( boost::bind( &editPipelineSettings, &dlg, _2 ) );
+
+        // Setup Model View Presenter behavior (binds the whole thing)
+        mvpplayer::gui::setupMainBehavior( playerEngine, dlg, presenter );
+        // Settings editor binding
+        dlg.signalViewHitEditSettings.connect( boost::bind( &editSettings, &dlg, boost::ref( playerEngine ), boost::ref( dlg ), boost::ref( presenter ) ) );
+
+        // Transfer events received from the network to the presenter's state machine
+        remote.signalEvent.connect( boost::bind( &mvpplayer::logic::MVPPlayerPresenter::processEvent, &presenter, _1 ) );
+
+        // Network setup
+        dlg.signalViewConnect.connect(
+            [&remote, &dlg]()
             {
-                remote.connect( serverIP.toStdString() );
+                static QString serverIP = "192.168.1.72";
+                bool ok = false;
+                serverIP = QInputDialog::getText( &dlg, QObject::tr("Connection"), QObject::tr("Kalisync server IP:"), QLineEdit::Normal, serverIP, &ok);
+                if ( ok )
+                {
+                    remote.connect( serverIP.toStdString() );
+                }
             }
-        }
-    );
-    dlg.signalViewDisconnect.connect( boost::bind( &mvpplayer::network::client::Client::disconnect, &remote ) );
+        );
+        dlg.signalViewDisconnect.connect( boost::bind( &mvpplayer::network::client::Client::disconnect, &remote ) );
 
-    // Bind 'frame ready' signal to display function
-    playerEngine.signalFrameReady.connect( boost::bind( &Dialog::displayFrame, &dlg, _1, _2 ) );
-    dlg.viewer()->signalFrameDone.connect( boost::bind( &kaliscope::KaliscopeEngine::frameProcessed, &playerEngine, _1 ) );
+        // Bind 'frame ready' signal to display function
+        playerEngine.signalFrameReady.connect( boost::bind( &Dialog::displayFrame, &dlg, _1, _2 ) );
+        dlg.viewer()->signalFrameDone.connect( boost::bind( &kaliscope::KaliscopeEngine::frameProcessed, &playerEngine, _1 ) );
 
-    // Load plugins
-    mvpplayer::plugins::PluginLoader::getInstance().loadPlugins( playerEngine, dlg, presenter );
+        // Load plugins
+        mvpplayer::plugins::PluginLoader::getInstance().loadPlugins( playerEngine, dlg, presenter );
 
-    dlg.showNormal();
+        dlg.showNormal();
 
-    int res = app.exec();
-    
+        res = app.exec();
+    }
+    catch( ... )
+    {
+        TUTTLE_LOG_CURRENT_EXCEPTION;
+        res = -1;
+    }
+
     // the following needs to be reviewed, it seems that boost::trackable has no effect on Qt objects
     dlg.viewer()->signalFrameDone.disconnect_all_slots();
     playerEngine.signalFrameReady.disconnect_all_slots();
