@@ -41,8 +41,14 @@ void ColorMaskAnalyzingProcess<View>::multiThreadProcessImages( const OfxRectI& 
             procWindowRoW.x2 - procWindowRoW.x1,
             procWindowRoW.y2 - procWindowRoW.y1 };
 
-    rgb32f_pixel_t wpix;
+    using namespace terry::color::layout;
+    typedef pixel<bits32f, boost::gil::layout< terry::color::layout::yuv_t> > YUVWorkPixT;
+    YUVWorkPixT wpix;
+    rgb32f_pixel_t wfpix;
+    typedef typename channel_type<YUVWorkPixT>::type YUVValueT;
+
     const double vmax = channel_traits<bits32f>::max_value();
+    double yMax = 0.0;
     for( int y = procWindowOutput.y1; y < procWindowOutput.y2; ++y )
     {
         typename View::x_iterator src_it = this->_srcView.x_at( procWindowOutput.x1, y );
@@ -50,25 +56,32 @@ void ColorMaskAnalyzingProcess<View>::multiThreadProcessImages( const OfxRectI& 
         for( int x = procWindowOutput.x1; x < procWindowOutput.x2; ++x, ++src_it, ++dst_it )
         {
             color_convert( *src_it, wpix );
-            const double r = get_color( wpix, red_t() );
-            const double g = get_color( wpix, green_t() );
-            const double b = get_color( wpix, blue_t() );
-            if ( r > _redFilterColor )
+            const double y = get_color( wpix, y_t() );
+            if ( y > yMax )
             {
-                _redFilterColor = r / vmax;
+                yMax = y;
+                color_convert( *src_it, wfpix );
             }
-            if ( g > _greenFilterColor )
-            {
-                _greenFilterColor = g / vmax;
-            }
-            if ( b > _blueFilterColor )
-            {
-                _blueFilterColor = b / vmax;
-            }
-            color_convert( wpix, *dst_it );
+            color_convert( *src_it, *dst_it );
         }
         if( this->progressForward( procWindowSize.x ) )
             return;
+    }
+
+    const double redFilterColor = get_color( wfpix, red_t() );
+    const double greenFilterColor = get_color( wfpix, green_t() );
+    const double blueFilterColor = get_color( wfpix, blue_t() );
+    if ( redFilterColor > _redFilterColor )
+    {
+        _redFilterColor = redFilterColor;
+    }
+    if ( greenFilterColor > _greenFilterColor )
+    {
+        _greenFilterColor = greenFilterColor;
+    }
+    if ( blueFilterColor > _blueFilterColor )
+    {
+        _blueFilterColor = blueFilterColor;
     }
 }
 
