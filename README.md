@@ -114,3 +114,13 @@ I had to connect a USB solid hard drive and set up a ramdisk on it, then after 1
 to get a working program. Please note that if you set a swap on a flash disk (sdcard for example), you might break it.
 
 
+## Compilation of the OFX plugins
+
+### Color mask remover plugin
+
+This plugin helps in removing colored masks that can appear on you films negatives (often an orange mask).
+
+```scons colorMaskRemover```
+
+### 
+
