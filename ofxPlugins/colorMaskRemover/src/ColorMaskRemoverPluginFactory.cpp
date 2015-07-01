@@ -69,6 +69,7 @@ void ColorMaskRemoverPluginFactory::describeInContext( OFX::ImageEffectDescripto
 
     OFX::IntParamDescriptor *maximumValue = desc.defineIntParam( kParamMaximumValue );
     maximumValue->setLabels( kParamMaximumValueLabel, kParamMaximumValueLabel, kParamMaximumValueLabel );
+    maximumValue->setIsSecret( true );
     maximumValue->setParent( *groupFilterColorsParams );
     maximumValue->setDefault( kParamDefaultMaximumValue );
     maximumValue->setDisplayRange( 0, 4096 );
@@ -78,24 +79,24 @@ void ColorMaskRemoverPluginFactory::describeInContext( OFX::ImageEffectDescripto
     redFilterColor->setLabels( kParamRedFilterColorLabel, kParamRedFilterColorLabel, kParamRedFilterColorLabel );
     redFilterColor->setParent( *groupFilterColorsParams );
     redFilterColor->setDefault( kParamDefaultRedFilterColor );
-    redFilterColor->setRange( 0, 255 );
-    redFilterColor->setDisplayRange( 0, 255 );
+    redFilterColor->setRange( 0, kParamDefaultMaximumValue );
+    redFilterColor->setDisplayRange( 0, kParamDefaultMaximumValue );
     redFilterColor->setHint( "Red color of the filter" );
 
     OFX::DoubleParamDescriptor *greenFilterColor = desc.defineDoubleParam( kParamGreenFilterColor );
     greenFilterColor->setLabels( kParamGreenFilterColorLabel, kParamGreenFilterColorLabel, kParamGreenFilterColorLabel );
     greenFilterColor->setParent( *groupFilterColorsParams );
     greenFilterColor->setDefault( kParamDefaultGreenFilterColor );
-    greenFilterColor->setRange( 0, 255 );
-    greenFilterColor->setDisplayRange( 0, 255 );
+    greenFilterColor->setRange( 0, kParamDefaultMaximumValue );
+    greenFilterColor->setDisplayRange( 0, kParamDefaultMaximumValue );
     greenFilterColor->setHint( "Green color of the filter" );
 
     OFX::DoubleParamDescriptor *blueFilterColor = desc.defineDoubleParam( kParamBlueFilterColor );
     blueFilterColor->setLabels( kParamBlueFilterColorLabel, kParamBlueFilterColorLabel, kParamBlueFilterColorLabel );
     blueFilterColor->setParent( *groupFilterColorsParams );
     blueFilterColor->setDefault( kParamDefaultBlueFilterColor );
-    blueFilterColor->setRange( 0, 255 );
-    blueFilterColor->setDisplayRange( 0, 255 );
+    blueFilterColor->setRange( 0, kParamDefaultMaximumValue );
+    blueFilterColor->setDisplayRange( 0, kParamDefaultMaximumValue );
     blueFilterColor->setHint( "Blue color of the filter" );
 
     OFX::DoubleParamDescriptor *redFactor = desc.defineDoubleParam( kParamRedFactor );

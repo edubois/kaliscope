@@ -32,6 +32,13 @@ ColorMaskRemoverPlugin::ColorMaskRemoverPlugin( OfxImageEffectHandle handle )
     _paramColorInvert = fetchBooleanParam( kParamColorInvert );
     _paramAnalyzeButton = fetchPushButtonParam( kParamAnalyzeButton );
     _paramForceNewRender = fetchIntParam( kParamFilterForceNewRender );
+
+    _paramRedFilterColor->setRange( 0, _paramMaximumValue->getValue() );
+    _paramRedFilterColor->setDisplayRange( 0, _paramMaximumValue->getValue() );
+    _paramGreenFilterColor->setRange( 0, _paramMaximumValue->getValue() );
+    _paramGreenFilterColor->setDisplayRange( 0, _paramMaximumValue->getValue() );
+    _paramBlueFilterColor->setRange( 0, _paramMaximumValue->getValue() );
+    _paramBlueFilterColor->setDisplayRange( 0, _paramMaximumValue->getValue() );
 }
 
 ColorMaskRemoverProcessParams<ColorMaskRemoverPlugin::Scalar> ColorMaskRemoverPlugin::getProcessParams( const OfxPointD& renderScale ) const
