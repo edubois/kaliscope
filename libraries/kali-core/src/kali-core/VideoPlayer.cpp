@@ -1,6 +1,7 @@
 #include "VideoPlayer.hpp"
 
 #include <tuttle/common/utils/global.hpp>
+#include <tuttle/common/exceptions.hpp>
 #include <Sequence.hpp>
 
 #include <vector>
@@ -169,6 +170,10 @@ void VideoPlayer::load( const boost::filesystem::path & filename )
             TUTTLE_LOG_CURRENT_EXCEPTION;
         }
     }
+    else
+    {
+        BOOST_THROW_EXCEPTION( tuttle::exception::Failed() << tuttle::exception::user() + "The video player is not initialized!" );
+    }
 }
 
 /**
@@ -314,7 +319,10 @@ void VideoPlayer::initSequence( const std::string & filePath )
  */
 OfxRangeD VideoPlayer::getTimeDomain() const
 {
-    assert( _nodeRead != nullptr );
+    if( !_nodeRead )
+    {
+        BOOST_THROW_EXCEPTION( tuttle::exception::Failed() << tuttle::exception::user() + "The video player is not initialized!" );
+    }
     _graph->setup();
     if ( _inputSequence )
     {
