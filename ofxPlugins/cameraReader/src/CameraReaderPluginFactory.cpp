@@ -23,7 +23,7 @@ void CameraReaderPluginFactory::describe( OFX::ImageEffectDescriptor& desc )
 	desc.setLabels(
 		"CameraReader",
 		"CameraReader",
-		"MLV Magic lantern Raw file reader" );
+		"CAMERA Magic lantern Raw file reader" );
 	desc.setPluginGrouping( "tuttle/image/io" );
 
 	desc.setDescription( "Plugin under early development." );

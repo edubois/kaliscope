@@ -1,7 +1,7 @@
 #include "CameraReaderPlugin.hpp"
 #include "CameraReaderProcess.hpp"
 #include "CameraReaderDefinitions.hpp"
-#include "CameraVideo.hpp"
+#include "CameraInput.hpp"
 
 
 #include <boost/gil/gil_all.hpp>
@@ -19,7 +19,6 @@ CameraReaderPlugin::CameraReaderPlugin( OfxImageEffectHandle handle )
 CameraReaderProcessParams CameraReaderPlugin::getProcessParams( const OfxTime time ) const
 {
     CameraReaderProcessParams params;
-    params._filepath = getAbsoluteFilenameAt( time );
     return params;
 }
 
@@ -28,26 +27,22 @@ void CameraReaderPlugin::changedParam( const OFX::InstanceChangedArgs &args, con
     ReaderPlugin::changedParam( args, paramName );
 }
 
-void CameraReaderPlugin::ensureVideoOpened()
+void CameraReaderPlugin::ensureInputOpened()
 {
-    const std::string& filepath = _paramFilepath->getValue();
-    if ( !_mlvVideo || _mlvVideo->filename() != _currentFilename )
+    if ( !_cameraInput )
     {
-        _mlvVideo.reset( new tuttle::io::CameraVideo() );
-        _currentFilename = filepath;
-        _mlvVideo->readHeader( _currentFilename );
+        _cameraInput.reset( new tuttle::io::CameraInput() );
     }
 }
 
 bool CameraReaderPlugin::getRegionOfDefinition( const OFX::RegionOfDefinitionArguments& args, OfxRectD& rod )
 {
-    ensureVideoOpened();
+    ensureInputOpened();
 
-    _mlvVideo->readHeader( getAbsoluteFilenameAt( args.time ) );
     rod.x1 = 0;
-    rod.x2 = _mlvVideo->width() * this->_clipDst->getPixelAspectRatio();
+    rod.x2 = _cameraInput->width() * this->_clipDst->getPixelAspectRatio();
     rod.y1 = 0;
-    rod.y2 = _mlvVideo->height();
+    rod.y2 = _cameraInput->height();
     return true;
 }
 
@@ -55,7 +50,7 @@ void CameraReaderPlugin::getClipPreferences( OFX::ClipPreferencesSetter& clipPre
 {
     ReaderPlugin::getClipPreferences( clipPreferences );
 
-    ensureVideoOpened();
+    ensureInputOpened();
 
     clipPreferences.setClipBitDepth( *_clipDst, OFX::eBitDepthUByte );
     clipPreferences.setClipComponents( *_clipDst, OFX::ePixelComponentRGB );
@@ -63,24 +58,24 @@ void CameraReaderPlugin::getClipPreferences( OFX::ClipPreferencesSetter& clipPre
     if( getExplicitConversion() == eParamReaderExplicitConversionAuto )
     {
         OFX::EBitDepth bd = OFX::eBitDepthNone;
-        switch( mlvVideo.componentsType() )
+        switch( cameraInput.componentsType() )
         {
-            case CameraVideo::eCompTypeR8G8B8:
-            case CameraVideo::eCompTypeR8G8B8A8:
-            case CameraVideo::eCompTypeA8B8G8R8:
+            case CameraInput::eCompTypeR8G8B8:
+            case CameraInput::eCompTypeR8G8B8A8:
+            case CameraInput::eCompTypeA8B8G8R8:
             {
                 bd = OFX::eBitDepthUByte;
                 break;
             }
-            case CameraVideo::eCompTypeR10G10B10:
-            case CameraVideo::eCompTypeR10G10B10A10:
-            case CameraVideo::eCompTypeA10B10G10R10:
-            case CameraVideo::eCompTypeR12G12B12:
-            case CameraVideo::eCompTypeR12G12B12A12:
-            case CameraVideo::eCompTypeA12B12G12R12:
-            case CameraVideo::eCompTypeR16G16B16:
-            case CameraVideo::eCompTypeR16G16B16A16:
-            case CameraVideo::eCompTypeA16B16G16R16:
+            case CameraInput::eCompTypeR10G10B10:
+            case CameraInput::eCompTypeR10G10B10A10:
+            case CameraInput::eCompTypeA10B10G10R10:
+            case CameraInput::eCompTypeR12G12B12:
+            case CameraInput::eCompTypeR12G12B12A12:
+            case CameraInput::eCompTypeA12B12G12R12:
+            case CameraInput::eCompTypeR16G16B16:
+            case CameraInput::eCompTypeR16G16B16A16:
+            case CameraInput::eCompTypeA16B16G16R16:
             {
                 bd = OFX::eBitDepthUShort;
                 break;
@@ -91,7 +86,7 @@ void CameraReaderPlugin::getClipPreferences( OFX::ClipPreferencesSetter& clipPre
 
         clipPreferences.setClipBitDepth( *_clipDst, bd );
     }
-    switch( mlvVideo.components() )
+    switch( cameraInput.components() )
     {
         case 3:
         {
@@ -116,16 +111,10 @@ void CameraReaderPlugin::getClipPreferences( OFX::ClipPreferencesSetter& clipPre
 
 bool CameraReaderPlugin::getTimeDomain( OfxRangeD& range )
 {
-    ensureVideoOpened();
+    ensureInputOpened();
 
-    size_t nbFrames = _mlvVideo->frameCount();
-
-    // if nbFrames is unknown
-    if( nbFrames == 0 )
-        nbFrames = 1;
-
-    range.min = 0.0;
-    range.max = nbFrames - 1.0;
+    range.min = std::numeric_limits<double>::min();
+    range.max = std::numeric_limits<double>::max();
 
     return true;
 }
@@ -134,7 +123,7 @@ void CameraReaderPlugin::beginSequenceRender( const OFX::BeginSequenceRenderArgu
 {
     ReaderPlugin::beginSequenceRender( args );
 
-    ensureVideoOpened();
+    ensureInputOpened();
 }
 
 /**

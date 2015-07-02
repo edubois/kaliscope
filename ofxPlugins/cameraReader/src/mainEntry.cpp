@@ -9,7 +9,7 @@ namespace Plugin {
 
 void getPluginIDs( OFX::PluginFactoryArray& ids )
 {
-	mAppendPluginFactory( ids, tuttle::plugin::cameraReader::CameraReaderPluginFactory, "fr.tuttle.djarlabs.mlvreader" );
+	mAppendPluginFactory( ids, tuttle::plugin::cameraReader::CameraReaderPluginFactory, "fr.tuttle.djarlabs.camerareader" );
 }
 
 }

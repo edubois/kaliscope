@@ -1,8 +1,8 @@
-#ifndef _TUTTLE_PLUGIN_MLVREADER_PLUGIN_HPP_
-#define _TUTTLE_PLUGIN_MLVREADER_PLUGIN_HPP_
+#ifndef _TUTTLE_PLUGIN_CAMERAREADER_PLUGIN_HPP_
+#define _TUTTLE_PLUGIN_CAMERAREADER_PLUGIN_HPP_
 
 #include "CameraReaderDefinitions.hpp"
-#include "CameraVideo.hpp"
+#include "CameraInput.hpp"
 
 #include <tuttle/plugin/context/ReaderPlugin.hpp>
 
@@ -14,7 +14,6 @@ namespace cameraReader {
 
 struct CameraReaderProcessParams
 {
-    std::string _filepath;
 };
 
 /**
@@ -35,11 +34,10 @@ public:
     void render( const OFX::RenderArguments &args );
 
 private:
-    void ensureVideoOpened();
+    void ensureInputOpened();
 
 public:
-    boost::filesystem::path _currentFilename;           ///< Current played file
-    std::unique_ptr<tuttle::io::CameraVideo> _mlvVideo;    ///< Current file
+    std::unique_ptr<tuttle::io::CameraInput> _cameraInput;    ///< Current file
     std::size_t _lastFrame;     ///< Last frame index
 };
 

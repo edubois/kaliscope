@@ -1,5 +1,5 @@
-#ifndef _CAMERAVIDEO_HPP_
-#define	_CAMERAVIDEO_HPP_
+#ifndef _CAMERAINPUT_HPP_
+#define	_CAMERAINPUT_HPP_
 
 #include <boost/filesystem/path.hpp>
 
@@ -11,24 +11,24 @@ namespace tuttle {
 namespace io {
 
 /**
- * @brief used to read Margic Lantern MLV raw video format
+ * @brief used to read frames from webcam
  */
-class CameraVideo
+class CameraInput
 {
 public:
-    CameraVideo();
-    virtual ~CameraVideo();
+    CameraInput();
+    virtual ~CameraInput();
 
     void readFrame();
 
     int frameCount() const
-    { return _header->videoFrameCount; }
+    { return 0; }
     
     int width() const
-    { return _rawHeader->raw_info.width; }
+    { return 0; }
 
     int height() const
-    { return _rawHeader->raw_info.height; }
+    { return 0; }
 
 private:
     std::unique_ptr<std::vector<uint8_t>> _buffer;  ///< Internal frame buffer

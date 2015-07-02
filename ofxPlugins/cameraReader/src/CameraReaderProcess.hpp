@@ -1,7 +1,7 @@
 #ifndef _TUTTLE_PLUGIN_CAMERAREADER_PROCESS_HPP_
 #define _TUTTLE_PLUGIN_CAMERAREADER_PROCESS_HPP_
 
-#include "CameraVideo.hpp"
+#include "CameraInput.hpp"
 
 #include <tuttle/plugin/ImageGilProcessor.hpp>
 
@@ -32,10 +32,10 @@ public:
     void multiThreadProcessImages( const OfxRectI& procWindowRoW );
 
 private:
-    // Read mlv frame
+    // Read camera frame
     View& readFrame( View& dst );
 
-    tuttle::io::CameraVideo _mlvVideo;  ///< MLV Video
+    tuttle::io::CameraInput _cameraInput;  ///< Camera source
 };
 
 }

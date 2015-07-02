@@ -1,6 +1,6 @@
 #include "CameraReaderAlgorithm.hpp"
 #include "CameraReaderPlugin.hpp"
-#include "CameraVideo.hpp"
+#include "CameraInput.hpp"
 
 namespace tuttle {
 namespace plugin {
@@ -40,7 +40,7 @@ View& CameraReaderProcess<View>::readFrame( View& dst )
     using namespace mpl;
     using namespace boost::gil;
 
-    _mlvVideo.readFrame();
+    _cameraInput.readFrame();
 
     return dst;
 }
