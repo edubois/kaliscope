@@ -124,3 +124,14 @@ This plugin helps in removing colored masks that can appear on you films negativ
 
 ### 
 
+## Packaging of the plugins on MacOS
+
+To package ofxPlugins on MacOS, you have bundle the dylibs and tell the ofx plugin and dylib to use the one you provide.
+
+I did a script to do this work.
+
+```cd ofxPlugins
+./package_all.sh ../dist/MacBook-Pro-de-Djarwood/clang-unknown/release/plugin/cameraReader-1.0.ofx.bundle/Contents/MacOS/
+```
+
+
