@@ -131,5 +131,7 @@ To package ofxPlugins on MacOS, you have bundle the dylibs and tell the ofx plug
 I did a script to do this work.
 
 ```cd ofxPlugins```
-```./package_all.sh ../dist/MacBook-Pro-de-Djarwood/clang-unknown/release/plugin/cameraReader-1.0.ofx.bundle/Contents/MacOS/```
+
+```./package_all.sh ../dist/MacBook/clang-unknown/release/plugin/cameraReader-1.0.ofx.bundle/Contents/MacOS/```
+
 
