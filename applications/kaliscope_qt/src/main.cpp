@@ -80,6 +80,22 @@ int main( int argc, char **argv )
     Q_INIT_RESOURCE( shaders );
     initResources();
 
+    int res = 0;
+    try
+    {
+        using namespace tuttle::host;
+        using namespace tuttle::common;
+
+        Formatter::get();
+        core().preload();
+    }
+    catch( ... )
+    {
+        TUTTLE_LOG_CURRENT_EXCEPTION;
+        QMessageBox::critical( NULL, QObject::tr("My Application"), QObject::tr("Failed to load OFX plugins (you need to install tuttleofx plugins)!") );
+        return -1;
+    }
+
     Dialog dlg;
     // Core (model): a sound player engine
     kaliscope::KaliscopeEngine playerEngine( &kaliscope::VideoPlayer::getInstance() );
@@ -91,16 +107,8 @@ int main( int argc, char **argv )
     mvpplayer::logic::MVPPlayerPresenter presenter;
     presenter.startStateMachine<mvpplayer::logic::PlayerStateMachine>();
 
-    int res = 0;
     try
     {
-        using namespace tuttle::host;
-        using namespace tuttle::common;
-
-        Formatter::get();
-        core().preload();
-
-
         // Main dialog (view)
         QSystemTrayIcon trayIcon( QIcon( ":/mvpplayer/action/play.png" ) );
         trayIcon.setVisible( true );
