@@ -206,7 +206,7 @@ bool VideoPlayer::play( const bool pause )
 
 /**
  * @brief get a frame at a certain time
- * @return an image, null of error
+ * @return an image, null if error
  */
 DefaultImageT VideoPlayer::getFrame( const double nFrame )
 {

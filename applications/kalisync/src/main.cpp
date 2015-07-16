@@ -1,5 +1,6 @@
 #include "GpioWatcher.hpp"
 #include <mvp-player-net/server/Server.hpp>
+#include <kali-core/stateMachineEvents.hpp>
 #include <mvp-player-core/stateMachineEvents.hpp>
 
 #include <boost/log/core.hpp>
@@ -17,8 +18,10 @@ static const char * kServerPortOptionString( "port" );
 static const char * kServerPortOptionMessage( "Port for network server" );
 static const char * kWatchInputPinOptionString( "watch" );
 static const char * kWatchInputPinOptionMessage( "Watch input pin (gpio id)" );
-static const char * kLedPinOptionString( "ledPin" );
-static const char * kLedPinOptionMessage( "Led output pin (gpio id)" );
+static const char * kMotorPinOptionString( "motorPin" );
+static const char * kMotorPinOptionMessage( "Motor pin (gpio id)" );
+static const char * kFlashPinOptionString( "flashPin" );
+static const char * kFlashPinOptionMessage( "Flash pin (gpio id)" );
 
 void kalisync_terminate( void )
 {
@@ -60,7 +63,8 @@ int main( int argc, char** argv )
         bpo::options_description mainOptions( "Allowed options" );
         mainOptions.add_options()
             ( kServerPortOptionString,  bpo::value<unsigned short>()->default_value( mvpplayer::network::server::kDefaultServerPort ), kServerPortOptionMessage )
-            ( kLedPinOptionString, bpo::value<int>()->required(), kLedPinOptionMessage )
+            ( kMotorPinOptionString, bpo::value<int>()->required(), kMotorPinOptionMessage )
+            ( kFlashPinOptionString, bpo::value<int>()->required(), kFlashPinOptionMessage )
             ( kWatchInputPinOptionString, bpo::value<int>()->required(), kWatchInputPinOptionMessage );
 
         //parse the command line, and put the result in vm
@@ -81,10 +85,14 @@ int main( int argc, char** argv )
         using namespace mvpplayer::network::server;
 
         GpioWatcher gpioWatcher( vm[kWatchInputPinOptionString].as<int>(), 0 );
-        GpioWatcher gpioLedFrameDone( vm[kLedPinOptionString].as<int>() );
-        gpioLedFrameDone.exportGpio();
-        gpioLedFrameDone.setDirGpio( "out" );
-        gpioLedFrameDone.setValGpio( false );
+        GpioWatcher gpioMotor( vm[kMotorPinOptionString].as<int>() );
+        gpioMotor.exportGpio();
+        gpioMotor.setDirGpio( "out" );
+        gpioMotor.setValGpio( false );
+        GpioWatcher gpioFlash( vm[kFlashPinOptionString].as<int>() );
+        gpioFlash.exportGpio();
+        gpioFlash.setDirGpio( "out" );
+        gpioFlash.setValGpio( false );
 
         std::cout << "[Kalisync] GPIO Watcher started..." << std::endl;
         Server server( vm[kServerPortOptionString].as<unsigned short>() );
@@ -92,8 +100,46 @@ int main( int argc, char** argv )
         std::cout << "[Kalisync] GPIO Server started..." << std::endl;
         gpioWatcher.signalGpioValueChanged.connect( boost::bind( &captureTriggered, boost::ref( server ), _2 ) );
         // Toggle led value
-        gpioWatcher.signalGpioValueChanged.connect( boost::bind( &GpioWatcher::toggleValue, &gpioLedFrameDone ) );
+        gpioWatcher.signalGpioValueChanged.connect(
+            [&server, &gpioMotor, &gpioFlash]( const std::size_t, const bool value )
+            {
+                if ( value == true )
+                {
+                    // Stop the motor and light the flash
+                    gpioMotor.setValGpio( false );
+                    gpioFlash.setValGpio( true );
+                    // Ask the client to capture a frame
+                    captureTriggered( server, true );
+                }
+            }
+        );
+
+        server.signalEventFrom.connect(
+            [&gpioFlash, &gpioMotor](const std::string&, IEvent& event)
+            {
+                using namespace mvpplayer::logic;
+                // When a frame has been captured, we want to step forward
+                if ( dynamic_cast<mvpplayer::logic::EvCustomState*>( &event ) )
+                {
+                    const EvCustomState& customState = dynamic_cast<EvCustomState&>( event );
+                    if ( customState.action() == kaliscope::kFrameCapturedCustomStateAction )
+                    {
+                        // Restart stop the flash light and restart the motor
+                        gpioFlash.setValGpio( false );
+                        gpioMotor.setValGpio( true );
+                    }
+                }
+                // When we hit stop, we want to stop flash and motor
+                else if ( dynamic_cast<EvStop*>( &event ) )
+                {
+                    gpioFlash.setValGpio( false );
+                    gpioMotor.setValGpio( false );
+                }
+            }
+        );
         server.wait();
+        gpioFlash.setValGpio( false );
+        gpioMotor.setValGpio( false );
     }
     catch( ... )
     {

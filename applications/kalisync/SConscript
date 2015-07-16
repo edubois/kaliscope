@@ -4,6 +4,7 @@ Import( 'libs' )
 libraries = [
               libs.mvp_player_core,
               libs.mvp_player_net,
+              libs.kali_core,
               libs.boost_program_options,
               libs.boost_log,
             ]
