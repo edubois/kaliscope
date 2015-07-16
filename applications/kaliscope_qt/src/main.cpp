@@ -95,7 +95,7 @@ int main( int argc, char **argv )
     {
         TUTTLE_LOG_CURRENT_EXCEPTION;
         const QString msg( boost::current_exception_diagnostic_information().c_str() );
-        QMessageBox::critical( NULL, QObject::tr("My Application"), QObject::tr("Failed to load OFX plugins (you need to install tuttleofx plugins)!\n") + msg );
+        QMessageBox::critical( NULL, QObject::tr("Kaliscope"), QObject::tr("Failed to load OFX plugins (you need to install tuttleofx plugins)!\n") + msg );
         return -1;
     }
 
@@ -171,7 +171,7 @@ int main( int argc, char **argv )
     {
         TUTTLE_LOG_CURRENT_EXCEPTION;
         const QString msg( boost::current_exception_diagnostic_information().c_str() );
-        QMessageBox::critical( NULL, QObject::tr("My Application"), msg );
+        QMessageBox::critical( NULL, QObject::tr("Kaliscope"), msg );
         res = -1;
     }
 
