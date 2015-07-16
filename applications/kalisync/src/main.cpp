@@ -23,14 +23,14 @@ static const char * kMotorPinOptionMessage( "Motor pin (gpio id)" );
 static const char * kFlashPinOptionString( "flashPin" );
 static const char * kFlashPinOptionMessage( "Flash pin (gpio id)" );
 
-bool * serverStop = NULL;
+mvpplayer::network::server::Server * pServer = NULL;
 
 void signal_interrupt_handler( const int )
 {
-    if ( serverStop )
+    if ( pServer )
     {
         // Asks the server to stop
-        *serverStop = true;
+        pServer->stop();
     }
     else
     {
@@ -111,7 +111,7 @@ int main( int argc, char** argv )
         std::cout << "[Kalisync] GPIO Watcher started..." << std::endl;
         Server server( vm[kServerPortOptionString].as<unsigned short>() );
         server.run();
-        serverStop = &server.stopped();
+        pServer = &server;
         std::cout << "[Kalisync] GPIO Server started..." << std::endl;
         // Toggle led value
         gpioWatcher.signalGpioValueChanged.connect(
