@@ -23,28 +23,40 @@ static const char * kMotorPinOptionMessage( "Motor pin (gpio id)" );
 static const char * kFlashPinOptionString( "flashPin" );
 static const char * kFlashPinOptionMessage( "Flash pin (gpio id)" );
 
+bool * serverStop = NULL;
+
+void signal_interrupt_handler( const int )
+{
+    if ( serverStop )
+    {
+        // Asks the server to stop
+        *serverStop = true;
+    }
+    else
+    {
+        exit( -1 );
+    }
+}
+
 void kalisync_terminate( void )
 {
-	std::cerr << "[Kalisync] Sorry, Kalisync has encountered a fatal error." << std::endl;
-	std::cerr << "[Kalisync] Please report this bug." << std::endl;
-	exit( -1 );
+    std::cerr << "[Kalisync] Sorry, Kalisync has encountered a fatal error." << std::endl;
+    std::cerr << "[Kalisync] Please report this bug." << std::endl;
+    exit( -1 );
 }
 
 void kalisync_unexpected( void )
 {
-	std::cerr << "[Kalisync] Sorry, Kalisync has encountered a fatal error." << std::endl;
-	std::cerr << "[Kalisync] Please report this bug." << std::endl;
-	BOOST_THROW_EXCEPTION( std::runtime_error( "Sorry, Kalisync has encountered an unexpected exception.\nPlease report this bug." ) );
+    std::cerr << "[Kalisync] Sorry, Kalisync has encountered a fatal error." << std::endl;
+    std::cerr << "[Kalisync] Please report this bug." << std::endl;
+    BOOST_THROW_EXCEPTION( std::runtime_error( "Sorry, Kalisync has encountered an unexpected exception.\nPlease report this bug." ) );
 }
 
-void captureTriggered( mvpplayer::network::server::Server & server, const bool pinValue )
+inline void triggerCapture( mvpplayer::network::server::Server & server )
 {
-    if ( pinValue )
-    {
-        // Send next track
-        mvpplayer::logic::EvNextTrack event;
-	server.sendEventMulticast( event );
-    }
+    // Send next track event (means next frame in kaliscope)
+    mvpplayer::logic::EvNextTrack event;
+    server.sendEventMulticast( event );
 }
 
 int main( int argc, char** argv )
@@ -56,6 +68,9 @@ int main( int argc, char** argv )
 
     std::set_terminate( &kalisync_terminate );
     std::set_unexpected( &kalisync_unexpected );
+    // React to CTRL+C by stopping the server
+    signal( SIGINT, signal_interrupt_handler );
+
     try
     {
         // Declare the supported options.
@@ -96,8 +111,8 @@ int main( int argc, char** argv )
         std::cout << "[Kalisync] GPIO Watcher started..." << std::endl;
         Server server( vm[kServerPortOptionString].as<unsigned short>() );
         server.run();
+        serverStop = &server.stopped();
         std::cout << "[Kalisync] GPIO Server started..." << std::endl;
-        gpioWatcher.signalGpioValueChanged.connect( boost::bind( &captureTriggered, boost::ref( server ), _2 ) );
         // Toggle led value
         gpioWatcher.signalGpioValueChanged.connect(
             [&server, &gpioMotor, &gpioFlash]( const std::size_t, const bool value )
@@ -108,7 +123,7 @@ int main( int argc, char** argv )
                     gpioMotor.setValGpio( false );
                     gpioFlash.setValGpio( true );
                     // Ask the client to capture a frame
-                    captureTriggered( server, true );
+                    triggerCapture( server );
                 }
             }
         );
@@ -123,13 +138,13 @@ int main( int argc, char** argv )
                     const EvCustomState& customState = dynamic_cast<EvCustomState&>( event );
                     if ( customState.action() == kaliscope::kFrameCapturedCustomStateAction )
                     {
-                        // Restart stop the flash light and restart the motor
+                        // Stop the flash light and restart the motor
                         gpioFlash.setValGpio( false );
                         gpioMotor.setValGpio( true );
                     }
                     else if ( customState.action() == kaliscope::kCaptureStopCustomStateAction )
                     {
-                        // Restart stop the flash light and restart the motor
+                        // Stop the flash light and the motor
                         gpioFlash.setValGpio( false );
                         gpioMotor.setValGpio( false );
                     }
