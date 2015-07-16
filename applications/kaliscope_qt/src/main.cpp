@@ -1,6 +1,7 @@
 #include "KaliscopeWin.hpp"
 
 #include "settings/RecordingSettingsDialog.hpp"
+#include <kali-core/stateMachineEvents.hpp>
 
 #include <kali-core/VideoPlayer.hpp>
 #include <kali-core/KaliscopeEngine.hpp>
@@ -61,8 +62,8 @@ bool editPipelineSettings( QMainWindow *caller, mvpplayer::Settings & settings )
  */
 int main( int argc, char **argv )
 {
+    using namespace mvpplayer;
     {
-        using namespace mvpplayer;
         Settings::getInstance().read( QDir::homePath().toStdString() + "/" + kDefaultSettingsFilename );
         boost::optional<std::string> envStr = boost::get_env( plugins::kMVPPlayerPluginEnvKey );
         if ( envStr != boost::none && Settings::getInstance().has( "plugins", "pluginsPath" ) == false )
@@ -87,12 +88,14 @@ int main( int argc, char **argv )
         using namespace tuttle::common;
 
         Formatter::get();
+        core().getPluginCache().addDirectoryToPath( Settings::getInstance().get<std::string>( "plugins", "pluginsPath" ) + "/ofx/" );
         core().preload();
     }
     catch( ... )
     {
         TUTTLE_LOG_CURRENT_EXCEPTION;
-        QMessageBox::critical( NULL, QObject::tr("My Application"), QObject::tr("Failed to load OFX plugins (you need to install tuttleofx plugins)!") );
+        const QString msg( boost::current_exception_diagnostic_information().c_str() );
+        QMessageBox::critical( NULL, QObject::tr("My Application"), QObject::tr("Failed to load OFX plugins (you need to install tuttleofx plugins)!\n") + msg );
         return -1;
     }
 
@@ -146,6 +149,15 @@ int main( int argc, char **argv )
 
         // Bind 'frame ready' signal to display function
         playerEngine.signalFrameReady.connect( boost::bind( &Dialog::displayFrame, &dlg, _1, _2 ) );
+        // Used to signalize that a frame has been processed
+        playerEngine.signalFrameReady.connect(
+            [&remote]( const std::size_t, const kaliscope::DefaultImageT )
+            {
+                using EventT = mvpplayer::logic::EvCustomState;
+                EventT event( kaliscope::kFrameCapturedCustomStateAction );
+                remote.sendEvent( event );
+            }
+        );
         dlg.viewer()->signalFrameDone.connect( boost::bind( &kaliscope::KaliscopeEngine::frameProcessed, &playerEngine, _1 ) );
 
         // Load plugins
@@ -158,6 +170,8 @@ int main( int argc, char **argv )
     catch( ... )
     {
         TUTTLE_LOG_CURRENT_EXCEPTION;
+        const QString msg( boost::current_exception_diagnostic_information().c_str() );
+        QMessageBox::critical( NULL, QObject::tr("My Application"), msg );
         res = -1;
     }
 
