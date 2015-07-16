@@ -88,7 +88,7 @@ int main( int argc, char **argv )
         using namespace tuttle::common;
 
         Formatter::get();
-        core().getPluginCache().addDirectoryToPath( Settings::getInstance().get<std::string>( "plugins", "pluginsPath" ) + "/ofx/" );
+        core().getPluginCache().addDirectoryToPath( Settings::getInstance().get<std::string>( "plugins", "pluginsPath" ) + "/OFX/" );
         core().preload();
     }
     catch( ... )
