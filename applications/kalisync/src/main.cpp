@@ -43,7 +43,6 @@ void captureTriggered( mvpplayer::network::server::Server & server, const bool p
     {
         // Send next track
         mvpplayer::logic::EvNextTrack event;
-        std::cout << "Next frame!" << std::endl;
 	server.sendEventMulticast( event );
     }
 }
@@ -127,6 +126,12 @@ int main( int argc, char** argv )
                         // Restart stop the flash light and restart the motor
                         gpioFlash.setValGpio( false );
                         gpioMotor.setValGpio( true );
+                    }
+                    else if ( customState.action() == kaliscope::kCaptureStopCustomStateAction )
+                    {
+                        // Restart stop the flash light and restart the motor
+                        gpioFlash.setValGpio( false );
+                        gpioMotor.setValGpio( false );
                     }
                 }
                 // When we hit stop, we want to stop flash and motor

@@ -19,6 +19,7 @@ namespace kaliscope
 {
     
 static const std::string kFrameCapturedCustomStateAction( "kFrameCapturedCustomStateAction" );
+static const std::string kCaptureStopCustomStateAction( "kCaptureStopCustomStateAction" );
 
 }
 

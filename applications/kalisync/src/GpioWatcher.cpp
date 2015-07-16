@@ -155,8 +155,9 @@ void GpioWatcher::worker()
             if ( lastValue != gpioValue )
             {
                 signalGpioValueChanged( _gpioId, gpioValue );
-                std::cout << "gpio has changed from: " << lastValue << " to " << gpioValue << std::endl;
                 lastValue = gpioValue;
+                // Avoid parasites
+                std::this_thread::sleep_for( std::chrono::milliseconds( 20 ) );
             }
         }
         else
