@@ -9,7 +9,7 @@ project.SharedLibrary( 'kali_core',
                                      libs.tuttlePlugin,
                                      libs.boostAdds,
                                      libs.boost,
-                                     libs.jpeg,
+                                     libs.dl,
                                      libs.mvp_player_core,
                                     ],
                       )
