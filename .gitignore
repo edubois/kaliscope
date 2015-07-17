@@ -3,3 +3,4 @@ nbproject
 .dist
 dist
 *.log
+default.sconf
