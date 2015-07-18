@@ -2,6 +2,7 @@
 #include <mvp-player-net/server/Server.hpp>
 #include <kali-core/stateMachineEvents.hpp>
 #include <mvp-player-core/stateMachineEvents.hpp>
+#include <mvp-player-core/Settings.hpp>
 
 #include <boost/log/core.hpp>
 #include <boost/log/trivial.hpp>
@@ -22,6 +23,8 @@ static const char * kMotorPinOptionString( "motorPin" );
 static const char * kMotorPinOptionMessage( "Motor pin (gpio id)" );
 static const char * kFlashPinOptionString( "flashPin" );
 static const char * kFlashPinOptionMessage( "Flash pin (gpio id)" );
+static const char * kGpioDelayOptionString( "gpioDelay" );
+static const char * kGpioDelayOptionMessage( "Next gpio event delay (40 is a good value)" );
 
 mvpplayer::network::server::Server * pServer = NULL;
 
@@ -79,7 +82,8 @@ int main( int argc, char** argv )
             ( kServerPortOptionString,  bpo::value<unsigned short>()->default_value( mvpplayer::network::server::kDefaultServerPort ), kServerPortOptionMessage )
             ( kMotorPinOptionString, bpo::value<int>()->required(), kMotorPinOptionMessage )
             ( kFlashPinOptionString, bpo::value<int>()->required(), kFlashPinOptionMessage )
-            ( kWatchInputPinOptionString, bpo::value<int>()->required(), kWatchInputPinOptionMessage );
+            ( kGpioDelayOptionString, bpo::value<int>()->required(), kGpioDelayOptionMessage )
+            ( kWatchInputPinOptionString, bpo::value<int>()->required()->default_value(40), kWatchInputPinOptionMessage );
 
         //parse the command line, and put the result in vm
         bpo::variables_map vm;
@@ -97,6 +101,8 @@ int main( int argc, char** argv )
         using namespace kaliscope;
         using namespace mvpplayer;
         using namespace mvpplayer::network::server;
+
+        mvpplayer::Settings::getInstance().set( "gpio", "nextEventDelay", vm[kGpioDelayOptionString].as<int>() );
 
         GpioWatcher gpioWatcher( vm[kWatchInputPinOptionString].as<int>(), 0 );
         GpioWatcher gpioMotor( vm[kMotorPinOptionString].as<int>() );

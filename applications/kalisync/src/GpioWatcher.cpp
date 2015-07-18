@@ -1,5 +1,7 @@
 #include "GpioWatcher.hpp"
 
+#include <mvp-player-core/Settings.hpp>
+
 #include <boost/format.hpp>
 #include <chrono>
 
@@ -157,7 +159,7 @@ void GpioWatcher::worker()
                 signalGpioValueChanged( _gpioId, gpioValue );
                 lastValue = gpioValue;
                 // Avoid parasites
-                std::this_thread::sleep_for( std::chrono::milliseconds( 20 ) );
+                std::this_thread::sleep_for( std::chrono::milliseconds( mvpplayer::Settings::getInstance().get<int>( "gpio", "nextEventDelay" ) ) );
             }
         }
         else
