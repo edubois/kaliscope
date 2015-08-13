@@ -10,7 +10,7 @@ unix = not windows
 mode='release'
 check_libs=0
 
-jobs=1
+jobs=2
 
 extern = '#../3rdParties'
 
