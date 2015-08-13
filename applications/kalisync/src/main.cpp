@@ -1,6 +1,10 @@
 #include "GpioWatcher.hpp"
-#include <mvp-player-net/server/Server.hpp>
+#include "projector/IProjector.hpp"
+#include "projector/TinyDisplayProjector.hpp"
+
 #include <kali-core/stateMachineEvents.hpp>
+
+#include <mvp-player-net/server/Server.hpp>
 #include <mvp-player-core/stateMachineEvents.hpp>
 
 #include <boost/log/core.hpp>
@@ -22,6 +26,8 @@ static const char * kMotorPinOptionString( "motorPin" );
 static const char * kMotorPinOptionMessage( "Motor pin (gpio id)" );
 static const char * kFlashPinOptionString( "flashPin" );
 static const char * kFlashPinOptionMessage( "Flash pin (gpio id)" );
+static const char * kUseTinyDisplayOptionString( "useTinyDisplay" );
+static const char * kUseTinyDisplayOptionMessage( "Use tiny display as projector (need FBTFT driver)" );
 
 mvpplayer::network::server::Server * pServer = NULL;
 
@@ -79,6 +85,7 @@ int main( int argc, char** argv )
             ( kServerPortOptionString,  bpo::value<unsigned short>()->default_value( mvpplayer::network::server::kDefaultServerPort ), kServerPortOptionMessage )
             ( kMotorPinOptionString, bpo::value<int>()->required(), kMotorPinOptionMessage )
             ( kFlashPinOptionString, bpo::value<int>()->required(), kFlashPinOptionMessage )
+            ( kUseTinyDisplayOptionString, bpo::value<bool>()->required()->default_value( true ), kUseTinyDisplayOptionMessage )
             ( kWatchInputPinOptionString, bpo::value<int>()->required(), kWatchInputPinOptionMessage );
 
         //parse the command line, and put the result in vm
@@ -98,6 +105,11 @@ int main( int argc, char** argv )
         using namespace mvpplayer;
         using namespace mvpplayer::network::server;
 
+        std::unique_ptr<IProjector> projector;
+        if ( vm[kUseTinyDisplayOptionString].count() && vm[kUseTinyDisplayOptionString].as<bool>() )
+        {
+            projector.reset( new TinyDisplayProjector() );
+        }
         GpioWatcher gpioWatcher( vm[kWatchInputPinOptionString].as<int>(), 0 );
         GpioWatcher gpioMotor( vm[kMotorPinOptionString].as<int>() );
         gpioMotor.exportGpio();
@@ -122,6 +134,8 @@ int main( int argc, char** argv )
                     // Stop the motor and light the flash
                     gpioMotor.setValGpio( false );
                     gpioFlash.setValGpio( true );
+                    if ( projector )
+                    { projector->switchOn(); }
                     // Ask the client to capture a frame
                     triggerCapture( server );
                 }
@@ -140,12 +154,16 @@ int main( int argc, char** argv )
                     {
                         // Stop the flash light and restart the motor
                         gpioFlash.setValGpio( false );
+                        if ( projector )
+                        { projector->switchOff(); }
                         gpioMotor.setValGpio( true );
                     }
                     else if ( customState.action() == kaliscope::kCaptureStopCustomStateAction )
                     {
                         // Stop the flash light and the motor
                         gpioFlash.setValGpio( false );
+                        if ( projector )
+                        { projector->switchOff(); }
                         gpioMotor.setValGpio( false );
                     }
                 }
@@ -153,12 +171,16 @@ int main( int argc, char** argv )
                 else if ( dynamic_cast<EvStop*>( &event ) )
                 {
                     gpioFlash.setValGpio( false );
+                    if ( projector )
+                    { projector->switchOff(); }
                     gpioMotor.setValGpio( false );
                 }
             }
         );
         server.wait();
         gpioFlash.setValGpio( false );
+        if ( projector )
+        { projector->switchOff(); }
         gpioMotor.setValGpio( false );
     }
     catch( ... )
