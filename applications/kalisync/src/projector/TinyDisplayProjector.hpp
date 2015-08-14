@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <linux/fb.h>
 #include <sys/mman.h>
+#include <string>
 
 namespace kaliscope
 {
@@ -40,8 +41,8 @@ private:
 
     char *_fbp = NULL;
     int _fb = 0;
-    int _width = 0;
-    int _height = 0;
+    std::size_t _width = 0;
+    std::size_t _height = 0;
     long int _screensize = 0;
     fb_fix_screeninfo _fix;
     fb_var_screeninfo _origVar;

@@ -133,7 +133,7 @@ int main( int argc, char** argv )
         std::cout << "[Kalisync] GPIO Server started..." << std::endl;
         // Toggle led value
         gpioWatcher.signalGpioValueChanged.connect(
-            [&server, &gpioMotor, &gpioFlash]( const std::size_t, const bool value )
+            [&server, &gpioMotor, &gpioFlash, &projector]( const std::size_t, const bool value )
             {
                 if ( value == true )
                 {
@@ -149,7 +149,7 @@ int main( int argc, char** argv )
         );
 
         server.signalEventFrom.connect(
-            [&gpioFlash, &gpioMotor](const std::string&, IEvent& event)
+            [&gpioFlash, &projector, &gpioMotor](const std::string&, IEvent& event)
             {
                 using namespace mvpplayer::logic;
                 // When a frame has been captured, we want to step forward

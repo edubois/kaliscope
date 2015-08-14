@@ -1,5 +1,10 @@
 #include "TinyDisplayProjector.hpp"
 #include <cassert>
+#include <iostream>
+#include <fcntl.h>
+#include <sys/ioctl.h> 
+#include <unistd.h>
+#include <cstring>
 
 #define KNRM  "\x1B[0m"
 #define KRED  "\x1B[31m"
@@ -82,7 +87,7 @@ void TinyDisplayProjector::init()
     if ( ioctl( _fb, FBIOGET_VSCREENINFO, &_var ) < 0 )
     {
         std::cerr << "Failed ioctl FBIOGET_VSCREENINFO" << std::endl;
-        close(fb);
+        close( _fb );
         return;
     }
 
