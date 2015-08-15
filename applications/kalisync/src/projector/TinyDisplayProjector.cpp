@@ -52,10 +52,18 @@ namespace kaliscope
 TinyDisplayProjector::TinyDisplayProjector()
 : IProjector( -1 )
 {
+   init();
 }
 
 TinyDisplayProjector::~TinyDisplayProjector()
 {
+   try
+   {
+      switchOff();
+      closeFramebuffer();
+   }
+   catch( ... )
+   {}
 }
     
 /**
