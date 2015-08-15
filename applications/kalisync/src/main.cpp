@@ -15,6 +15,8 @@
 #include <boost/program_options.hpp>
 #include <boost/format.hpp>
 #include <boost/exception/all.hpp>
+#include <thread>
+#include <chrono>
 
 namespace bpo = boost::program_options;
 namespace bfs = boost::filesystem;
@@ -131,6 +133,15 @@ int main( int argc, char** argv )
         server.run();
         pServer = &server;
         std::cout << "[Kalisync] GPIO Server started..." << std::endl;
+        if ( projector )
+        {
+            std::cout << "Testing projector..." << std::endl;
+            projector->switchOn();
+            std::this_thread::sleep_for( std::chrono::milliseconds( 500 ) );
+            projector->switchOff();
+            std::cout << "Projector tested." << std::endl;
+        }
+
         // Toggle led value
         gpioWatcher.signalGpioValueChanged.connect(
             [&server, &gpioMotor, &gpioFlash, &projector]( const std::size_t, const bool value )
@@ -177,8 +188,6 @@ int main( int argc, char** argv )
                 else if ( dynamic_cast<EvStop*>( &event ) )
                 {
                     gpioFlash.setValGpio( false );
-                    if ( projector )
-                    { projector->switchOff(); }
                     gpioMotor.setValGpio( false );
                 }
             }
