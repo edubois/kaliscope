@@ -1,0 +1,11 @@
+Import( 'project', 'libs' )
+
+project.createOfxPlugin(
+        dirs = ['src'],
+        libraries = [
+            libs.terry,
+            libs.tuttlePlugin,
+    ],
+    localEnvFlags={ 'CPPDEFINES': ['NO_JASPER', 'NO_LCMS', 'NO_JPEG'] },
+ )
+
