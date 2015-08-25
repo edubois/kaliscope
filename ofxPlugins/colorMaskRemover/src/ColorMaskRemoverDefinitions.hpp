@@ -17,8 +17,8 @@ static const std::string kParamHelpButton( "Help" );
 static const std::string kParamHelpLabel( "Help" );
 static const std::string kParamHelpString( "Remove orange filter that appears on film scans.\nYou must first analyze an image containing only the filter (or put the RGB value of the filter)." );
 
-static const std::string kParamAnalyzeButton( "Analyze" );
-static const std::string kParamAnalyzeLabel( "Analyze" );
+static const std::string kParamAnalyzeButton( "Analyse orange mask" );
+static const std::string kParamAnalyzeLabel( "Analyse orange mask" );
 static const std::string kParamApplyParameters( "Apply" );
 static const std::string kParamAnalyzeHint( "Use this button on an image supposed to be white to get the right mask color (you need to click twice: one to get the color, one to apply)" );
 
