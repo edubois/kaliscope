@@ -40,16 +40,16 @@ static const std::string kParamBlueFilterColor( "Blue filter color" );
 static const std::string kParamBlueFilterColorLabel( "Blue filter color" );
 static const unsigned short kParamDefaultBlueFilterColor( 78 );
 
-static const std::string kParamRedFactor( "Red channel factor (%)" );
-static const std::string kParamRedFactorLabel( "Red channel factor (%)" );
+static const std::string kParamRedFactor( "Red channel contrast (%)" );
+static const std::string kParamRedFactorLabel( "Red channel contrast (%)" );
 static const double kParamDefaultRedFactorColor( 100.0 );
 
-static const std::string kParamGreenFactor( "Green channel factor (%)" );
-static const std::string kParamGreenFactorLabel( "Green channel factor (%)" );
+static const std::string kParamGreenFactor( "Green channel contrast (%)" );
+static const std::string kParamGreenFactorLabel( "Green channel contrast (%)" );
 static const double kParamDefaultGreenFactorColor( 100.0 );
 
-static const std::string kParamBlueFactor( "Blue channel factor (%)" );
-static const std::string kParamBlueFactorLabel( "Blue channel factor (%)" );
+static const std::string kParamBlueFactor( "Blue channel contrast (%)" );
+static const std::string kParamBlueFactorLabel( "Blue channel contrast (%)" );
 static const double kParamDefaultBlueFactorColor( 100.0 );
 
 static const std::string kParamAlgorithm( "Algorithm" );

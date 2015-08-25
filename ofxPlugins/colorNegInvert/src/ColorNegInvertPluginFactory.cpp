@@ -99,29 +99,31 @@ void ColorNegInvertPluginFactory::describeInContext( OFX::ImageEffectDescriptor&
     blueFilterColor->setDisplayRange( 0, kParamDefaultMaximumValue );
     blueFilterColor->setHint( "Blue color of the filter" );
 
+    OFX::GroupParamDescriptor *groupContrastParams = desc.defineGroupParam( "Contrast" );
+
     OFX::DoubleParamDescriptor *redFactor = desc.defineDoubleParam( kParamRedFactor );
     redFactor->setLabels( kParamRedFactorLabel, kParamRedFactorLabel, kParamRedFactorLabel );
-    redFactor->setParent( *groupFilterColorsParams );
+    redFactor->setParent( *groupContrastParams );
     redFactor->setDefault( kParamDefaultRedFactorColor );
     redFactor->setRange( 0, 300.0 );
     redFactor->setDisplayRange( 0, 300.0 );
-    redFactor->setHint( "Red factor" );
+    redFactor->setHint( "Red contrast factor" );
 
     OFX::DoubleParamDescriptor *greenFactor = desc.defineDoubleParam( kParamGreenFactor );
     greenFactor->setLabels( kParamGreenFactorLabel, kParamGreenFactorLabel, kParamGreenFactorLabel );
-    greenFactor->setParent( *groupFilterColorsParams );
+    greenFactor->setParent( *groupContrastParams );
     greenFactor->setDefault( kParamDefaultGreenFactorColor );
     greenFactor->setRange( 0, 300.0 );
     greenFactor->setDisplayRange( 0, 300.0 );
-    greenFactor->setHint( OFX::getImageEffectHostDescription()->hostName );
+    redFactor->setHint( "Green contrast factor" );
 
     OFX::DoubleParamDescriptor *blueFactor = desc.defineDoubleParam( kParamBlueFactor );
     blueFactor->setLabels( kParamBlueFactorLabel, kParamBlueFactorLabel, kParamBlueFactorLabel );
-    blueFactor->setParent( *groupFilterColorsParams );
+    blueFactor->setParent( *groupContrastParams );
     blueFactor->setDefault( kParamDefaultBlueFactorColor );
     blueFactor->setRange( 0, 300.0 );
     blueFactor->setDisplayRange( 0, 300.0 );
-    blueFactor->setHint( "Blue factor" );
+    blueFactor->setHint( "Blue contrast factor" );
 
     OFX::BooleanParamDescriptor *colorInvert = desc.defineBooleanParam( kParamColorInvert );
     colorInvert->setLabels( kParamColorInvertLabel, kParamColorInvertLabel, kParamColorInvertLabel );
