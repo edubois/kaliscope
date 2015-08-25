@@ -1,33 +1,33 @@
-#ifndef _TUTTLE_PLUGIN_COLORMASKANALYZING_PROCESS_HPP_
-#define _TUTTLE_PLUGIN_COLORMASKANALYZING_PROCESS_HPP_
+#ifndef _TUTTLE_PLUGIN_COLORNEGINVERTANALYZING_PROCESS_HPP_
+#define _TUTTLE_PLUGIN_COLORNEGINVERTANALYZING_PROCESS_HPP_
 
 #include <tuttle/plugin/ImageGilFilterProcessor.hpp>
 #include <boost/atomic.hpp>
 
 namespace tuttle {
 namespace plugin {
-namespace colorMaskRemover {
+namespace colorNegInvert {
 
 /**
- * @brief ColorMaskRemover process
+ * @brief ColorNegInvert process
  *
  */
 template<class View>
-class ColorMaskAnalyzingProcess : public ImageGilFilterProcessor<View>
+class ColorNegInvertAnalyzingProcess : public ImageGilFilterProcessor<View>
 {
 public:
 	typedef typename View::value_type Pixel;
 	typedef typename boost::gil::channel_type<View>::type Channel;
 	typedef float Scalar;
 protected:
-    ColorMaskRemoverPlugin&    _plugin;            ///< Rendering plugin
-    ColorMaskRemoverProcessParams<Scalar> _params; ///< parameters
+    ColorNegInvertPlugin&    _plugin;            ///< Rendering plugin
+    ColorNegInvertProcessParams<Scalar> _params; ///< parameters
     boost::atomic<double> _redFilterColor;
     boost::atomic<double> _greenFilterColor;
     boost::atomic<double> _blueFilterColor;
 
 public:
-    ColorMaskAnalyzingProcess( ColorMaskRemoverPlugin& effect );
+    ColorNegInvertAnalyzingProcess( ColorNegInvertPlugin& effect );
 
     void setup( const OFX::RenderArguments& args );
 
@@ -40,6 +40,6 @@ public:
 }
 }
 
-#include "ColorMaskAnalyzingProcess.tcc"
+#include "ColorNegInvertAnalyzingProcess.tcc"
 
 #endif

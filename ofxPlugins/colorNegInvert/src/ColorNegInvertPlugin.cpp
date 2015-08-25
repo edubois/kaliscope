@@ -1,17 +1,17 @@
-#include "ColorMaskRemoverPlugin.hpp"
-#include "ColorMaskRemoverProcess.hpp"
-#include "ColorMaskAnalyzingProcess.hpp"
-#include "ColorMaskRemoverDefinitions.hpp"
+#include "ColorNegInvertPlugin.hpp"
+#include "ColorNegInvertProcess.hpp"
+#include "ColorNegInvertAnalyzingProcess.hpp"
+#include "ColorNegInvertDefinitions.hpp"
 
 #include <boost/format.hpp>
 #include <boost/gil/gil_all.hpp>
 
 namespace tuttle {
 namespace plugin {
-namespace colorMaskRemover {
+namespace colorNegInvert {
 
 
-ColorMaskRemoverPlugin::ColorMaskRemoverPlugin( OfxImageEffectHandle handle )
+ColorNegInvertPlugin::ColorNegInvertPlugin( OfxImageEffectHandle handle )
 : ImageEffectGilPlugin( handle )
 , _analyze( false )
 , _redFilterColorToApply( 0.0 )
@@ -41,9 +41,9 @@ ColorMaskRemoverPlugin::ColorMaskRemoverPlugin( OfxImageEffectHandle handle )
     _paramBlueFilterColor->setDisplayRange( 0, _paramMaximumValue->getValue() );
 }
 
-ColorMaskRemoverProcessParams<ColorMaskRemoverPlugin::Scalar> ColorMaskRemoverPlugin::getProcessParams( const OfxPointD& renderScale ) const
+ColorNegInvertProcessParams<ColorNegInvertPlugin::Scalar> ColorNegInvertPlugin::getProcessParams( const OfxPointD& renderScale ) const
 {
-    ColorMaskRemoverProcessParams<Scalar> params;
+    ColorNegInvertProcessParams<Scalar> params;
     params._algo  = static_cast<EParamAlgo>( _paramAlgo->getValue() );
     const double maximumValue = _paramMaximumValue->getValue();
     params.fRedFilterColor = _paramRedFilterColor->getValue() / maximumValue;
@@ -56,7 +56,7 @@ ColorMaskRemoverProcessParams<ColorMaskRemoverPlugin::Scalar> ColorMaskRemoverPl
     return params;
 }
 
-void ColorMaskRemoverPlugin::changedParam( const OFX::InstanceChangedArgs &args, const std::string &paramName )
+void ColorNegInvertPlugin::changedParam( const OFX::InstanceChangedArgs &args, const std::string &paramName )
 {
     if( paramName == kParamHelpButton )
     {
@@ -92,7 +92,7 @@ void ColorMaskRemoverPlugin::changedParam( const OFX::InstanceChangedArgs &args,
 /**
  * @brief update parameters with the filter color
  */    
-void ColorMaskRemoverPlugin::notifyRGBFilterColor( const double r, const double g, const double b )
+void ColorNegInvertPlugin::notifyRGBFilterColor( const double r, const double g, const double b )
 {
     const double vmax = _paramMaximumValue->getValue();
     _redFilterColorToApply = r * vmax;
@@ -100,7 +100,7 @@ void ColorMaskRemoverPlugin::notifyRGBFilterColor( const double r, const double 
     _blueFilterColorToApply = b * vmax;
 }
 
-bool ColorMaskRemoverPlugin::isIdentity( const OFX::RenderArguments& args, OFX::Clip*& identityClip, double& identityTime )
+bool ColorNegInvertPlugin::isIdentity( const OFX::RenderArguments& args, OFX::Clip*& identityClip, double& identityTime )
 {
     return false;
 }
@@ -109,15 +109,15 @@ bool ColorMaskRemoverPlugin::isIdentity( const OFX::RenderArguments& args, OFX::
  * @brief The overridden render function
  * @param[in]   args     Rendering parameters
  */
-void ColorMaskRemoverPlugin::render( const OFX::RenderArguments &args )
+void ColorNegInvertPlugin::render( const OFX::RenderArguments &args )
 {
     if ( _analyze )
     {
-        doGilRender<ColorMaskAnalyzingProcess>( *this, args );
+        doGilRender<ColorNegInvertAnalyzingProcess>( *this, args );
     }
     else
     {
-        doGilRender<ColorMaskRemoverProcess>( *this, args );
+        doGilRender<ColorNegInvertProcess>( *this, args );
     }
 }
 

@@ -1,13 +1,13 @@
-#include "ColorMaskRemoverPluginFactory.hpp"
-#include "ColorMaskRemoverPlugin.hpp"
-#include "ColorMaskRemoverDefinitions.hpp"
+#include "ColorNegInvertPluginFactory.hpp"
+#include "ColorNegInvertPlugin.hpp"
+#include "ColorNegInvertDefinitions.hpp"
 #include "ofxsImageEffect.h"
 
 #include <limits>
 
 namespace tuttle {
 namespace plugin {
-namespace colorMaskRemover {
+namespace colorNegInvert {
 
 static const bool kSupportTiles = false;
 
@@ -16,11 +16,11 @@ static const bool kSupportTiles = false;
  * @brief Function called to describe the plugin main features.
  * @param[in, out] desc Effect descriptor
  */
-void ColorMaskRemoverPluginFactory::describe( OFX::ImageEffectDescriptor& desc )
+void ColorNegInvertPluginFactory::describe( OFX::ImageEffectDescriptor& desc )
 {
     desc.setLabels(
-            "ColorMaskRemover",
-            "ColorMaskRemover",
+            "ColorNegInvert",
+            "ColorNegInvert",
             "Remove mask (often orange mask) from an image" );
     desc.setPluginGrouping( "djarlabs" );
 
@@ -45,7 +45,7 @@ void ColorMaskRemoverPluginFactory::describe( OFX::ImageEffectDescriptor& desc )
  * @param[in, out]   desc       Effect descriptor
  * @param[in]        context    Application context
  */
-void ColorMaskRemoverPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
+void ColorNegInvertPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
                                                   OFX::EContext context )
 {
     OFX::ClipDescriptor* srcClip = desc.defineClip( kOfxImageEffectSimpleSourceClipName );
@@ -152,10 +152,10 @@ void ColorMaskRemoverPluginFactory::describeInContext( OFX::ImageEffectDescripto
  * @param[in] context Application context
  * @return  plugin instance
  */
-OFX::ImageEffect* ColorMaskRemoverPluginFactory::createInstance( OfxImageEffectHandle handle,
+OFX::ImageEffect* ColorNegInvertPluginFactory::createInstance( OfxImageEffectHandle handle,
                                                             OFX::EContext context )
 {
-    return new ColorMaskRemoverPlugin( handle );
+    return new ColorNegInvertPlugin( handle );
 }
 
 }

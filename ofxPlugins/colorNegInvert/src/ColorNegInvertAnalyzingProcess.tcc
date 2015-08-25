@@ -1,15 +1,15 @@
-#include "ColorMaskRemoverAlgorithm.hpp"
-#include "ColorMaskRemoverPlugin.hpp"
+#include "ColorNegInvertAlgorithm.hpp"
+#include "ColorNegInvertPlugin.hpp"
 
 #include <boost/gil/gil_all.hpp>
 #include <terry/colorspace/layout/all.hpp>
 
 namespace tuttle {
 namespace plugin {
-namespace colorMaskRemover {
+namespace colorNegInvert {
 
 template<class View>
-ColorMaskAnalyzingProcess<View>::ColorMaskAnalyzingProcess( ColorMaskRemoverPlugin &effect )
+ColorNegInvertAnalyzingProcess<View>::ColorNegInvertAnalyzingProcess( ColorNegInvertPlugin &effect )
 : ImageGilFilterProcessor<View>( effect, eImageOrientationIndependant )
 , _plugin( effect )
 , _redFilterColor( 0.0 )
@@ -19,7 +19,7 @@ ColorMaskAnalyzingProcess<View>::ColorMaskAnalyzingProcess( ColorMaskRemoverPlug
 }
 
 template<class View>
-void ColorMaskAnalyzingProcess<View>::setup( const OFX::RenderArguments& args )
+void ColorNegInvertAnalyzingProcess<View>::setup( const OFX::RenderArguments& args )
 {
     ImageGilFilterProcessor<View>::setup( args );
     _params = _plugin.getProcessParams( args.renderScale );
@@ -33,7 +33,7 @@ void ColorMaskAnalyzingProcess<View>::setup( const OFX::RenderArguments& args )
  * @param[in] procWindowRoW  Processing window
  */
 template<class View>
-void ColorMaskAnalyzingProcess<View>::multiThreadProcessImages( const OfxRectI& procWindowRoW )
+void ColorNegInvertAnalyzingProcess<View>::multiThreadProcessImages( const OfxRectI& procWindowRoW )
 {
     using namespace boost::gil;
     OfxRectI procWindowOutput = this->translateRoWToOutputClipCoordinates( procWindowRoW );
@@ -86,7 +86,7 @@ void ColorMaskAnalyzingProcess<View>::multiThreadProcessImages( const OfxRectI& 
 }
 
 template<class View>
-void ColorMaskAnalyzingProcess<View>::postProcess()
+void ColorNegInvertAnalyzingProcess<View>::postProcess()
 {
     this->progressEnd();
     _plugin.notifyRGBFilterColor( _redFilterColor, _greenFilterColor, _blueFilterColor );

@@ -1,16 +1,16 @@
-#ifndef _TUTTLE_PLUGIN_FILTERCLEANER_PLUGIN_HPP_
-#define _TUTTLE_PLUGIN_FILTERCLEANER_PLUGIN_HPP_
+#ifndef _TUTTLE_PLUGIN_COLORNEGINVERT_PLUGIN_HPP_
+#define _TUTTLE_PLUGIN_COLORNEGINVERT_PLUGIN_HPP_
 
-#include "ColorMaskRemoverDefinitions.hpp"
+#include "ColorNegInvertDefinitions.hpp"
 
 #include <tuttle/plugin/ImageEffectGilPlugin.hpp>
 
 namespace tuttle {
 namespace plugin {
-namespace colorMaskRemover {
+namespace colorNegInvert {
 
 template<typename Scalar>
-struct ColorMaskRemoverProcessParams
+struct ColorNegInvertProcessParams
 {
     EParamAlgo _algo;
     float fRedFilterColor;
@@ -23,17 +23,17 @@ struct ColorMaskRemoverProcessParams
 };
 
 /**
- * @brief ColorMaskRemover plugin
+ * @brief ColorNegInvert plugin
  */
-class ColorMaskRemoverPlugin : public ImageEffectGilPlugin
+class ColorNegInvertPlugin : public ImageEffectGilPlugin
 {
 public:
     typedef float Scalar;
 public:
-    ColorMaskRemoverPlugin( OfxImageEffectHandle handle );
+    ColorNegInvertPlugin( OfxImageEffectHandle handle );
 
 public:
-    ColorMaskRemoverProcessParams<Scalar> getProcessParams( const OfxPointD& renderScale = OFX::kNoRenderScale ) const;
+    ColorNegInvertProcessParams<Scalar> getProcessParams( const OfxPointD& renderScale = OFX::kNoRenderScale ) const;
 
     void changedParam( const OFX::InstanceChangedArgs &args, const std::string &paramName );
 
