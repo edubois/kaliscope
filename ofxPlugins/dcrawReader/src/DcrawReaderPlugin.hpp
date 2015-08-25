@@ -14,6 +14,7 @@ namespace dcrawReader {
 struct DcrawReaderProcessParams
 {
     boost::filesystem::path _filepath;
+    int _interpolationQuality;
 };
 
 /**
@@ -33,6 +34,7 @@ public:
     void render( const OFX::RenderArguments &args );
 
 public:
+    OFX::ChoiceParam*	_paramInterpQuality;        ///< Interpolation quality
     std::size_t _lastFrame;     ///< Last frame index
 };
 

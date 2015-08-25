@@ -13,12 +13,14 @@ namespace dcrawReader {
 DcrawReaderPlugin::DcrawReaderPlugin( OfxImageEffectHandle handle )
 : ReaderPlugin( handle )
 {
+    _paramInterpQuality = fetchChoiceParam( kParamInterpolationQuality );
 }
 
 DcrawReaderProcessParams DcrawReaderPlugin::getProcessParams( const OfxTime time ) const
 {
     DcrawReaderProcessParams params;
     params._filepath = getAbsoluteFilenameAt( time );
+        params._interpolationQuality  = _paramInterpQuality->getValue();
     return params;
 }
 

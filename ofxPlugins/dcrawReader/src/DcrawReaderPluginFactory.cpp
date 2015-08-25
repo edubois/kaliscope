@@ -24,9 +24,7 @@ void DcrawReaderPluginFactory::describe( OFX::ImageEffectDescriptor& desc )
 		"DcrawReader",
 		"DcrawReader",
 		"DCRAW reader" );
-	desc.setPluginGrouping( "tuttle/image/io" );
-
-	desc.setDescription( "Plugin under early development." );
+        desc.setPluginGrouping( "djarlabs" );
 
 	// add the supported contexts, only filter at the moment
 	desc.addSupportedContext( OFX::eContextReader );
@@ -56,6 +54,15 @@ void DcrawReaderPluginFactory::describeInContext( OFX::ImageEffectDescriptor& de
     OFX::ClipDescriptor* dstClip = desc.defineClip( kOfxImageEffectOutputClipName );
     dstClip->addSupportedComponent( OFX::ePixelComponentRGB );
     dstClip->setSupportsTiles( kSupportTiles );
+
+    OFX::ChoiceParamDescriptor* paramInterpolationQuality = desc.defineChoiceParam( kParamInterpolationQuality );
+    paramInterpolationQuality->setLabel( "Interpolation quality" );
+    paramInterpolationQuality->setHint( "DCRaw interpolation quality" );
+    paramInterpolationQuality->appendOption( kParamInterpolationQualityLinear );
+    paramInterpolationQuality->appendOption( kParamInterpolationQualityVNG );
+    paramInterpolationQuality->appendOption( kParamInterpolationQualityPPG );
+    paramInterpolationQuality->appendOption( kParamAlgorithmYUVReductionAHD );
+    paramInterpolationQuality->setDefault( 3 );
 
     describeReaderParamsInContext( desc, context );
 }

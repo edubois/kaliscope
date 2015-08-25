@@ -36,7 +36,7 @@ void DcrawReaderProcess<View>::multiThreadProcessImages( const OfxRectI& procWin
 template<class View>
 View& DcrawReaderProcess<View>::readFrame( View& dst )
 {
-    dcraw::readRaw( _params._filepath, dst );
+    dcraw::readRaw( _params._filepath, dst, _params._interpolationQuality );
     return dst;
 }
 

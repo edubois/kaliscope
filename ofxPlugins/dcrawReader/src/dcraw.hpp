@@ -14,7 +14,7 @@ namespace dcraw
      * @brief read raw data
      * @param user_quality user interpolation quality [0-3]
      */
-    boost::shared_array<ushort> getRawData( const int user_quality = 3 );
+    boost::shared_array<ushort> getRawData( const int interpolationQuality = 3 );
 
     /**
      * @brief open a raw image
@@ -56,16 +56,17 @@ namespace dcraw
      * @brief read raw image
      * @param filename the input filename
      * @param dst the destination view
+     * @param interpolationQuality quality of the interpolation in [0-3]
      * @return true or false, true if success
      */
     template<class DView>
-    bool readRaw( const boost::filesystem::path & filename, const DView & dst )
+    bool readRaw( const boost::filesystem::path & filename, const DView & dst, const int interpolationQuality = 3 )
     {
         bool ret = true;
         int iwidth = 0, iheight = 0;
         openRaw( filename );
         readDimensions( iwidth, iheight );
-        boost::shared_array<ushort> ppm2 = getRawData();
+        boost::shared_array<ushort> ppm2 = getRawData( interpolationQuality );
         switch( numberOfChannel() )
         {
             case 1:

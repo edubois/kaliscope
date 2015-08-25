@@ -9042,9 +9042,9 @@ namespace dcraw
 
 /**
  * @brief read raw data
- * @param user_quality user interpolation quality [0-3]
+ * @param interpolationQuality user interpolation quality [0-3]
  */
-boost::shared_array<ushort> getRawData( const int user_quality )
+boost::shared_array<ushort> getRawData( const int interpolationQuality )
 {
     int use_fuji_rotate=1;
     fseeko (ifp, data_offset, SEEK_SET);
@@ -9083,7 +9083,7 @@ boost::shared_array<ushort> getRawData( const int user_quality )
     }
 
     int quality = 2 + !fuji_width;
-    if ( user_quality >= 0 ) quality = user_quality;
+    if ( interpolationQuality >= 0 ) quality = interpolationQuality;
 
     if (zero_is_bad) remove_zeroes();
     int i = cblack[3];
