@@ -24,7 +24,7 @@ void ColorNegInvertPluginFactory::describe( OFX::ImageEffectDescriptor& desc )
             "Remove mask (often orange mask) from an image" );
     desc.setPluginGrouping( "djarlabs" );
 
-    desc.setDescription( "Remove colored mask from the image. An orange mask is often appearing on silver films, this helps removing it" );
+    desc.setDescription( "Remove colored mask from the image. An orange mask is often appearing on color analog films, this helps removing it" );
 
     // add the supported contexts, only filter at the moment
     desc.addSupportedContext( OFX::eContextFilter );
