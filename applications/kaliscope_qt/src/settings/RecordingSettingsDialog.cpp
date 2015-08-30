@@ -34,6 +34,7 @@ RecordingSettingsDialog::RecordingSettingsDialog( QWidget *parent )
     connect( widget.spinInputMinutes, SIGNAL( valueChanged(int) ), this, SLOT( recomputeNbImages() ) );
     connect( widget.spinFps, SIGNAL( valueChanged(double) ), this, SLOT( recomputeNbImages() ) );
     connect( widget.comboPresets, SIGNAL( currentIndexChanged( const int ) ), this, SLOT( loadPreset( const int ) ) );
+    connect( widget.cbDefault, SIGNAL( clicked( const bool ) ), this, SLOT( setCurrentAsDefaultPreset() ) );
 
     widget.listPipeline->setMovement( QListView::Static );
     widget.listPipeline->setDragDropMode( QAbstractItemView::InternalMove );
@@ -43,6 +44,13 @@ RecordingSettingsDialog::RecordingSettingsDialog( QWidget *parent )
     _pipelineSettings.read( QDir::homePath().toStdString() + "/" + kKaliscopeDefaultPipelineSettingsFilename );
     buildPipelineFrom( _pipelineSettings );
     loadPresetItems();
+
+    const std::string defaultPreset = mvpplayer::Settings::getInstance().get<std::string>( "presets", "default" );
+    if ( defaultPreset.size() )
+    {
+        _defaultPreset.reset( defaultPreset );
+        setCurrentPreset( defaultPreset );
+    }
 }
 
 RecordingSettingsDialog::~RecordingSettingsDialog()
@@ -92,6 +100,15 @@ void RecordingSettingsDialog::setConfigPaths()
     _pipelineSettings.set( "configPath", "outputIsSequence", widget.cbOutputIsSequence->isChecked() );
 }
 
+void RecordingSettingsDialog::setCurrentAsDefaultPreset()
+{
+    const std::string currentPreset = widget.comboPresets->currentText().toStdString();
+    if ( currentPreset.size() )
+    {
+        _defaultPreset.reset( currentPreset );
+    }
+}
+
 void RecordingSettingsDialog::recomputeNbImages()
 {
     const int nbImages = widget.spinInputMinutes->value() * 60 * widget.spinFps->value();
@@ -127,6 +144,19 @@ void RecordingSettingsDialog::loadPresetItems()
     }
 }
 
+void RecordingSettingsDialog::setCurrentPreset( const std::string & presetName )
+{
+    BOOST_FOREACH( const auto & p, _presets )
+    {
+        if ( p.second.get<std::string>( "", "presetName" ) == presetName )
+        {
+            loadPreset( p.first );
+            widget.comboPresets->setCurrentIndex( p.first );
+            break;
+        }
+    }
+}
+
 void RecordingSettingsDialog::loadPreset( const int index )
 {
     auto itSettings = _presets.find( index );
@@ -134,6 +164,17 @@ void RecordingSettingsDialog::loadPreset( const int index )
     {
         _pipelineSettings = itSettings->second;
         buildPipelineFrom( _pipelineSettings );
+
+        // If the preset is the one defaulted
+        if ( _defaultPreset != boost::none && 
+             _pipelineSettings.get<std::string>( "", "presetName" ) == *_defaultPreset )
+        {
+            widget.cbDefault->setChecked( true );
+        }
+        else
+        {
+            widget.cbDefault->setChecked( false );
+        }
     }
 }
 
@@ -353,6 +394,10 @@ void RecordingSettingsDialog::editPluginParams( QListWidgetItem * item )
 void RecordingSettingsDialog::accept()
 {
     rebuildPipelineSettings();
+    if ( _defaultPreset != boost::none )
+    {
+        mvpplayer::Settings::getInstance().set( "presets", "default", *_defaultPreset );
+    }
     Parent::accept();
 }
 

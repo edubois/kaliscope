@@ -70,6 +70,7 @@ public:
     QToolButton *btnRemovePlugin;
     QToolButton *btnLoadConfig;
     QToolButton *btnSaveConfig;
+    QCheckBox *cbDefault;
     QComboBox *comboPresets;
     QListWidget *listPipeline;
     QDialogButtonBox *buttonBox;
@@ -284,6 +285,13 @@ public:
 
         horizontalLayout->addWidget(btnSaveConfig);
 
+        cbDefault = new QCheckBox(RecordingSettingsDialog);
+        cbDefault->setObjectName(QStringLiteral("cbDefault"));
+        sizePolicy2.setHeightForWidth(cbDefault->sizePolicy().hasHeightForWidth());
+        cbDefault->setSizePolicy(sizePolicy2);
+
+        horizontalLayout->addWidget(cbDefault);
+
         comboPresets = new QComboBox(RecordingSettingsDialog);
         comboPresets->setObjectName(QStringLiteral("comboPresets"));
         comboPresets->setEditable(true);
@@ -371,6 +379,7 @@ public:
         btnRemovePlugin->setText(QApplication::translate("RecordingSettingsDialog", "-", 0));
         btnLoadConfig->setText(QApplication::translate("RecordingSettingsDialog", "Load", 0));
         btnSaveConfig->setText(QApplication::translate("RecordingSettingsDialog", "Save", 0));
+        cbDefault->setText(QApplication::translate("RecordingSettingsDialog", "Default", 0));
 #ifndef QT_NO_TOOLTIP
         comboPresets->setToolTip(QApplication::translate("RecordingSettingsDialog", "preset name", 0));
 #endif // QT_NO_TOOLTIP

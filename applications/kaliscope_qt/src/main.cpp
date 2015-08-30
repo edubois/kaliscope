@@ -166,6 +166,9 @@ int main( int argc, char **argv )
         dlg.showNormal();
 
         res = app.exec();
+
+        // Write settings in case they changed
+        mvpplayer::Settings::getInstance().write( QDir::homePath().toStdString() + "/" + mvpplayer::kDefaultSettingsFilename );
     }
     catch( ... )
     {

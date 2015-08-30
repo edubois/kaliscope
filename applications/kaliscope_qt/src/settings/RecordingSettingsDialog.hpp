@@ -12,6 +12,8 @@
 #include <tuttle/common/utils/global.hpp>
 #include <tuttle/host/Graph.hpp>
 
+#include <boost/optional.hpp>
+
 namespace kaliscope
 {
 namespace gui
@@ -45,6 +47,7 @@ private Q_SLOTS:
     void addPlugin();
     void editPluginParams( QListWidgetItem * item );
     void loadPreset( const int index );
+    void setCurrentAsDefaultPreset();
     void loadConfig();
     void saveConfig();
     void browseInput();
@@ -57,11 +60,13 @@ private:
     void buildPipelineFrom( const mvpplayer::Settings & pipelineSettings );
     QWidget* buildPluginWidgetFrom( TablePluginItem *plugItem );
     void accept();
+    void setCurrentPreset( const std::string & presetName );
     void loadPresetItems();
     void setConfigPaths();
 
 private:
     std::map<int, mvpplayer::Settings> _presets;                    ///< Presets
+    boost::optional<std::string> _defaultPreset;                    ///< Current default preset
     Ui::RecordingSettingsDialog widget;
     mvpplayer::Settings _pipelineSettings;                          ///< The pipeline global settings
 };
