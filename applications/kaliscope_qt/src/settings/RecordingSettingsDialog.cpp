@@ -43,16 +43,23 @@ RecordingSettingsDialog::RecordingSettingsDialog( QWidget *parent )
     connect( widget.listPipeline, SIGNAL( itemDoubleClicked(QListWidgetItem *) ), this, SLOT( editPluginParams( QListWidgetItem * ) ) );
 
     loadPresetItems();
+    const std::string defaultPreset = mvpplayer::Settings::getInstance().get<std::string>( "presets", "default" );
+    if ( defaultPreset.size() )
+    {
+        _defaultPreset.reset( defaultPreset );
+    }
+
     if ( _lastEditedPipeline != boost::none )
     {
         _pipelineSettings = *_lastEditedPipeline;
         buildPipelineFrom( _pipelineSettings );
-        widget.comboPresets->setCurrentText( QString::fromStdString( _pipelineSettings.get<std::string>( "", "presetName" ) ) );
+        const std::string presetName = _pipelineSettings.get<std::string>( "", "presetName" );
+        widget.comboPresets->setCurrentText( QString::fromStdString( presetName ) );
+        widget.cbDefault->setChecked( _defaultPreset != boost::none && *_defaultPreset == presetName );
     }
     else
     {
-        const std::string defaultPreset = mvpplayer::Settings::getInstance().get<std::string>( "presets", "default" );
-        if ( defaultPreset.size() )
+        if ( _defaultPreset != boost::none )
         {
             _defaultPreset.reset( defaultPreset );
             setCurrentPreset( defaultPreset );
