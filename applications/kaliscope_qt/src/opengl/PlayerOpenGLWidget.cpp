@@ -194,18 +194,16 @@ void PlayerOpenGLWidget::setFrame( const std::size_t frameNumber, const DefaultI
     std::unique_lock<std::mutex> lock( _mutexDisplay );
 
     makeCurrent();
-    typedef boost::gil::rgb8_image_t SourceImageT;
-    const SourceImageT::view_t originalFrameView = frame->getGilView<SourceImageT::view_t>();
 
     bool videoDimensionsChanged = false;
-    if ( originalFrameView.width() != _frameWidth )
+    if ( frame->getBounds().x2 != _frameWidth )
     {
-        _frameWidth = originalFrameView.width();
+        _frameWidth = frame->getBounds().x2;
         videoDimensionsChanged = true;
     }
-    if ( originalFrameView.height() != _frameHeight )
+    if ( frame->getBounds().y2 != _frameHeight )
     {
-        _frameHeight = originalFrameView.height();
+        _frameHeight = frame->getBounds().y2;
         videoDimensionsChanged = true;
     }
 
@@ -221,11 +219,61 @@ void PlayerOpenGLWidget::setFrame( const std::size_t frameNumber, const DefaultI
     glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
     glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL );
 
-    glTexImage2D( GL_TEXTURE_2D, 0, GL_RGB,
+    int bitType = GL_UNSIGNED_BYTE;
+    switch( frame->getBitDepth() )
+    {
+        case 1:
+        {
+            bitType = GL_UNSIGNED_BYTE;
+            break;
+        }
+        case 2:
+        {
+            bitType = GL_UNSIGNED_SHORT;
+            break;
+        }
+        case 4:
+        {
+            bitType = GL_FLOAT;
+            break;
+        }
+        default:
+        {
+            std::cerr << "Unhandled bit depth: " << frame->getBitDepth() << std::endl;
+            break;
+        }
+    }
+
+    int channelType = GL_RGB;
+    switch( frame->getNbComponents() )
+    {
+        case 1:
+        {
+            channelType = GL_LUMINANCE;
+            break;
+        }
+        case 3:
+        {
+            channelType = GL_RGB;
+            break;
+        }
+        case 4:
+        {
+            channelType = GL_RGBA;
+            break;
+        }
+        default:
+        {
+            std::cerr << "Unhandled channel type: " << frame->getNbComponents() << std::endl;
+            break;
+        }
+    }
+    
+    glTexImage2D( GL_TEXTURE_2D, 0, channelType,
                   _frameWidth,
                   _frameHeight, 0,
-                  GL_RGB, GL_UNSIGNED_BYTE,
-                  boost::gil::interleaved_view_get_raw_data( originalFrameView ) );
+                  channelType, bitType,
+                  frame->getPixelData() );
 
     // We are done, process next frame (as early as possible)
     _currentFrameNumber = frameNumber;
