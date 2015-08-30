@@ -21,6 +21,8 @@ namespace gui
 namespace qt
 {
 
+boost::optional<mvpplayer::Settings> RecordingSettingsDialog::_lastEditedPipeline;
+
 RecordingSettingsDialog::RecordingSettingsDialog( QWidget *parent )
 : QDialog( parent )
 {
@@ -39,17 +41,27 @@ RecordingSettingsDialog::RecordingSettingsDialog( QWidget *parent )
     widget.listPipeline->setMovement( QListView::Static );
     widget.listPipeline->setDragDropMode( QAbstractItemView::InternalMove );
     connect( widget.listPipeline, SIGNAL( itemDoubleClicked(QListWidgetItem *) ), this, SLOT( editPluginParams( QListWidgetItem * ) ) );
-//    widget.listPipeline->installEventFilter( this );
 
-    _pipelineSettings.read( QDir::homePath().toStdString() + "/" + kKaliscopeDefaultPipelineSettingsFilename );
-    buildPipelineFrom( _pipelineSettings );
     loadPresetItems();
-
-    const std::string defaultPreset = mvpplayer::Settings::getInstance().get<std::string>( "presets", "default" );
-    if ( defaultPreset.size() )
+    if ( _lastEditedPipeline != boost::none )
     {
-        _defaultPreset.reset( defaultPreset );
-        setCurrentPreset( defaultPreset );
+        _pipelineSettings = *_lastEditedPipeline;
+        buildPipelineFrom( _pipelineSettings );
+        widget.comboPresets->setCurrentText( QString::fromStdString( _pipelineSettings.get<std::string>( "", "presetName" ) ) );
+    }
+    else
+    {
+        const std::string defaultPreset = mvpplayer::Settings::getInstance().get<std::string>( "presets", "default" );
+        if ( defaultPreset.size() )
+        {
+            _defaultPreset.reset( defaultPreset );
+            setCurrentPreset( defaultPreset );
+        }
+        else
+        {
+            _pipelineSettings.read( QDir::homePath().toStdString() + "/" + kKaliscopeDefaultPipelineSettingsFilename );
+            buildPipelineFrom( _pipelineSettings );
+        }
     }
 }
 
@@ -398,6 +410,7 @@ void RecordingSettingsDialog::accept()
     {
         mvpplayer::Settings::getInstance().set( "presets", "default", *_defaultPreset );
     }
+    _lastEditedPipeline.reset( _pipelineSettings );
     Parent::accept();
 }
 

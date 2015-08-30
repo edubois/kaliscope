@@ -69,6 +69,7 @@ private:
     boost::optional<std::string> _defaultPreset;                    ///< Current default preset
     Ui::RecordingSettingsDialog widget;
     mvpplayer::Settings _pipelineSettings;                          ///< The pipeline global settings
+    static boost::optional<mvpplayer::Settings> _lastEditedPipeline;///< The lastly edited pipeline
 };
 
 }
