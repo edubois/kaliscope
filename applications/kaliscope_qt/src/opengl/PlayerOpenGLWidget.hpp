@@ -67,7 +67,12 @@ protected:
     void paintGL() override;
 
 private:
+    void wheelEvent(QWheelEvent * event);
+
+private:
     std::mutex _mutexDisplay;       ///< Locker
+    float _translation[4];          ///< Translation
+    double _zoomFactor;             ///< Zoom factor
     int _currentFrameNumber = -1;   ///< Current frame number
     int _frameWidth = 0;            ///< Frame width
     int _frameHeight = 0;           ///< Frame height

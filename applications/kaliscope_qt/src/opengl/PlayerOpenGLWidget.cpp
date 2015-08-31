@@ -1,8 +1,11 @@
 #include "PlayerOpenGLWidget.hpp"
 
+#include "openglAdds.hpp"
+
 #include <tuttle/host/attribute/Image.hpp>
 
 #include <QtGui/QSurfaceFormat>
+#include <QtGui/QWheelEvent>
 
 namespace kaliscope
 {
@@ -15,6 +18,7 @@ namespace qt
 
 PlayerOpenGLWidget::PlayerOpenGLWidget( QWidget * parent )
 : QOpenGLWidget( parent )
+, _zoomFactor( 1.0 )
 , _quadVertexBuffer( QGLBuffer::VertexBuffer )
 , _quadTextureCoordsBuffer( QGLBuffer::VertexBuffer )
 , _quadIndiceBuffer( QGLBuffer::IndexBuffer )
@@ -70,15 +74,21 @@ void PlayerOpenGLWidget::initializeGL()
     {
         std::cerr << _programShaderNegative.log().toStdString() << std::endl;
     }
+    _translation[0] = 0.0f; _translation[1] = 0.0f;
 }
 
 void PlayerOpenGLWidget::resizeGL( const int w, const int h )
 {
     glViewport( 0, 0, w, h );
-    glMatrixMode(GL_PROJECTION);
+    glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
-    glOrtho( 0, w, h, 0, -1, 1 ); // Match qt coord origin
-    glMatrixMode(GL_MODELVIEW);
+
+    const float left = -w / 2.0f;
+    const float right = w / 2.0f;
+    const float top = h / 2.0f;
+    const float bottom = -h / 2.0f;
+    glOrtho( left, right, bottom, top, -1, 1 );
+    glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
 
     rebuildVertexBuffer( w, h );
@@ -89,6 +99,11 @@ void PlayerOpenGLWidget::paintGL()
     std::unique_lock<std::mutex> lock( _mutexDisplay );
     glColor3f( 0.0f, 0.0f, 0.0f );
     glClear( GL_COLOR_BUFFER_BIT );
+    
+    glPushMatrix();
+    glTranslatef( _translation[0] * width() / 2.0f, -_translation[1] * height() / 2.0f, 0.0f );
+    glScalef( _zoomFactor, _zoomFactor, 1.0 );
+    glTranslatef( -_translation[0] * width() / 2.0f, _translation[1] * height() / 2.0f, 0.0f );
 
     glEnableClientState( GL_TEXTURE_COORD_ARRAY );
     glEnableClientState( GL_VERTEX_ARRAY );
@@ -143,6 +158,7 @@ void PlayerOpenGLWidget::paintGL()
     _quadIndiceBuffer.release();
 
     glDisable( GL_TEXTURE_2D );
+    glPopMatrix();
 }
 
 void PlayerOpenGLWidget::rebuildVertexBuffer( const int iw, const int ih )
@@ -162,16 +178,16 @@ void PlayerOpenGLWidget::rebuildVertexBuffer( const int iw, const int ih )
         w = ih * ratio;
         h = ih;
     }
-    posX = std::max( 0.0f, iw - w ) / 2.0;
-    posY = std::max( 0.0f, ih - h ) / 2.0;
+    posX = std::max( 0.0f, iw - w ) / 2.0 - ( iw / 2.0f );
+    posY = std::max( 0.0f, ih - h ) / 2.0 - ( ih / 2.0f );
 
     _vertices.clear();
-    _vertices.push_back( QVector3D( posX, posY, 0 ) );
     _vertices.push_back( QVector3D( posX, h + posY, 0 ) );
-    _vertices.push_back( QVector3D( w + posX, posY, 0 ) );
+    _vertices.push_back( QVector3D( posX, posY, 0 ) );
     _vertices.push_back( QVector3D( w + posX, h + posY, 0 ) );
     _vertices.push_back( QVector3D( w + posX, posY, 0 ) );
-    _vertices.push_back( QVector3D( posX, h + posY, 0 ) );
+    _vertices.push_back( QVector3D( w + posX, h + posY, 0 ) );
+    _vertices.push_back( QVector3D( posX, posY, 0 ) );
 
     // Vertex buffer init
     if ( _quadVertexBuffer.isCreated() )
@@ -281,10 +297,45 @@ void PlayerOpenGLWidget::setFrame( const std::size_t frameNumber, const DefaultI
 
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
-    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
 
     glDisable( GL_TEXTURE_2D );
+    doneCurrent();
+    update();
+}
+
+void PlayerOpenGLWidget::wheelEvent( QWheelEvent * event )
+{
+    GLfloat modelMatrix[16];
+    GLfloat projMatrix[16];
+    GLint viewport[4];
+    glGetFloatv( GL_MODELVIEW_MATRIX, modelMatrix );
+    glGetFloatv( GL_PROJECTION_MATRIX, projMatrix );
+    glGetIntegerv( GL_VIEWPORT, viewport );
+
+    if ( event->delta() > 0)
+    {
+        _zoomFactor *= 1.1;
+    }
+    else
+    {
+        _zoomFactor /= 1.1;
+    }
+
+    if ( _zoomFactor > 10.0 )
+    {
+        _zoomFactor = 10.0;
+    }
+    else if ( _zoomFactor < 0.001 )
+    {
+        _zoomFactor = 0.001;
+    }
+
+    glhUnProjectf( event->x(), event->y(), 0.0f, modelMatrix, projMatrix, viewport, _translation );
+
+    makeCurrent();
+    resizeGL( width(), height() );
     doneCurrent();
     update();
 }
