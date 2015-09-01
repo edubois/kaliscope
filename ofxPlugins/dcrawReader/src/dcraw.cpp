@@ -9049,22 +9049,27 @@ boost::shared_array<ushort> getRawData( const int interpolationQuality )
     int use_fuji_rotate=1;
     fseeko (ifp, data_offset, SEEK_SET);
 
-    if (load_raw == &CLASS kodak_ycbcr_load_raw) {
-      height += height & 1;
-      width  += width  & 1;
+    if (load_raw == &CLASS kodak_ycbcr_load_raw)
+    {
+        height += height & 1;
+        width  += width  & 1;
     }
     iheight = (height + shrink) >> shrink;
     iwidth  = (width  + shrink) >> shrink;
 
     if (filters || colors == 1)
     {
-      raw_image = (ushort *) calloc ((raw_height+7), raw_width*2);
-      merror (raw_image, "main()");
-    } else {
-      image = (ushort (*)[4]) calloc (iheight, iwidth*sizeof *image);
-      merror (image, "main()");
+        if ( raw_image ) free( raw_image );
+        raw_image = (ushort *) calloc( (raw_height+7), raw_width*2 );
+        merror (raw_image, "main()");
     }
-
+    else
+    {
+        if ( image ) free( image );
+        image = (ushort (*)[4]) calloc( iheight, iwidth*sizeof *image );
+        merror (image, "main()");
+    }
+    
     (*load_raw)();
 
     int c, row, col, rstep;
@@ -9074,12 +9079,14 @@ boost::shared_array<ushort> getRawData( const int interpolationQuality )
 
     if (flip & 4) SWAP(height,width);
 
-    if (raw_image) {
-      image = (ushort (*)[4]) calloc (iheight, iwidth*sizeof *image);
-      merror (image, "main()");
-      crop_masked_pixels();
-      free (raw_image);
-      raw_image = NULL;
+    if (raw_image)
+    {
+        if ( image ) free( image );
+        image = (ushort (*)[4]) calloc (iheight, iwidth*sizeof *image);
+        merror (image, "main()");
+        crop_masked_pixels();
+        free (raw_image);
+        raw_image = NULL;
     }
 
     int quality = 2 + !fuji_width;
@@ -9219,8 +9226,13 @@ void cleanup()
     }
     if ( image )
     {
-        image = NULL;
         free( image );
+        image = NULL;
+    }
+    if (raw_image)
+    {
+        free (raw_image);
+        raw_image = NULL;
     }
     if ( ifp )
     {

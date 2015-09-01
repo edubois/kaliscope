@@ -62,36 +62,39 @@ namespace dcraw
     template<class DView>
     bool readRaw( const boost::filesystem::path & filename, const DView & dst, const int interpolationQuality = 3 )
     {
-        bool ret = true;
         int iwidth = 0, iheight = 0;
         openRaw( filename );
         readDimensions( iwidth, iheight );
         boost::shared_array<ushort> ppm2 = getRawData( interpolationQuality );
-        switch( numberOfChannel() )
+        bool ret = (ppm2.get() != NULL);
+        if ( ret )
         {
-            case 1:
+            switch( numberOfChannel() )
             {
-                boost::gil::gray16_view_t srcView = boost::gil::interleaved_view( iwidth, iheight, reinterpret_cast<boost::gil::gray16_pixel_t*>( ppm2.get() ), sizeof(ushort) * iwidth * 1 );
-                boost::gil::copy_and_convert_pixels( srcView, dst );
-                break;
-            }
-            case 3:
-            {
-                boost::gil::rgb16_view_t srcView = boost::gil::interleaved_view( iwidth, iheight, reinterpret_cast<boost::gil::rgb16_pixel_t*>( ppm2.get() ), sizeof(ushort) * iwidth * 3 );
-                boost::gil::copy_and_convert_pixels( srcView, dst );
-                break;
-            }
-            case 4:
-            {
-                boost::gil::rgba16_view_t srcView = boost::gil::interleaved_view( iwidth, iheight, reinterpret_cast<boost::gil::rgba16_pixel_t*>( ppm2.get() ), sizeof(ushort) * iwidth * 4 );
-                boost::gil::copy_and_convert_pixels( srcView, dst );
-                break;
-            }
-            default:
-            {
-                std::cerr << "Invalid number of channels!" << std::endl;
-                ret = false;
-                break;
+                case 1:
+                {
+                    boost::gil::gray16_view_t srcView = boost::gil::interleaved_view( iwidth, iheight, reinterpret_cast<boost::gil::gray16_pixel_t*>( ppm2.get() ), sizeof(ushort) * iwidth * 1 );
+                    boost::gil::copy_and_convert_pixels( srcView, dst );
+                    break;
+                }
+                case 3:
+                {
+                    boost::gil::rgb16_view_t srcView = boost::gil::interleaved_view( iwidth, iheight, reinterpret_cast<boost::gil::rgb16_pixel_t*>( ppm2.get() ), sizeof(ushort) * iwidth * 3 );
+                    boost::gil::copy_and_convert_pixels( srcView, dst );
+                    break;
+                }
+                case 4:
+                {
+                    boost::gil::rgba16_view_t srcView = boost::gil::interleaved_view( iwidth, iheight, reinterpret_cast<boost::gil::rgba16_pixel_t*>( ppm2.get() ), sizeof(ushort) * iwidth * 4 );
+                    boost::gil::copy_and_convert_pixels( srcView, dst );
+                    break;
+                }
+                default:
+                {
+                    std::cerr << "Invalid number of channels!" << std::endl;
+                    ret = false;
+                    break;
+                }
             }
         }
         cleanup();
