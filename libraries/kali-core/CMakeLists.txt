@@ -1,0 +1,25 @@
+cmake_minimum_required(VERSION 2.8.11)
+
+project(KaliCore CXX)
+
+# Set sequenceParser versions
+set(KALI_CORE_VERSION_MAJOR "1")
+set(KALI_CORE_VERSION_MINOR "0")
+set(KALI_CORE_VERSION_MICRO "0")
+set(KALI_CORE_VERSION ${KALI_CORE_VERSION_MAJOR}.${KALI_CORE_VERSION_MINOR}.${KALI_CORE_VERSION_MICRO})
+
+# Define sequenceParser versions
+add_definitions(-DKALI_CORE_VERSION_MAJOR=${KALI_CORE_VERSION_MAJOR})
+add_definitions(-DKALI_CORE_VERSION_MINOR=${KALI_CORE_VERSION_MINOR})
+add_definitions(-DKALI_CORE_VERSION_MICRO=${KALI_CORE_VERSION_MICRO})
+
+# CPP flags on debug / release mode
+if(MSVC)
+        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
+        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
+else()
+        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -fPIC -pg -g")
+        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fPIC -O3")
+endif()
+
+ADD_SUBDIRECTORY(src)
