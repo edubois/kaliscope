@@ -3,6 +3,8 @@ SET( MY_APP_NAME "Kaliscope" )
 # external modules
 include(UseMvpPlayerBoost)
 include(FindFMod)
+FIND_PACKAGE(Qt5 COMPONENTS Core Gui Widgets OpenGL )
+set(CMAKE_AUTOMOC ON)
 
 FILE( GLOB_RECURSE KALISCOPE_SRCS "*.cpp" "*.hpp" "*.tcc" )
 
@@ -29,7 +31,7 @@ elseif(WIN32)
 endif()
 
 ADD_EXECUTABLE( ${MY_APP_NAME} MACOSX_BUNDLE WIN32 ${KALISCOPE_SRCS} ${COPY_RESOURCES} )
-TARGET_LINK_LIBRARIES( ${MY_APP_NAME} ${Boost_LIBRARIES} ${QT_LIBRARIES} boostAdds-shared mvpPlayerCore-shared mvpPlayerNet-shared mvpPlayerFMod-shared mvpPlayerGui-shared mvpPlayerQtGui-shared kaliCore-shared )
+TARGET_LINK_LIBRARIES( ${MY_APP_NAME} ${Boost_LIBRARIES} ${QT_LIBRARIES} boostAdds-shared mvpPlayerCore-shared mvpPlayerNet-shared mvpPlayerFMod-shared mvpPlayerGui-shared mvpPlayerQtGui-shared kaliCore-shared  Qt5::Core Qt5::Gui Qt5::Widgets Qt5::OpenGL )
 
 # Install stuff
 SET( qt_plugin_dest_dir bin )
@@ -68,7 +70,6 @@ INSTALL( TARGETS ${MY_APP_NAME}
 # Install needed Qt plugins by copying directories from the qt installation
 # One can cull what gets copied by using 'REGEX "..." EXCLUDE'
 IF(APPLE)
-    FIND_PACKAGE(Qt5 COMPONENTS Core Gui Widgets OpenGL )
     GET_TARGET_PROPERTY( QT_PLUGINS_DIR Qt5::Core LOCATION_Release )
     GET_FILENAME_COMPONENT( QT_PLUGINS_DIR "${QT_PLUGINS_DIR}" DIRECTORY )
     GET_FILENAME_COMPONENT( QT_PLUGINS_DIR "${QT_PLUGINS_DIR}" DIRECTORY )
