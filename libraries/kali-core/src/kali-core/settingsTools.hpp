@@ -16,6 +16,8 @@
 
 namespace kaliscope
 {
+    static const std::string kDefaultSettingsFilename( ".kaliscopeSettings.json" );
+
     struct PluginItem
     {
         PluginItem()

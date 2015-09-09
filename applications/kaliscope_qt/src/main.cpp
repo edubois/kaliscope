@@ -5,6 +5,7 @@
 
 #include <kali-core/VideoPlayer.hpp>
 #include <kali-core/KaliscopeEngine.hpp>
+#include <kali-core/settingsTools.hpp>
 #include <mvp-player-core/MVPPlayerEngine.hpp>
 #include <mvp-player-core/MVPPlayerLogic.hpp>
 #include <mvp-player-core/Settings.hpp>
@@ -15,6 +16,8 @@
 #include <mvp-player-qtgui/resources.hpp>
 #include <mvp-player-pluger/PluginLoader.hpp>
 #include <mvp-player-net/client/Client.hpp>
+
+#include <boost-adds/filesystem/bundle_path.hpp>
 
 #include <boost-adds/environment.hpp>
 #include <boost/log/core.hpp>
@@ -41,7 +44,7 @@ void editSettings( QMainWindow *caller, mvpplayer::MVPPlayerEngine & m, mvpplaye
     const int res = settingsDialog.exec();
     if ( !res )
     {
-        mvpplayer::Settings::getInstance().write( QDir::homePath().toStdString() + "/" + mvpplayer::kDefaultSettingsFilename );
+        mvpplayer::Settings::getInstance().write( QDir::homePath().toStdString() + "/" + kaliscope::kDefaultSettingsFilename );
     }
 }
 
@@ -62,13 +65,20 @@ bool editPipelineSettings( QMainWindow *caller, mvpplayer::Settings & settings )
  */
 int main( int argc, char **argv )
 {
+    mvpplayer::Settings::getInstance().read( QDir::homePath().toStdString() + "/" + kaliscope::kDefaultSettingsFilename );
     using namespace mvpplayer;
     {
-        Settings::getInstance().read( QDir::homePath().toStdString() + "/" + kDefaultSettingsFilename );
         boost::optional<std::string> envStr = boost::get_env( plugins::kMVPPlayerPluginEnvKey );
-        if ( envStr != boost::none && Settings::getInstance().has( "plugins", "pluginsPath" ) == false )
+        if ( Settings::getInstance().has( "plugins", "pluginsPath" ) == false )
         {
-            Settings::getInstance().set( "plugins", "pluginsPath", *envStr );
+            if ( envStr != boost::none )
+            {
+                Settings::getInstance().set( "plugins", "pluginsPath", *envStr );
+            }
+            else
+            {
+                Settings::getInstance().set( "plugins", "pluginsPath", ( boost::filesystem::bundle_path() / std::string( "mvpPlayerPlugins/" ) ).string() );
+            }
         }
     }
 
