@@ -3,6 +3,7 @@ SET( MY_APP_NAME "Kaliscope" )
 # external modules
 include(UseMvpPlayerBoost)
 include(FindFMod)
+include(FindTuttleHost)
 FIND_PACKAGE(Qt5 COMPONENTS Core Gui Widgets OpenGL )
 set(CMAKE_AUTOMOC ON)
 
@@ -31,7 +32,7 @@ elseif(WIN32)
 endif()
 
 ADD_EXECUTABLE( ${MY_APP_NAME} MACOSX_BUNDLE WIN32 ${KALISCOPE_SRCS} ${COPY_RESOURCES} )
-TARGET_LINK_LIBRARIES( ${MY_APP_NAME} ${Boost_LIBRARIES} ${QT_LIBRARIES} boostAdds-shared mvpPlayerCore-shared mvpPlayerNet-shared mvpPlayerFMod-shared mvpPlayerGui-shared mvpPlayerQtGui-shared kaliCore-shared  Qt5::Core Qt5::Gui Qt5::Widgets Qt5::OpenGL )
+TARGET_LINK_LIBRARIES( ${MY_APP_NAME} ${Boost_LIBRARIES} ${QT_LIBRARIES} ${TUTTLE_HOST_LIBRARIES} boostAdds-shared mvpPlayerCore-shared mvpPlayerNet-shared mvpPlayerFMod-shared mvpPlayerGui-shared mvpPlayerQtGui-shared kaliCore-shared  Qt5::Core Qt5::Gui Qt5::Widgets Qt5::OpenGL )
 
 # Install stuff
 SET( qt_plugin_dest_dir bin )
@@ -116,6 +117,13 @@ IF(APPLE)
         PATTERN "*.ui"
     )
 
+    INSTALL( DIRECTORY "${PROJECT_SOURCE_DIR}/presets"
+        DESTINATION ${INSTALL_CMAKE_DIR}
+        COMPONENT Runtime
+        FILES_MATCHING
+        PATTERN "*.json"
+    )
+
     FILE( GLOB_RECURSE KALISCOPE_PLUGINS
           "${plugin_dest_dir}/*${CMAKE_SHARED_LIBRARY_SUFFIX}" )
 
@@ -134,7 +142,7 @@ IF(APPLE)
         " COMPONENT Runtime
     )
 
-    SET( DIRS "${Boost_LIBRARY_DIR};${CMAKE_INSTALL_PREFIX}/lib;${FMOD_LIBRARY_DIR}" )
+    SET( DIRS "${Boost_LIBRARY_DIR};${CMAKE_INSTALL_PREFIX}/lib;${FMOD_LIBRARY_DIR};${TUTTLE_HOST_LIBRARY_DIR}" )
 
     INSTALL(CODE "
         INCLUDE(BundleUtilities)
