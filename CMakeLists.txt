@@ -41,6 +41,9 @@ endif()
 # The install rule does not depend on all, i.e. everything will not be built before installing
 set( CMAKE_SKIP_INSTALL_ALL_DEPENDENCY TRUE )
 
+# Create an alias for all OFX plugins.
+add_custom_target(ofxplugins)
+
 # Include subdirs
 add_subdirectory(libraries/mvp-player/libraries/boost-adds/)
 add_subdirectory(libraries/mvp-player/libraries/mvp-player-core/)
@@ -55,6 +58,7 @@ add_subdirectory(libraries/tuttlePlugin/)
 add_subdirectory(libraries/openfxHack/)
 add_subdirectory(libraries/kali-core/)
 add_subdirectory(plugins)
+add_subdirectory(ofxPlugins)
 add_subdirectory(applications)
 
 # Add a target to generate API documentation with Doxygen

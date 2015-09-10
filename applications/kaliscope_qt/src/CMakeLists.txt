@@ -96,8 +96,7 @@ IF(APPLE)
         DESTINATION ${plugin_dest_dir}
         COMPONENT Runtime
         FILES_MATCHING
-        REGEX "^.+[^0-9]+\\${CMAKE_SHARED_LIBRARY_SUFFIX}$"
-        PATTERN "*_debug${CMAKE_SHARED_LIBRARY_SUFFIX}" EXCLUDE
+        PATTERN "*"
     )
 
     INSTALL( DIRECTORY "${PROJECT_SOURCE_DIR}/src/resources/"
@@ -127,6 +126,9 @@ IF(APPLE)
     FILE( GLOB_RECURSE KALISCOPE_PLUGINS
           "${plugin_dest_dir}/*${CMAKE_SHARED_LIBRARY_SUFFIX}" )
 
+    FILE( GLOB_RECURSE OFX_PLUGINS
+          "${plugin_dest_dir}/*.ofx" )
+
     # Add resources to application bundle target
     SET_TARGET_PROPERTIES(
      ${MY_APP_NAME}
@@ -146,6 +148,6 @@ IF(APPLE)
 
     INSTALL(CODE "
         INCLUDE(BundleUtilities)
-        fixup_bundle(${CMAKE_INSTALL_PREFIX}/${MY_APP_NAME}.app \"${QTPLUGINS};${KALISCOPE_PLUGINS}\" \"${DIRS}\")
+        fixup_bundle(${CMAKE_INSTALL_PREFIX}/${MY_APP_NAME}.app \"${QTPLUGINS};${KALISCOPE_PLUGINS};${OFX_PLUGINS}\" \"${DIRS}\")
     " COMPONENT Runtime)
 ENDIF(APPLE)
