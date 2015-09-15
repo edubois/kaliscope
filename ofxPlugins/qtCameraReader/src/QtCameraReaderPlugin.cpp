@@ -7,6 +7,9 @@ namespace cameraReader {
 
 QtCameraReaderPlugin::QtCameraReaderPlugin( OfxImageEffectHandle handle )
 : CameraReaderPlugin( handle )
+, _exposureControl( NULL )
+, _focusControl( NULL )
+, _imageControl( NULL )
 {
     fillParameters();
 }
@@ -25,7 +28,10 @@ void QtCameraReaderPlugin::createNewCamera( const QCameraInfo & cameraInfo )
     _exposureControl = _camera->exposure();
     _focusControl = _camera->focus();
     _imageControl = _camera->imageProcessing();
-    _exposureControl->setFlashMode( QCameraExposure::FlashOff );
+    if ( _exposureControl )
+    {
+        _exposureControl->setFlashMode( QCameraExposure::FlashOff );
+    }
 }
 
 void QtCameraReaderPlugin::fillParameters()
@@ -107,7 +113,7 @@ void QtCameraReaderPlugin::changedParam( const OFX::InstanceChangedArgs& args, c
             }
         }
     }
-    else if ( paramName == kParamApertureChoice )
+    else if ( paramName == kParamApertureChoice && _exposureControl )
     {
         const QList<qreal> apertures = _exposureControl->supportedApertures();
         if ( _paramAperture->getValue() >= 0 && _paramAperture->getValue() < apertures.size() )
@@ -116,7 +122,7 @@ void QtCameraReaderPlugin::changedParam( const OFX::InstanceChangedArgs& args, c
             _exposureControl->setManualAperture( aperture );
         }
     }
-    else if ( paramName == kParamShutterSpeedChoice )
+    else if ( paramName == kParamShutterSpeedChoice && _exposureControl )
     {
         const QList<qreal> shutterSpeeds = _exposureControl->supportedShutterSpeeds();
         if ( _paramShutterSpeed->getValue() >= 0 && _paramShutterSpeed->getValue() < shutterSpeeds.size() )
@@ -125,7 +131,7 @@ void QtCameraReaderPlugin::changedParam( const OFX::InstanceChangedArgs& args, c
             _exposureControl->setManualShutterSpeed( shutterSpeed );
         }
     }
-    else if ( paramName == kParamISOChoice )
+    else if ( paramName == kParamISOChoice && _exposureControl )
     {
         const QList<int> isoSensitivities = _exposureControl->supportedIsoSensitivities();
         if ( _paramISOSensitivity->getValue() >= 0 && _paramISOSensitivity->getValue() < isoSensitivities.size() )
@@ -134,11 +140,11 @@ void QtCameraReaderPlugin::changedParam( const OFX::InstanceChangedArgs& args, c
             _exposureControl->setManualIsoSensitivity( iso );
         }
     }
-    else if ( paramName == kParamExposureCompensation )
+    else if ( paramName == kParamExposureCompensation && _exposureControl )
     {
         _exposureControl->setExposureCompensation( _paramExposureCompensation->getValue() );
     }
-    else if ( paramName == kParamAutoExposure )
+    else if ( paramName == kParamAutoExposure && _exposureControl )
     {
         if ( _paramAutoExposure->getValue() )
         {
@@ -149,7 +155,7 @@ void QtCameraReaderPlugin::changedParam( const OFX::InstanceChangedArgs& args, c
             _exposureControl->setExposureMode( QCameraExposure::ExposureManual );
         }
     }
-    else if ( paramName == kParamAutoSensibility )
+    else if ( paramName == kParamAutoSensibility && _exposureControl )
     {
         if ( _paramAutoISO->getValue() )
         {
@@ -160,7 +166,7 @@ void QtCameraReaderPlugin::changedParam( const OFX::InstanceChangedArgs& args, c
             _exposureControl->setManualIsoSensitivity( _exposureControl->supportedIsoSensitivities().at( _paramAutoISO->getValue() ) );
         }
     }
-    else if ( paramName == kParamAutoShutterSpeed )
+    else if ( paramName == kParamAutoShutterSpeed && _exposureControl )
     {
         if ( _paramAutoShutterSpeed->getValue() )
         {
@@ -171,7 +177,7 @@ void QtCameraReaderPlugin::changedParam( const OFX::InstanceChangedArgs& args, c
             _exposureControl->setManualShutterSpeed( _exposureControl->supportedShutterSpeeds().at( _paramShutterSpeed->getValue() ) );
         }
     }
-    else if ( paramName == kParamAutoAperture )
+    else if ( paramName == kParamAutoAperture && _exposureControl )
     {
         if ( _paramAutoExposure->getValue() )
         {
@@ -189,11 +195,11 @@ void QtCameraReaderPlugin::changedParam( const OFX::InstanceChangedArgs& args, c
             }
         }
     }
-    else if ( paramName == kParamOpticalZoomFactor )
+    else if ( paramName == kParamOpticalZoomFactor && _focusControl )
     {
         _focusControl->zoomTo( _paramOpticalZoomFactor->getValue(), _focusControl->digitalZoom() );
     }
-    else if ( paramName == kParamWhiteBalance )
+    else if ( paramName == kParamWhiteBalance && _imageControl )
     {
         if ( _paramWhiteBalance->getValue() == 0.0 )
         {
