@@ -156,8 +156,13 @@ void VideoPlayer::load( const boost::filesystem::path & filename )
         try
         {
             using namespace tuttle::host;
-            _nodeRead->getParam( "filename" ).setValue( filename.string() );
-            _inputSequence.reset();
+            try
+            {
+                _nodeRead->getParam( "filename" ).setValue( filename.string() );
+                _inputSequence.reset();
+            }
+            catch( ... ) // Some reader nodes haven't a 'filename' parameter
+            {}
             const OfxRangeD timeDomain = getTimeDomain();
             _currentPosition = timeDomain.min;
             _currentLength = timeDomain.max;
@@ -233,16 +238,22 @@ DefaultImageT VideoPlayer::getFrame( const double nFrame )
  */
 void VideoPlayer::setInputFilename( const boost::filesystem::path & filePath, const bool isSequence )
 {
-    if ( isSequence )
+    // Some inputs doesn't have a filename
+    try
     {
-        initSequence( filePath.string() );
+        if ( isSequence )
+        {
+            initSequence( filePath.string() );
+        }
+        else
+        {
+            _inputSequence.reset();
+            auto & param = _nodeRead->getParam( "filename" );
+            param.setValue( filePath.string() );
+        }
     }
-    else
-    {
-        _inputSequence.reset();
-        auto & param = _nodeRead->getParam( "filename" );
-        param.setValue( filePath.string() );
-    }
+    catch( ... )
+    {}
 }
 
 
@@ -349,9 +360,14 @@ bool VideoPlayer::setPosition( const double position, const mvpplayer::ESeekPosi
     // Set the right filename if playing a sequence
     if ( _inputSequence )
     {
-        auto & param = _nodeRead->getParam( "filename" );
-        const std::string inputSeqFilename = _inputSequence->getAbsoluteFilenameAt( position );
-        param.setValue( inputSeqFilename );
+        try
+        {
+            auto & param = _nodeRead->getParam( "filename" );
+            const std::string inputSeqFilename = _inputSequence->getAbsoluteFilenameAt( position );
+            param.setValue( inputSeqFilename );
+        }
+        catch( ... ) // Some readers haven't got a filename parameter
+        {}
     }
 
     switch( seekType )
