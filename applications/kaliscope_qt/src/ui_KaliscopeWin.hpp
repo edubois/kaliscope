@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'KaliscopeWin.ui'
 **
-** Created by: Qt User Interface Compiler version 5.4.1
+** Created by: Qt User Interface Compiler version 5.5.0
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -18,6 +18,7 @@
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QMainWindow>
+#include <QtWidgets/QMenu>
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QSlider>
 #include <QtWidgets/QSpacerItem>
@@ -31,6 +32,7 @@ QT_BEGIN_NAMESPACE
 class Ui_KaliscopeWin
 {
 public:
+    QAction *action_About;
     QWidget *centralwidget;
     QVBoxLayout *verticalLayout;
     QVBoxLayout *layoutVideo;
@@ -49,6 +51,7 @@ public:
     QHBoxLayout *layoutButtonsBar;
     QSpacerItem *horizontalSpacer;
     QMenuBar *menubar;
+    QMenu *menu_About;
     QStatusBar *statusbar;
 
     void setupUi(QMainWindow *KaliscopeWin)
@@ -59,6 +62,8 @@ public:
         QIcon icon;
         icon.addFile(QStringLiteral(":/kaliscope/icons/app/kaliscope.png"), QSize(), QIcon::Normal, QIcon::Off);
         KaliscopeWin->setWindowIcon(icon);
+        action_About = new QAction(KaliscopeWin);
+        action_About->setObjectName(QStringLiteral("action_About"));
         centralwidget = new QWidget(KaliscopeWin);
         centralwidget->setObjectName(QStringLiteral("centralwidget"));
         verticalLayout = new QVBoxLayout(centralwidget);
@@ -158,12 +163,17 @@ public:
         menubar = new QMenuBar(KaliscopeWin);
         menubar->setObjectName(QStringLiteral("menubar"));
         menubar->setGeometry(QRect(0, 0, 718, 22));
+        menu_About = new QMenu(menubar);
+        menu_About->setObjectName(QStringLiteral("menu_About"));
         KaliscopeWin->setMenuBar(menubar);
         statusbar = new QStatusBar(KaliscopeWin);
         statusbar->setObjectName(QStringLiteral("statusbar"));
         KaliscopeWin->setStatusBar(statusbar);
         QWidget::setTabOrder(cbInvertColors, sliderPosition);
         QWidget::setTabOrder(sliderPosition, btnSettings);
+
+        menubar->addAction(menu_About->menuAction());
+        menu_About->addAction(action_About);
 
         retranslateUi(KaliscopeWin);
 
@@ -173,11 +183,13 @@ public:
     void retranslateUi(QMainWindow *KaliscopeWin)
     {
         KaliscopeWin->setWindowTitle(QApplication::translate("KaliscopeWin", "Kaliscope film scanner", 0));
+        action_About->setText(QApplication::translate("KaliscopeWin", "&About", 0));
         cbInvertColors->setText(QApplication::translate("KaliscopeWin", "Invert colors", 0));
         lblCurrentTrack->setText(QString());
         lblTrackLength->setText(QString());
         btnSettings->setText(QApplication::translate("KaliscopeWin", "S", 0));
         btnConnect->setText(QApplication::translate("KaliscopeWin", "...", 0));
+        menu_About->setTitle(QApplication::translate("KaliscopeWin", "&About", 0));
     } // retranslateUi
 
 };

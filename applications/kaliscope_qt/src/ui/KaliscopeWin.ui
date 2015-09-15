@@ -173,8 +173,20 @@
      <height>22</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menu_About">
+    <property name="title">
+     <string>&amp;About</string>
+    </property>
+    <addaction name="action_About"/>
+   </widget>
+   <addaction name="menu_About"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="action_About">
+   <property name="text">
+    <string>&amp;About</string>
+   </property>
+  </action>
  </widget>
  <tabstops>
   <tabstop>cbInvertColors</tabstop>

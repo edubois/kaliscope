@@ -33,6 +33,7 @@ KaliscopeWin::KaliscopeWin()
     connect( widget.btnConnect, SIGNAL( clicked(bool) ), this, SLOT( connectDisconnectClient( const bool ) ) );
     connect( widget.btnSettings, SIGNAL( released() ), this, SLOT( editSettings() ) );
     connect( widget.cbInvertColors, SIGNAL( toggled(bool) ), this, SLOT( invertDisplayColors( const bool ) ) );
+    connect( widget.action_About, SIGNAL( triggered() ), this, SLOT( showAbout() ) );
 }
 
 KaliscopeWin::~KaliscopeWin()
@@ -40,6 +41,11 @@ KaliscopeWin::~KaliscopeWin()
     signalViewHitButton( "Stop", true );
     // Make sure all events are processed before we delete the view
     QApplication::processEvents();
+}
+
+void KaliscopeWin::showAbout()
+{
+    QMessageBox::information(  QApplication::activeWindow(), tr( "About" ), tr( "Kaliscope, a tool made by <a href=\"mailto:eloi.du.bois@gmail.com\">Eloi du Bois</a>.\nThis a GPL software based on <a href=\"http://www.tuttleofx.org\">TuttleOfx</a>" ) );
 }
 
 boost::optional<boost::filesystem::path> KaliscopeWin::openFile( const std::string & title, const logic::EFileDialogMode mode, const std::string & extensions )

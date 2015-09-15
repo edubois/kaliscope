@@ -86,6 +86,7 @@ private:
     void dragLeaveEvent( QDragLeaveEvent *event );
 
 protected Q_SLOTS:
+    void showAbout();
     void connectDisconnectClient( const bool start = true );
     QString slotOpenFile( const QString & title, const QString & extensions, const logic::EFileDialogMode mode );
     void slotDisplayError( const QString & msg );
