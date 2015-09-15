@@ -1,166 +1,101 @@
 #include "CameraReaderPlugin.hpp"
-#include "CameraReaderProcess.hpp"
-#include "CameraReaderDefinitions.hpp"
-#include "CameraInput.hpp"
-
-
-#include <boost/gil/gil_all.hpp>
 
 namespace tuttle {
 namespace plugin {
 namespace cameraReader {
 
-
 CameraReaderPlugin::CameraReaderPlugin( OfxImageEffectHandle handle )
-: ReaderPlugin( handle )
+	: OFX::ImageEffect( handle )
 {
+	_clipDst       = fetchClip( kOfxImageEffectOutputClipName );
+	_paramCamera   = fetchChoiceParam( kParamCameraChoice );
+
+	_paramResolution = fetchChoiceParam( kParamResolutionChoice );
+
+	_paramFocusMode = fetchChoiceParam( kParamFocusMode );
+	_paramAperture = fetchChoiceParam( kParamApertureChoice );
+	_paramShutterSpeed = fetchChoiceParam( kParamShutterSpeedChoice );
+	_paramISOSensitivity = fetchChoiceParam( kParamISOChoice );
+	_paramExposureCompensation = fetchDoubleParam( kParamExposureCompensation );
+	_paramAutoExposure = fetchBooleanParam( kParamAutoExposure );
+	_paramAutoISO = fetchBooleanParam( kParamAutoSensibility );
+	_paramAutoShutterSpeed = fetchBooleanParam( kParamAutoShutterSpeed );
+	_paramAutoAperture = fetchBooleanParam( kParamAutoAperture );
+	_paramOpticalZoomFactor = fetchDoubleParam( kParamOpticalZoomFactor );
+	_paramWhiteBalance = fetchDoubleParam( kParamWhiteBalance );
+        _paramWhiteBalance->setHint( "White balance in Kelvin. Set to 0 for automatic white balance" );
+
+	_paramBitDepth = fetchChoiceParam( kTuttlePluginBitDepth );
+	_paramChannel  = fetchChoiceParam( kTuttlePluginChannel );
 }
 
-CameraReaderProcessParams CameraReaderPlugin::getProcessParams( const OfxTime time ) const
-{
-    CameraReaderProcessParams params;
-    return params;
-}
+CameraReaderPlugin::~CameraReaderPlugin()
+{}
 
-void CameraReaderPlugin::changedParam( const OFX::InstanceChangedArgs &args, const std::string &paramName )
+void CameraReaderPlugin::changedParam( const OFX::InstanceChangedArgs& args, const std::string& paramName )
 {
-    ReaderPlugin::changedParam( args, paramName );
-}
-
-void CameraReaderPlugin::ensureInputOpened()
-{
-    if ( !_cameraInput )
-    {
-        _cameraInput.reset( new tuttle::io::CameraInput() );
-    }
-}
-
-bool CameraReaderPlugin::getRegionOfDefinition( const OFX::RegionOfDefinitionArguments& args, OfxRectD& rod )
-{
-    ensureInputOpened();
-
-    rod.x1 = 0;
-    rod.x2 = _cameraInput->width() * this->_clipDst->getPixelAspectRatio();
-    rod.y1 = 0;
-    rod.y2 = _cameraInput->height();
-    return true;
 }
 
 void CameraReaderPlugin::getClipPreferences( OFX::ClipPreferencesSetter& clipPreferences )
 {
-    ReaderPlugin::getClipPreferences( clipPreferences );
+    clipPreferences.setOutputFrameVarying( true );
 
-    ensureInputOpened();
-
-    clipPreferences.setClipBitDepth( *_clipDst, OFX::eBitDepthUByte );
-    clipPreferences.setClipComponents( *_clipDst, OFX::ePixelComponentRGB );
-/*
-    if( getExplicitConversion() == eParamReaderExplicitConversionAuto )
+    switch( getExplicitBitDepthConversion() )
     {
-        OFX::EBitDepth bd = OFX::eBitDepthNone;
-        switch( cameraInput.componentsType() )
+        case eParamReaderBitDepthByte:
         {
-            case CameraInput::eCompTypeR8G8B8:
-            case CameraInput::eCompTypeR8G8B8A8:
-            case CameraInput::eCompTypeA8B8G8R8:
-            {
-                bd = OFX::eBitDepthUByte;
-                break;
-            }
-            case CameraInput::eCompTypeR10G10B10:
-            case CameraInput::eCompTypeR10G10B10A10:
-            case CameraInput::eCompTypeA10B10G10R10:
-            case CameraInput::eCompTypeR12G12B12:
-            case CameraInput::eCompTypeR12G12B12A12:
-            case CameraInput::eCompTypeA12B12G12R12:
-            case CameraInput::eCompTypeR16G16B16:
-            case CameraInput::eCompTypeR16G16B16A16:
-            case CameraInput::eCompTypeA16B16G16R16:
-            {
-                bd = OFX::eBitDepthUShort;
-                break;
-            }
-            default:
-                bd = OFX::eBitDepthFloat;
+            clipPreferences.setClipBitDepth( *this->_clipDst, OFX::eBitDepthUByte );
+            break;
         }
-
-        clipPreferences.setClipBitDepth( *_clipDst, bd );
+        case eParamReaderBitDepthShort:
+        {
+            clipPreferences.setClipBitDepth( *this->_clipDst, OFX::eBitDepthUShort );
+            break;
+        }
+        case eParamReaderBitDepthAuto:
+        case eParamReaderBitDepthFloat:
+        {
+            clipPreferences.setClipBitDepth( *this->_clipDst, OFX::eBitDepthFloat );
+            break;
+        }
     }
-    switch( cameraInput.components() )
+    switch( getExplicitChannelConversion() )
     {
-        case 3:
+        case eParamReaderChannelGray:
         {
-            clipPreferences.setClipComponents( *this->_clipDst, OFX::ePixelComponentRGB );
+            clipPreferences.setClipComponents( *this->_clipDst, OFX::ePixelComponentAlpha );
             break;
         }
-
-        case 4:
+        case eParamReaderChannelRGB:
         {
-            clipPreferences.setClipComponents( *this->_clipDst, OFX::ePixelComponentRGBA );
+            if( OFX::getImageEffectHostDescription()->supportsPixelComponent( OFX::ePixelComponentRGB ) )
+                clipPreferences.setClipComponents( *this->_clipDst, OFX::ePixelComponentRGB );
+            else
+                clipPreferences.setClipComponents( *this->_clipDst, OFX::ePixelComponentRGBA );
             break;
         }
-        default:
+        case eParamReaderChannelAuto:
+        case eParamReaderChannelRGBA:
         {
             clipPreferences.setClipComponents( *this->_clipDst, OFX::ePixelComponentRGBA );
             break;
         }
     }
-*/
+
     clipPreferences.setPixelAspectRatio( *this->_clipDst, 1.0 );
 }
 
 bool CameraReaderPlugin::getTimeDomain( OfxRangeD& range )
 {
-    ensureInputOpened();
-
-    range.min = std::numeric_limits<double>::min();
-    range.max = std::numeric_limits<double>::max();
-
+    range.min = getFirstTime();
+    range.max = getLastTime();
+    TUTTLE_TLOG( TUTTLE_INFO, "[CameraReaderPlugin plugin] Time Domain : " << range.min << " to " << range.max );
     return true;
 }
 
-void CameraReaderPlugin::beginSequenceRender( const OFX::BeginSequenceRenderArguments& args )
-{
-    ReaderPlugin::beginSequenceRender( args );
-
-    ensureInputOpened();
-}
-
-/**
- * @brief The overridden render function
- * @param[in]   args     Rendering parameters
- */
 void CameraReaderPlugin::render( const OFX::RenderArguments& args )
 {
-    ReaderPlugin::render( args );
-
-    // instantiate the render code based on the pixel depth of the dst clip
-    OFX::EBitDepth bitDepth         = _clipDst->getPixelDepth();
-    OFX::EPixelComponent components = _clipDst->getPixelComponents();
-
-    switch( components )
-    {
-        case OFX::ePixelComponentRGBA:
-        {
-            doGilRender<CameraReaderProcess, false, terry::rgba_layout_t>( *this, args, bitDepth );
-            return;
-        }
-        case OFX::ePixelComponentRGB:
-        {
-            doGilRender<CameraReaderProcess, false, terry::rgb_layout_t>( *this, args, bitDepth );
-            return;
-        }
-        case OFX::ePixelComponentAlpha:
-        case OFX::ePixelComponentCustom:
-        case OFX::ePixelComponentNone:
-        {
-            BOOST_THROW_EXCEPTION( exception::Unsupported()
-                    << exception::user() + "Pixel components (" + mapPixelComponentEnumToString(components) + ") not supported by the plugin." );
-        }
-    }
-    BOOST_THROW_EXCEPTION( exception::Unknown() );
 }
-
 
 }
 }

@@ -1,6 +1,7 @@
 #include "CameraReaderPluginFactory.hpp"
-#include "CameraReaderPlugin.hpp"
+#include "QtCameraReaderPlugin.hpp"
 #include "CameraReaderDefinitions.hpp"
+#include "QtCameraReaderDefinitions.hpp"
 #include "ofxsImageEffect.h"
 
 #include <tuttle/plugin/context/ReaderPluginFactory.hpp>
@@ -23,10 +24,8 @@ void CameraReaderPluginFactory::describe( OFX::ImageEffectDescriptor& desc )
 	desc.setLabels(
 		"CameraReader",
 		"CameraReader",
-		"CAMERA Magic lantern Raw file reader" );
-	desc.setPluginGrouping( "tuttle/image/io" );
-
-	desc.setDescription( "Plugin under early development." );
+		"Qt Webcam reader" );
+	desc.setPluginGrouping( "djarlabs" );
 
 	// add the supported contexts, only filter at the moment
 	desc.addSupportedContext( OFX::eContextReader );
@@ -61,7 +60,142 @@ void CameraReaderPluginFactory::describeInContext( OFX::ImageEffectDescriptor& d
     dstClip->addSupportedComponent( OFX::ePixelComponentAlpha );
     dstClip->setSupportsTiles( kSupportTiles );
 
-    describeReaderParamsInContext( desc, context );
+    OFX::ChoiceParamDescriptor* component = desc.defineChoiceParam( kTuttlePluginChannel );
+    component->appendOption( kTuttlePluginChannelAuto );
+    component->appendOption( kTuttlePluginChannelGray );
+    component->appendOption( kTuttlePluginChannelRGB );
+    component->appendOption( kTuttlePluginChannelRGBA );
+
+    component->setLabel( kTuttlePluginChannelLabel );
+    component->setDefault( eParamReaderChannelAuto );
+    desc.addClipPreferencesSlaveParam( *component );
+
+    OFX::ChoiceParamDescriptor* explicitConversion = desc.defineChoiceParam( kTuttlePluginBitDepth );
+    explicitConversion->setLabel( kTuttlePluginBitDepthLabel );
+    explicitConversion->appendOption( kTuttlePluginBitDepthAuto );
+    explicitConversion->appendOption( kTuttlePluginBitDepth8 );
+    explicitConversion->appendOption( kTuttlePluginBitDepth16 );
+    explicitConversion->appendOption( kTuttlePluginBitDepth32f );
+    explicitConversion->setCacheInvalidation( OFX::eCacheInvalidateValueAll );
+    explicitConversion->setAnimates( false );
+    desc.addClipPreferencesSlaveParam( *explicitConversion );
+
+    if( OFX::getImageEffectHostDescription()->supportsMultipleClipDepths )
+    {
+        explicitConversion->setDefault( 0 );
+    }
+    else
+    {
+        explicitConversion->setIsSecret( true );
+        explicitConversion->setDefault( static_cast<int>( OFX::getImageEffectHostDescription()->getDefaultPixelDepth() ) );
+    }
+
+    OFX::ChoiceParamDescriptor* paramCamera = desc.defineChoiceParam( kParamCameraChoice );
+    paramCamera->setLabel( kParamCameraChoice );
+    paramCamera->setHint( "Available cameras. If nothing in the list, please check your camera connection" );
+    const QList<QCameraInfo> availableCameras = QCameraInfo::availableCameras();
+    Q_FOREACH( const QCameraInfo & info, availableCameras )
+    {
+        paramCamera->appendOption( ( info.description() + " (" + info.deviceName() + ")" ).toStdString() );
+    }
+
+    OFX::ChoiceParamDescriptor* paramResolution = desc.defineChoiceParam( kParamResolutionChoice );
+    paramResolution->setLabel( kParamResolutionChoice );
+    paramResolution->setHint( "Available resolutions. If nothing in the list, please check your camera connection" );
+    Q_FOREACH( const QCameraInfo & info, availableCameras )
+    {
+        QCamera camera( info );
+        QCameraImageCapture imageCapture( &camera );
+        const QList<QSize> res = imageCapture.supportedResolutions();
+        Q_FOREACH( const QSize & sz, res )
+        {
+            paramResolution->appendOption( ( info.deviceName() + ": " + sz.width() + " * " + sz.height() ).toStdString() );
+        }
+    }
+
+    OFX::ChoiceParamDescriptor* paramFocusMode = desc.defineChoiceParam( kParamFocusMode );
+    paramFocusMode->setLabel( kParamFocusMode );
+    paramFocusMode->appendOption( "Auto" );
+    paramFocusMode->appendOption( "Manual" );
+    paramFocusMode->appendOption( "Infinity focus" );
+    paramFocusMode->appendOption( "Macro" );
+    paramFocusMode->setDefault( eParamFocusModeAuto );
+
+    OFX::ChoiceParamDescriptor* paramAperture = desc.defineChoiceParam( kParamApertureChoice );
+    paramAperture->setLabel( kParamApertureChoice );
+    paramAperture->setHint( "Available aperture" );
+    Q_FOREACH( const QCameraInfo & info, availableCameras )
+    {
+        QCamera camera( info );
+        QCameraExposure *exposure = camera.exposure();
+        const QList<qreal> apertures = exposure->supportedApertures();
+        Q_FOREACH( const qreal x, apertures )
+        {
+            paramAperture->appendOption( ( info.deviceName() + ": " + QString("f") + x ).toStdString() );
+        }
+    }
+
+    OFX::ChoiceParamDescriptor* paramShutterSpeed = desc.defineChoiceParam( kParamShutterSpeedChoice );
+    paramShutterSpeed->setLabel( kParamShutterSpeedChoice );
+    paramShutterSpeed->setHint( "Available shutter speeds" );
+    Q_FOREACH( const QCameraInfo & info, availableCameras )
+    {
+        QCamera camera( info );
+        QCameraExposure *exposure = camera.exposure();
+        const QList<qreal> shutterSpeeds = exposure->supportedShutterSpeeds();
+        Q_FOREACH( const qreal x, shutterSpeeds )
+        {
+            paramShutterSpeed->appendOption( ( info.deviceName() + ": " + x ).toStdString() );
+        }
+    }
+
+    OFX::ChoiceParamDescriptor* paramISOSensitivities = desc.defineChoiceParam( kParamISOChoice );
+    paramISOSensitivities->setLabel( kParamISOChoice );
+    paramISOSensitivities->setHint( "Available ISOs (sensibility)" );
+    Q_FOREACH( const QCameraInfo & info, availableCameras )
+    {
+        QCamera camera( info );
+        QCameraExposure *exposure = camera.exposure();
+        const QList<int> isos = exposure->supportedIsoSensitivities();
+        Q_FOREACH( const int x, isos )
+        {
+            paramISOSensitivities->appendOption( ( info.deviceName() + " : " + x ).toStdString() );
+        }
+    }
+
+    OFX::DoubleParamDescriptor *paramExposureCompensation = desc.defineDoubleParam( kParamExposureCompensation );
+    paramExposureCompensation->setLabels( kParamExposureCompensation, kParamExposureCompensation, kParamExposureCompensation );
+    paramExposureCompensation->setDefault( 0 );
+    paramExposureCompensation->setRange( -20, 20 );
+    paramExposureCompensation->setDisplayRange( -20, 20 );
+
+    OFX::BooleanParamDescriptor *paramAutoExposure = desc.defineBooleanParam( kParamAutoExposure );
+    paramAutoExposure->setLabels( kParamAutoExposure, kParamAutoExposure, kParamAutoExposure );
+    paramAutoExposure->setDefault( true );
+
+    OFX::BooleanParamDescriptor *paramAutoISO = desc.defineBooleanParam( kParamAutoSensibility );
+    paramAutoISO->setLabels( kParamAutoSensibility, kParamAutoSensibility, kParamAutoSensibility );
+    paramAutoISO->setDefault( true );
+
+    OFX::BooleanParamDescriptor *paramAutoShutterSpeed = desc.defineBooleanParam( kParamAutoShutterSpeed );
+    paramAutoShutterSpeed->setLabels( kParamAutoShutterSpeed, kParamAutoShutterSpeed, kParamAutoShutterSpeed );
+    paramAutoShutterSpeed->setDefault( true );
+
+    OFX::BooleanParamDescriptor *paramAutoAperture = desc.defineBooleanParam( kParamAutoAperture );
+    paramAutoAperture->setLabels( kParamAutoAperture, kParamAutoAperture, kParamAutoAperture );
+    paramAutoAperture->setDefault( true );
+
+    OFX::DoubleParamDescriptor *paramOpticalZoomFactor = desc.defineDoubleParam( kParamOpticalZoomFactor );
+    paramOpticalZoomFactor->setLabels( kParamOpticalZoomFactor, kParamOpticalZoomFactor, kParamOpticalZoomFactor );
+    paramOpticalZoomFactor->setDefault( 0 );
+    paramOpticalZoomFactor->setRange( 0, 100 );
+    paramOpticalZoomFactor->setDisplayRange( 0, 100 );
+
+    OFX::DoubleParamDescriptor *paramWhiteBalance = desc.defineDoubleParam( kParamWhiteBalance );
+    paramWhiteBalance->setLabels( kParamWhiteBalance, kParamWhiteBalance, kParamWhiteBalance );
+    paramWhiteBalance->setDefault( 0 );    // Automatic
+    paramWhiteBalance->setRange( 0, 12000 );
+    paramWhiteBalance->setDisplayRange( 0, 12000 );
 }
 
 /**
@@ -73,7 +207,7 @@ void CameraReaderPluginFactory::describeInContext( OFX::ImageEffectDescriptor& d
 OFX::ImageEffect* CameraReaderPluginFactory::createInstance( OfxImageEffectHandle handle,
                                                           OFX::EContext context )
 {
-    return new CameraReaderPlugin( handle );
+    return new QtCameraReaderPlugin( handle );
 }
 
 }

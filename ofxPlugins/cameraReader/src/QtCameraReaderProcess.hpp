@@ -1,8 +1,6 @@
 #ifndef _TUTTLE_PLUGIN_CAMERAREADER_PROCESS_HPP_
 #define _TUTTLE_PLUGIN_CAMERAREADER_PROCESS_HPP_
 
-#include "CameraInput.hpp"
-
 #include <tuttle/plugin/ImageGilProcessor.hpp>
 
 namespace tuttle {
@@ -10,22 +8,22 @@ namespace plugin {
 namespace cameraReader {
 
 /**
- * @brief CameraReader process
+ * @brief QtCameraReader process
  *
  */
 template<class View>
-class CameraReaderProcess : public ImageGilProcessor<View>
+class QtCameraReaderProcess : public ImageGilProcessor<View>
 {
 public:
     typedef typename View::value_type Pixel;
     typedef typename boost::gil::channel_type<View>::type Channel;
     typedef float Scalar;
 protected:
-    CameraReaderPlugin&    _plugin;            ///< Rendering plugin
-    CameraReaderProcessParams _params;         ///< parameters
+    QtCameraReaderPlugin&    _plugin;            ///< Rendering plugin
+    QtCameraReaderProcessParams _params;         ///< parameters
 
 public:
-    CameraReaderProcess( CameraReaderPlugin& effect );
+    QtCameraReaderProcess( QtCameraReaderPlugin& effect );
 
     void setup( const OFX::RenderArguments& args );
 
@@ -34,14 +32,12 @@ public:
 private:
     // Read camera frame
     View& readFrame( View& dst );
-
-    tuttle::io::CameraInput _cameraInput;  ///< Camera source
 };
 
 }
 }
 }
 
-#include "CameraReaderProcess.tcc"
+#include "QtCameraReaderProcess.tcc"
 
 #endif
