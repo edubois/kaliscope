@@ -11,16 +11,16 @@
 #include <QtMultimedia/QCameraImageCapture>
 #include <QtMultimedia/QCameraInfo>
 
+#include <boost/shared_ptr.hpp>
+
 namespace tuttle {
 namespace plugin {
 namespace cameraReader {
 
 struct QtCameraReaderProcessParams
 {
-    QtCameraReaderProcessParams(): camera( NULL ), capture( NULL ) {}
-
-    QCamera *camera;
-    QCameraImageCapture *capture;
+    boost::shared_ptr<QCamera> camera;
+    boost::shared_ptr<QCameraImageCapture> capture;
 };
 
 /**
@@ -43,9 +43,9 @@ private:
     void fillParameters();
 
 private:
-    QCamera *_camera;                   ///< Camera control
-    QCameraInfo *_camInfo;               ///< Camera info
-    QCameraImageCapture *_imageCapture;  ///< Image capture
+    boost::shared_ptr<QCamera> _camera;                   ///< Camera control
+    boost::shared_ptr<QCameraInfo> _camInfo;               ///< Camera info
+    boost::shared_ptr<QCameraImageCapture> _imageCapture;  ///< Image capture
     QCameraExposure * _exposureControl; ///< Exposure control
     QCameraFocus * _focusControl;       ///< Focus control
     QCameraImageProcessing * _imageControl;       ///< Image control

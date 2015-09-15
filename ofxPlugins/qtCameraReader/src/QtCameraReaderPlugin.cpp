@@ -16,10 +16,10 @@ QtCameraReaderPlugin::~QtCameraReaderPlugin()
 
 void QtCameraReaderPlugin::createNewCamera( const QCameraInfo & cameraInfo )
 {
-    _camera = new QCamera( cameraInfo );
+    _camera.reset( new QCamera( cameraInfo ) );
     _camera->setCaptureMode( QCamera::CaptureStillImage );
-    _camInfo = new QCameraInfo( _camera );
-    _imageCapture = new QCameraImageCapture( _camera );
+    _camInfo.reset( new QCameraInfo( _camera.get() ) );
+    _imageCapture.reset( new QCameraImageCapture( _camera.get() ) );
     _imageCapture->setCaptureDestination( QCameraImageCapture::CaptureToBuffer );
     _imageCapture->setBufferFormat( QVideoFrame::Format_RGB24 );
     _exposureControl = _camera->exposure();

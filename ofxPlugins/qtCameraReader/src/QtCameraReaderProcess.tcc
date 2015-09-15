@@ -45,7 +45,7 @@ View& QtCameraReaderProcess<View>::readFrame( View& dst )
     if ( _params.capture )
     {
         QEventLoop waitLoop;
-        waitLoop.connect( _params.capture, &QCameraImageCapture::imageAvailable,
+        waitLoop.connect( _params.capture.get(), &QCameraImageCapture::imageAvailable,
                       [&dst,&waitLoop]( const int id, const QVideoFrame & buffer )
                       {
                           rgb32c_view_t src = interleaved_view( buffer.width(), buffer.height(), reinterpret_cast<const rgb32_pixel_t*>( buffer.bits() ), buffer.bytesPerLine() );
@@ -54,7 +54,7 @@ View& QtCameraReaderProcess<View>::readFrame( View& dst )
                       }
                 );
 
-        waitLoop.connect( _params.capture, SIGNAL( error( int, QCameraImageCapture::Error, const QString & ) ), &waitLoop, SLOT( quit() ) );
+        waitLoop.connect( _params.capture.get(), SIGNAL( error( int, QCameraImageCapture::Error, const QString & ) ), &waitLoop, SLOT( quit() ) );
 
         _params.capture->capture();
         waitLoop.exec();
