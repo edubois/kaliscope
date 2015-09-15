@@ -4,7 +4,7 @@ SET( MY_APP_NAME "Kaliscope" )
 include(UseMvpPlayerBoost)
 include(FindFMod)
 include(FindTuttleHost)
-FIND_PACKAGE(Qt5 COMPONENTS Core Gui Widgets OpenGL )
+FIND_PACKAGE(Qt5 COMPONENTS Core Gui Widgets OpenGL Multimedia )
 set(CMAKE_AUTOMOC ON)
 
 FILE( GLOB_RECURSE KALISCOPE_SRCS "*.cpp" "*.hpp" "*.tcc" )
@@ -77,10 +77,8 @@ IF(APPLE)
     GET_FILENAME_COMPONENT( QT_PLUGINS_DIR "${QT_PLUGINS_DIR}" DIRECTORY )
     SET( QT_PLUGINS_DIR "${QT_PLUGINS_DIR}/plugins" )
 
-    INSTALL( DIRECTORY "${QT_PLUGINS_DIR}/imageformats"
-        "${QT_PLUGINS_DIR}/codecs"
+    INSTALL( DIRECTORY
         "${QT_PLUGINS_DIR}/platforms"
-        "${QT_PLUGINS_DIR}/accessible"
         "${QT_PLUGINS_DIR}/graphicssystems"
         DESTINATION ${qt_plugin_dest_dir}
         COMPONENT Runtime
