@@ -17,6 +17,7 @@
 namespace kaliscope
 {
     static const std::string kDefaultSettingsFilename( ".kaliscopeSettings.json" );
+    static const std::string kKaliscopePluginEnvKey( "MVPPLAYER_PLUGIN_PATH" );
 
     struct PluginItem
     {
