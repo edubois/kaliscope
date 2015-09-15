@@ -68,7 +68,7 @@ int main( int argc, char **argv )
     mvpplayer::Settings::getInstance().read( QDir::homePath().toStdString() + "/" + kaliscope::kDefaultSettingsFilename );
     using namespace mvpplayer;
     {
-        boost::optional<std::string> envStr = boost::get_env( plugins::kMVPPlayerPluginEnvKey );
+        boost::optional<std::string> envStr = boost::get_env( kaliscope::kKaliscopePluginEnvKey );
         if ( Settings::getInstance().has( "plugins", "pluginsPath" ) == false )
         {
             if ( envStr != boost::none )
@@ -178,7 +178,7 @@ int main( int argc, char **argv )
         res = app.exec();
 
         // Write settings in case they changed
-        mvpplayer::Settings::getInstance().write( QDir::homePath().toStdString() + "/" + mvpplayer::kDefaultSettingsFilename );
+        mvpplayer::Settings::getInstance().write( QDir::homePath().toStdString() + "/" + kaliscope::kDefaultSettingsFilename );
     }
     catch( ... )
     {
