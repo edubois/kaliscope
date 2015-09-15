@@ -1,3 +1,3 @@
 add_subdirectory( colorNegInvert )
-add_subdirectory( cameraReader )
+add_subdirectory( qtCameraReader )
 add_subdirectory( dcrawReader )

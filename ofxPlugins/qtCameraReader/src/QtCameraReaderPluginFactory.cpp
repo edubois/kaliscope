@@ -1,4 +1,4 @@
-#include "CameraReaderPluginFactory.hpp"
+#include "QtCameraReaderPluginFactory.hpp"
 #include "QtCameraReaderPlugin.hpp"
 #include "CameraReaderDefinitions.hpp"
 #include "QtCameraReaderDefinitions.hpp"
@@ -19,11 +19,11 @@ static const bool kSupportTiles = false;
  * @brief Function called to describe the plugin main features.
  * @param[in, out] desc Effect descriptor
  */
-void CameraReaderPluginFactory::describe( OFX::ImageEffectDescriptor& desc )
+void QtCameraReaderPluginFactory::describe( OFX::ImageEffectDescriptor& desc )
 {
 	desc.setLabels(
-		"CameraReader",
-		"CameraReader",
+		"QtCameraReader",
+		"QtCameraReader",
 		"Qt Webcam reader" );
 	desc.setPluginGrouping( "djarlabs" );
 
@@ -50,7 +50,7 @@ void CameraReaderPluginFactory::describe( OFX::ImageEffectDescriptor& desc )
  * @param[in, out]   desc       Effect descriptor
  * @param[in]        context    Application context
  */
-void CameraReaderPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
+void QtCameraReaderPluginFactory::describeInContext( OFX::ImageEffectDescriptor& desc,
                                                   OFX::EContext context )
 {
     // Create the mandated output clip
@@ -204,7 +204,7 @@ void CameraReaderPluginFactory::describeInContext( OFX::ImageEffectDescriptor& d
  * @param[in] context Application context
  * @return  plugin instance
  */
-OFX::ImageEffect* CameraReaderPluginFactory::createInstance( OfxImageEffectHandle handle,
+OFX::ImageEffect* QtCameraReaderPluginFactory::createInstance( OfxImageEffectHandle handle,
                                                           OFX::EContext context )
 {
     return new QtCameraReaderPlugin( handle );
