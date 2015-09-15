@@ -53,9 +53,9 @@ bool QtCameraReaderPlugin::getRegionOfDefinition( const OFX::RegionOfDefinitionA
         imgSize = _imageCapture->supportedResolutions().at( _paramResolution->getValue() );
     }
     rod.x1 = 0;
-    rod.x2 = 1920 * this->_clipDst->getPixelAspectRatio();
+    rod.x2 = imgSize.width() * this->_clipDst->getPixelAspectRatio();
     rod.y1 = 0;
-    rod.y2 = 1080;
+    rod.y2 = imgSize.height();
     return true;
 }
 
