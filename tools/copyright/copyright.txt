@@ -3,8 +3,3 @@
  * https://github.com/edubois/kaliscope/blob/master/LICENSE
  */
 
-int main( int argc, char ** argv )
-{
-    return 0;
-}
- 
